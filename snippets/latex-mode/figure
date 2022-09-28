@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: figure
+# key: load-figure
+# --
+
+\begin{figure}[H]
+  \centering
+  % 36em 即可基本张满整个宽度
+  \includegraphics[width=36em]{fig.png}
+  \caption{样例图片}
+\end{figure}
+

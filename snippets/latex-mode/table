@@ -1,0 +1,30 @@
+# -*- mode: snippet -*-
+# name: table
+# key: load-table
+# --
+
+\vspace{-1ex} % For tighter env.
+\begin{table}[H]
+  \begin{center}
+    % 样例表格
+    % 总宽度不要超过 36 em
+    % em 数 = 一行显示字数；为了美观可以比最大字数多 1～4 em
+
+    % 标题可选，按照（某些地方）的习惯，表格标题在上，图片标题在下
+    \vspace{-2ex}
+    \caption{样例表格}
+    \vspace{1ex}
+    
+    \begin{tabular}{
+      >{\ct} p{11em} | >{\ct} p{7em} |
+      >{\ct} p{7em} | >{\ct} p{7em}
+      }
+      \bhline
+      题目名称 & 树 & 串 & 图 \\\\ \mhline
+      时间限制 & 1.0 秒 & 4.0 秒 & 3.0 秒 \\\\ \hline
+      编译选项 & \multicolumn{3}{c}{\texttt{-O2 -std=c++11}} \\\\ \bhline
+    \end{tabular}    
+  \end{center}
+\end{table}
+\vspace{-4ex}
+

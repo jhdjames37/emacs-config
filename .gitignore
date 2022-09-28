@@ -1,0 +1,22 @@
+## Directories appearing
+# may contain cache data or binaries
+
+.cache/
+.python-environments/
+auto-save-list/
+elpa/
+eshell/
+games/
+idlwave/
+irony/
+semanticdb/
+transient/
+url/
+
+# Files of cache
+
+ac-comphist.dat
+projectile-bookmarks.eld
+session.*
+.lsp-session*
+/tramp
