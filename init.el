@@ -21,11 +21,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    '(yaml-mode bison-mode dockerfile-mode cuda-mode editorconfig format-all web-mode magit ein use-package flycheck lsp-jedi treemacs-projectile ccls lsp-treemacs lsp-ui projectile treemacs which-key lsp-mode typescript-mode company-jedi company-auctex company-c-headers company-math yasnippet company-irony irony company auctex))
- '(verilog-indent-level 2)
- '(verilog-indent-level-behavioral 2)
- '(verilog-indent-level-declaration 2)
- '(verilog-indent-level-module 2)
- '(verilog-indent-lists nil))
+ '(warning-suppress-log-types '((jedi))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
