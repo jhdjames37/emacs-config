@@ -20,8 +20,9 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(yaml-mode bison-mode dockerfile-mode cuda-mode editorconfig format-all web-mode magit ein use-package flycheck lsp-jedi treemacs-projectile ccls lsp-treemacs lsp-ui projectile treemacs which-key lsp-mode typescript-mode company-jedi company-auctex company-c-headers company-math yasnippet company-irony irony company auctex))
- '(warning-suppress-log-types '((jedi))))
+   '(cargo rust-mode cmake-mode dotenv-mode all-the-icons-dired xref dired-git yaml-mode bison-mode dockerfile-mode cuda-mode editorconfig format-all web-mode magit ein use-package flycheck lsp-jedi treemacs-projectile ccls lsp-treemacs lsp-ui projectile treemacs which-key lsp-mode typescript-mode company-jedi company-auctex company-c-headers company-math yasnippet company-irony irony company auctex))
+ '(warning-suppress-log-types '((jedi)))
+ '(warning-suppress-types '((lsp-mode))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
