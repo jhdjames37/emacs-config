@@ -87,7 +87,21 @@
   (editorconfig-apply)
   )
 
+;; hs-minor-mode
+(defun enable-hs ()
+  "Enable hs-minor mode and key binding"
+  (hs-minor-mode)
+  (global-set-key [f9] 'hs-toggle-hiding)
+  )
+
 (projectile-mode)
 (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
 
+(add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+(global-hl-todo-mode)
+
+
+(with-eval-after-load "tramp"
+  (add-to-list 'tramp-remote-path 'tramp-own-remote-path))
+             
 
