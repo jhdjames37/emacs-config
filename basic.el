@@ -97,11 +97,22 @@
 (projectile-mode)
 (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
 
+;; Prettify display
 (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
 (global-hl-todo-mode)
 
+;; ACE-window
+(global-set-key (kbd "C-x o") 'ace-window)
+(setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
 
+;; tramp
 (with-eval-after-load "tramp"
   (add-to-list 'tramp-remote-path 'tramp-own-remote-path))
              
+;; helm
+(global-set-key (kbd "M-x") 'helm-M-x)
+(helm-mode 1)
+
+;; multiple cursors
+(global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
 
