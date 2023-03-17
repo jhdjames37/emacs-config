@@ -63,6 +63,7 @@
 (global-set-key [f7] '(lambda () (interactive) (compile "make clean")))
 (global-set-key [f11] 'shell)
 (global-set-key [f12] 'treemacs)
+(global-set-key (kbd "M-o") 'treemacs-select-window)
 
 ;; turn off sound
 
@@ -105,12 +106,16 @@
 (global-set-key (kbd "C-x o") 'ace-window)
 (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
 
+;; iedit-mode
+(use-package iedit)
+
 ;; tramp
 (with-eval-after-load "tramp"
   (add-to-list 'tramp-remote-path 'tramp-own-remote-path))
              
 ;; helm
 (global-set-key (kbd "M-x") 'helm-M-x)
+(global-set-key (kbd "C-x C-f") 'helm-find-files)
 (helm-mode 1)
 
 ;; multiple cursors
