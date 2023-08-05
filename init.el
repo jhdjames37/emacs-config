@@ -1,8 +1,6 @@
 
-;; Added by Package.el.  This must come before configurations of
-;; installed packages.  Don't delete this line.  If you don't want it,
-;; just comment it out by adding a semicolon to the start of the line.
-;; You may delete these explanatory comments.
+;;; Code:
+(setq gc-cons-threshold (* 100 1024 1024))
 
 ;; ELPA using TUNA source
 (require 'package)
@@ -14,35 +12,47 @@
       ))
 (package-initialize)
 
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(caddyfile-mode company-box lsp-latex treemacs-magit multiple-cursors helm-lsp helm ace-window iedit hl-todo rainbow-delimiters cargo rust-mode cmake-mode dotenv-mode all-the-icons-dired xref dired-git yaml-mode bison-mode dockerfile-mode cuda-mode editorconfig format-all web-mode magit ein use-package flycheck lsp-jedi treemacs-projectile ccls lsp-treemacs lsp-ui projectile treemacs which-key lsp-mode typescript-mode company-jedi company-auctex company-c-headers company-math yasnippet company-irony irony company auctex))
- '(safe-local-variable-values
-   '((lsp-rust-analyzer-cargo-features quote
-                                       ("alloc" "paging"))
-     (lsp-rust-analyzer-cargo-target . "riscv64gc-unknown-none-elf")))
- '(warning-suppress-log-types '((jedi)))
- '(warning-suppress-types '((lsp-mode))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
 
-;; basic
+(use-package delight :ensure t)
+(use-package use-package-ensure-system-package :ensure t)
+
+(use-package cus-edit
+  :ensure nil
+  :custom (custom-file (expand-file-name "custom.el" user-emacs-directory))
+  :config
+  (when (file-exists-p custom-file)
+    (load custom-file t))
+)
+
+;; Basic settings
 (load "~/.emacs.d/basic.el")
 
-;; markdown mode
-(load "~/.emacs.d/markdown.el")
+;; Environment setup
+(load "~/.emacs.d/setup.el")
+
+;; lsp-mode
+(load "~/.emacs.d/lsp.el")
+
+;; Company-mode
+(load "~/.emacs.d/company.el")
+
+;; Below are specific modes
+
 
 ;; c++ mode
 (load "~/.emacs.d/cpp.el")
 
+;; Python
+(load "~/.emacs.d/python.el")
+
+;; js-mode
+(load "~/.emacs.d/js.el")
+
+;; rust-mode
+(load "~/.emacs.d/rust.el")
 
 ;; LaTeX mode
 (load "~/.emacs.d/latex.el")
@@ -50,31 +60,9 @@
 ;; org-mode
 (load "~/.emacs.d/org.el")
 
-;; Python
-(load "~/.emacs.d/python.el")
-
-;; Company-mode
-(load "~/.emacs.d/company.el")
-
-;; js-mode
-(load "~/.emacs.d/js.el")
-
-;; lsp-mode
-(load "~/.emacs.d/lsp.el")
-
-;; rust-mode
-(load "~/.emacs.d/rust.el")
-
-;; package config
-;; (load "~/.emacs.d/package.el")
-
-
-;;(add-hook 'tetris-mode-hook '(lambda () (linum-mode 0)))
-;;(eval-after-load 'tetris '(load "~/.emacs.d/tetris/main.el"))
+;; markdown mode
+(load "~/.emacs.d/markdown.el")
 
 ;; yaml-mode
 
 (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
-
-
-

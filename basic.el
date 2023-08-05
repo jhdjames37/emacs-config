@@ -1,25 +1,19 @@
-;; basic.el
-;; Basic Config of Emacs
+;; Basic configs
 
-;;(add-to-list 'load-path "~/.emacs.d/")
-;; global setting
+(setq-default
+ backup-inhibited t          
+ inhibit-startup-screen t    
+ indent-tabs-mode nil
+ )
 
-(setq backup-inhibited t
-      inhibit-startup-screen t)
+;; common modes
 (column-number-mode t)
 (show-paren-mode t)
-;;(setq show-paren-style 'parentheses)
-
 (fset 'yes-or-no-p 'y-or-n-p)
 (global-font-lock-mode t)
 (global-linum-mode t)
-
 (load-theme 'tango-dark t)
-
-(setq-default indent-tabs-mode nil)
-
 (tool-bar-mode -1)
-
 (which-key-mode)
 
 ;; fonts
@@ -68,57 +62,9 @@
 ;; turn off sound
 
 ;; Auto complete via company
-;;(global-company-mode t)
-
 
 ;;(setq visible-bell 1)
 
 ;; transparent style
 (set-frame-parameter (selected-frame) 'alpha (list 85 50))
 (add-to-list 'default-frame-alist (cons 'alpha (list 85 50)))
-
-;; All programming modes
-(defun enable-programming-modes ()
-  "Add all dependencies for programming"
-  (lsp)
-  (company-mode)
-  (flycheck-mode)
-  (yas-minor-mode)
-  (add-to-list 'company-backends '(company-capf :with company-yasnippet))
-  (editorconfig-mode)   
-  (editorconfig-apply)
-  )
-
-;; hs-minor-mode
-(defun enable-hs ()
-  "Enable hs-minor mode and key binding"
-  (hs-minor-mode)
-  (global-set-key [f9] 'hs-toggle-hiding)
-  )
-
-(projectile-mode)
-(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-
-;; Prettify display
-(add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
-(global-hl-todo-mode)
-
-;; ACE-window
-(global-set-key (kbd "C-x o") 'ace-window)
-(setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
-
-;; iedit-mode
-(use-package iedit)
-
-;; tramp
-(with-eval-after-load "tramp"
-  (add-to-list 'tramp-remote-path 'tramp-own-remote-path))
-             
-;; helm
-(global-set-key (kbd "M-x") 'helm-M-x)
-(global-set-key (kbd "C-x C-f") 'helm-find-files)
-(helm-mode 1)
-
-;; multiple cursors
-(global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
-

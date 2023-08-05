@@ -1,11 +1,13 @@
 ;; configuration to company-mode
 
-(eval-after-load 'company-mode
-  '(progn
-     (setq 'company-idle-delay 0)
-     (setq 'company-minimum-prefix-length 2)
-     (global-set-key "\t" company-complete-common)
-  )
+(use-package company
+  :after lsp
+  :hook (prog-mode . company-mode)
+  :bind
+  ("C-i" . company-complete-common)
+  :custom
+  (company-idle-delay 0)
+  (company-minimum-prefix-length 1)
   )
 
 ;(use-package company-box

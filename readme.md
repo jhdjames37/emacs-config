@@ -16,4 +16,6 @@ To install, download packages from elpa and install language servers according t
 
 所有的配置**不保证**可移植。可能并不能给其它用户以参考:(
 
+## reference
 
+https://github.com/rememberYou/.emacs.d

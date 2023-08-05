@@ -1,10 +1,6 @@
-
-(add-hook 'rust-mode-hook 'enable-programming-modes)
-
-(add-hook 'rust-mode-hook
-          #'(lambda ()
-              (add-to-list 'lsp-enabled-clients 'rust-analyzer)
-              (enable-hs)
-              )
-          )
-
+(use-package rust-mode
+  :hook (rust-mode . lsp-deferred)
+  :hook (rust-mode . enable-hs)
+  :init
+  (add-to-list 'lsp-enabled-clients 'rust-analyzer)  
+  )

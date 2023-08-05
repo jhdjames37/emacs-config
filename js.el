@@ -2,6 +2,8 @@
 ;; Language Server Config:
 ;; M-x lsp-install-server RET ts-ls RET
 
+;; TODO: (if I had chance to use JS again,) modify this.
+
 (defun js-enable ()
   (add-to-list 'lsp-enabled-clients 'ts-ls)
   (enable-programming-modes)
