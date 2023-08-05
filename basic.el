@@ -84,6 +84,7 @@
   (company-mode)
   (flycheck-mode)
   (yas-minor-mode)
+  (add-to-list 'company-backends '(company-capf :with company-yasnippet))
   (editorconfig-mode)   
   (editorconfig-apply)
   )

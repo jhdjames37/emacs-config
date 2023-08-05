@@ -20,7 +20,11 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(treemacs-magit multiple-cursors helm-lsp helm ace-window iedit hl-todo rainbow-delimiters cargo rust-mode cmake-mode dotenv-mode all-the-icons-dired xref dired-git yaml-mode bison-mode dockerfile-mode cuda-mode editorconfig format-all web-mode magit ein use-package flycheck lsp-jedi treemacs-projectile ccls lsp-treemacs lsp-ui projectile treemacs which-key lsp-mode typescript-mode company-jedi company-auctex company-c-headers company-math yasnippet company-irony irony company auctex))
+   '(caddyfile-mode company-box lsp-latex treemacs-magit multiple-cursors helm-lsp helm ace-window iedit hl-todo rainbow-delimiters cargo rust-mode cmake-mode dotenv-mode all-the-icons-dired xref dired-git yaml-mode bison-mode dockerfile-mode cuda-mode editorconfig format-all web-mode magit ein use-package flycheck lsp-jedi treemacs-projectile ccls lsp-treemacs lsp-ui projectile treemacs which-key lsp-mode typescript-mode company-jedi company-auctex company-c-headers company-math yasnippet company-irony irony company auctex))
+ '(safe-local-variable-values
+   '((lsp-rust-analyzer-cargo-features quote
+                                       ("alloc" "paging"))
+     (lsp-rust-analyzer-cargo-target . "riscv64gc-unknown-none-elf")))
  '(warning-suppress-log-types '((jedi)))
  '(warning-suppress-types '((lsp-mode))))
 (custom-set-faces
