@@ -132,6 +132,38 @@
   :bind ("C-x C-b" . ibuffer)
   :init (my/protected-buffers))
 
+(use-package highlight-indent-guides
+  :hook (prog-mode . highlight-indent-guides-mode)
+  :custom ((highlight-indent-guides-method 'bitmap)
+           (highlight-indent-guides-auto-enabled nil))
+  :config
+  (set-face-foreground 'highlight-indent-guides-character-face "dimgray")
+  )
+
+
+
+(use-package pdf-tools
+  :magic ("%PDF" . pdf-view-mode)
+  :init (pdf-tools-install :no-query)
+  :hook (pdf-view-mode . (lambda () (linum-mode -1)))
+  )
+
+(use-package pdf-view
+  :ensure nil
+  :after pdf-tools
+  :bind (:map pdf-view-mode-map
+              ("C-s" . isearch-forward)
+              ("d" . pdf-annot-delete)
+              ("h" . pdf-annot-add-highlight-markup-annotation)
+              ("t" . pdf-annot-add-text-annotation))
+  :custom
+  (pdf-view-display-size 'fit-page)
+  (pdf-view-resize-factor 1.1)
+  ;; Avoid searching for unicodes to speed up pdf-tools.
+  (pdf-view-use-unicode-ligther nil)
+  ;; Enable HiDPI support, at the cost of memory.
+  (pdf-view-use-scaling t))
+
 ;; lsp-mode
 (load "~/.emacs.d/lsp.el")
 

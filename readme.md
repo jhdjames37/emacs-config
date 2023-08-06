@@ -1,21 +1,21 @@
-# My Emacs Configuration File
+# Emacs Configuration File
 
-It now includes: 
+The configuration I'm currently using for Emacs, including:
 
-+ C++ config (with lsp-mode for project management, or without for single file)
-+ Python config 
-+ LaTeX config
-+ javascripts/typescripts (but not in perfect mode)
-+ some other
++ Basic developing environment settings.
++ Language supports with `lsp`:
+  - C++ with ccls
+  - Python with jedi
+  - Rust with rust-analyzer
+  - [Under development] LaTeX
+  - [Under development] Javascript/Typescript
 
-Do pay attention that some reduntant configurations or packages may exist.
+## External packages
 
-To install, download packages from elpa and install language servers according to [lsp-mode](https://emacs-lsp.github.io/lsp-mode/)'s instruction.
+Some packages (e.g. lsp backends) should be installed via external package manager. Some commands should also be executed for the first time to setup some settings.
 
----
-
-所有的配置**不保证**可移植。可能并不能给其它用户以参考:(
+NOTE: The configuration has not been tested to build from scratch. So there might be some issues.
 
 ## reference
 
-https://github.com/rememberYou/.emacs.d
+[rememberYou's](https://github.com/rememberYou/.emacs.d) config has excellent remarks on usages of the packages. Also, [awesome-emacs](https://github.com/emacs-tw/awesome-emacs) lists different choices of packages in categories, which is a good place to explore.
