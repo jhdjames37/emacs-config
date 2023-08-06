@@ -14,7 +14,7 @@
 (global-linum-mode t)
 (load-theme 'tango-dark t)
 (tool-bar-mode -1)
-(which-key-mode)
+(menu-bar-mode -1)
 
 ;; fonts
 (set-face-attribute 'default nil :font "Noto Mono 14")
@@ -53,11 +53,9 @@
 ;; from orbitingflea
 ;; Global keyset
 ;;(setq shell-file-name "/bin/bash")
-(global-set-key [f5] '(lambda () (interactive) (compile "make -k -j8")))
-(global-set-key [f7] '(lambda () (interactive) (compile "make clean")))
+(global-set-key [f5] #'(lambda () (interactive) (compile "make -k -j8")))
+(global-set-key [f7] #'(lambda () (interactive) (compile "make clean")))
 (global-set-key [f11] 'shell)
-(global-set-key [f12] 'treemacs)
-(global-set-key (kbd "M-o") 'treemacs-select-window)
 
 ;; turn off sound
 
@@ -66,5 +64,5 @@
 ;;(setq visible-bell 1)
 
 ;; transparent style
-(set-frame-parameter (selected-frame) 'alpha (list 85 50))
-(add-to-list 'default-frame-alist (cons 'alpha (list 85 50)))
+(set-frame-parameter (selected-frame) 'alpha (list 90 50))
+(add-to-list 'default-frame-alist (cons 'alpha (list 90 50)))
