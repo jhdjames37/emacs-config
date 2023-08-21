@@ -8,7 +8,7 @@
   :hook
   (prog-mode . projectile-mode)
   :bind
-  ("C-c p" . projectile-command-map)
+  ("C-c P" . projectile-command-map)
   )
 
 ;; Prettify display
@@ -36,6 +36,10 @@
   :bind ("C-x o" . ace-window)
   :init (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
   )
+
+(use-package winner
+  :ensure nil
+  :config (winner-mode))
 
 ;; iedit-mode
 (use-package iedit)
@@ -83,8 +87,12 @@
 ;; NOTE: RUN `all-the-icons-install-fonts` in the first run.
 (use-package doom-themes
   :config
-  ;; SEE: https://github.com/doomemacs/themes/tree/screenshost for more choices
-  (load-theme 'doom-moonlight t)
+  ;; SEE: https://github.com/doomemacs/themes/tree/screenshots for more choices
+  (load-theme 'doom-fairy-floss t)
+  (add-hook 'after-make-frame-functions
+            (lambda (frame)
+              (select-frame frame)
+              (load-theme 'doom-fairy-floss t)))
   (doom-themes-org-config)
   (setq doom-themes-treemacs-theme "doom-colors") ; use "doom-colors" for less minimal icon theme
   (doom-themes-treemacs-config)
@@ -97,6 +105,39 @@
   :init (doom-modeline-mode 1)
   :custom
   (doom-modeline-icon (display-graphic-p))
+  (doom-modeline-minor-modes t)
+  )
+
+(use-package minions
+  :config (minions-mode 1))
+
+(use-package solaire-mode
+  :defer 0.1
+  :custom (solaire-mode-remap-fringe t)
+  :config (solaire-global-mode)
+  ;; https://github.com/hlissner/emacs-solaire-mode/issues/51
+  (push '(treemacs-window-background-face . solaire-default-face) solaire-mode-remap-alist)
+  (push '(treemacs-hl-line-face . solaire-hl-line-face) solaire-mode-remap-alist)
+  )
+
+(use-package dashboard
+  ;;:hook
+  ;;(dashboard-mode . emacs-lock-mode)
+  :custom
+  (dashboard-center-content t)
+  (dashboard-startup-banner 'logo)
+  (dashboard-set-file-icons t)
+  (dashboard-items '((recents  . 5)
+                     ;;(bookmarks . 5)
+                     (projects . 5)
+                     (agenda . 5)
+                     ))
+  (dashboard-set-footer nil)
+  (initial-buffer-choice (lambda ()
+                           ;;(dashboard-refresh-buffer)
+                           (get-buffer-create "*dashboard*")))
+  :config
+  (dashboard-setup-startup-hook)
   )
 
 (use-package treemacs
@@ -105,11 +146,11 @@
   ([f12] . treemacs)
   ("M-o" . treemacs-select-window)
   :hook
-  (treemacs-mode . (lambda () (linum-mode 0)))
+  (treemacs-mode . (lambda () (display-line-numbers-mode 0)))
   
   )
 (use-package treemacs-projectile
-  :after treemacs)
+  :after (treemacs projectile))
 (use-package treemacs-magit
   :after (treemacs magit))
 
@@ -120,6 +161,7 @@
 
 (use-package ibuffer
   :ensure nil
+  :after dashboard
   :preface
   (defvar protected-buffers '("*scratch*" "*Messages*")
     "Buffer that cannot be killed.")
@@ -130,7 +172,7 @@
       (with-current-buffer buffer
         (emacs-lock-mode 'kill))))
   :bind ("C-x C-b" . ibuffer)
-  :init (my/protected-buffers))
+  :config (my/protected-buffers))
 
 (use-package highlight-indent-guides
   :hook (prog-mode . highlight-indent-guides-mode)
@@ -140,12 +182,26 @@
   (set-face-foreground 'highlight-indent-guides-character-face "dimgray")
   )
 
-
+(use-package recentf
+  :ensure nil
+  :bind ("C-x C-r" . recentf-open-files)
+  :init (recentf-mode)
+  :custom
+  (recentf-exclude (list "/scp:"
+                         "/ssh:"
+                         "/sudo:"
+                         "/tmp/"
+                         "~$"
+                         "COMMIT_EDITMSG"))
+  (recentf-max-menu-items 15)
+  (recentf-max-saved-items 200)
+  ;; Save recent files every 5 minutes to manage abnormal output.
+  :config (run-at-time nil (* 5 60) 'recentf-save-list))
 
 (use-package pdf-tools
   :magic ("%PDF" . pdf-view-mode)
   :init (pdf-tools-install :no-query)
-  :hook (pdf-view-mode . (lambda () (linum-mode -1)))
+  :hook (pdf-view-mode . (lambda () (display-line-numbers-mode -1)))
   )
 
 (use-package pdf-view
@@ -173,6 +229,7 @@
 ;; Dired related
 (load "~/.emacs.d/dired.el")
 
+(load "~/.emacs.d/hydra.el")
 
 (provide 'setup)
 ;;; Setup.el ends here

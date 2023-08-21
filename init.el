@@ -6,8 +6,9 @@
 (require 'package)
 (setq package-archives
       '(("gnu"   . "https://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
-;;        ("melpa-stable" . "https://mirrors.tuna.tsinghua.edu.cn/elpa/melpa-stable/")
-        ("melpa-stable" . "https://stable.melpa.org/packages/")
+        ("melpa-stable" . "https://mirrors.tuna.tsinghua.edu.cn/elpa/stable-melpa/")
+        ("non-gnu" . "https://mirrors.tuna.tsinghua.edu.cn/elpa/nongnu/")
+        ;;("melpa-stable" . "https://stable.melpa.org/packages/")
         ("melpa" . "https://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
       ))
 (package-initialize)
@@ -15,6 +16,11 @@
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
+
+;; Remove use of deprecated package `cl`
+;; See: https://discourse.doomemacs.org/t/warning-at-startup-package-cl-is-deprecated/60/5
+(use-package cl-libify)
+
 
 (use-package delight :ensure t)
 (use-package use-package-ensure-system-package :ensure t)
@@ -28,7 +34,7 @@
   :config
   (when (file-exists-p custom-file)
     (load custom-file t))
-)
+  )
 
 ;; Basic settings
 (load "~/.emacs.d/basic.el")

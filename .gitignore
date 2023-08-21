@@ -20,3 +20,7 @@ projectile-bookmarks.eld
 session.*
 .lsp-session*
 /tramp
+/bookmarks
+/custom.el
+/*.bak
+/recentf
