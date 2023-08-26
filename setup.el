@@ -138,6 +138,11 @@
                            (get-buffer-create "*dashboard*")))
   :config
   (dashboard-setup-startup-hook)
+  (add-hook 'after-make-frame-functions
+            (lambda (frame)
+              (select-frame frame)
+              (dashboard-refresh-buffer))
+            )
   )
 
 (use-package treemacs
@@ -192,7 +197,9 @@
                          "/sudo:"
                          "/tmp/"
                          "~$"
-                         "COMMIT_EDITMSG"))
+                         "COMMIT_EDITMSG"
+                         "~/.emacs.d/recentf"
+                         "~/.emacs.d/bookmarks"))
   (recentf-max-menu-items 15)
   (recentf-max-saved-items 200)
   ;; Save recent files every 5 minutes to manage abnormal output.

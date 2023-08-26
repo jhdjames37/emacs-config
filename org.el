@@ -33,8 +33,8 @@
          (org-mode . visual-line-mode))
   :custom
   (org-archive-location "~/Documents/org/archives/%s::")
-  (org-blank-before-new-entry '((heading . t)
-                                (plain-list-item . t)))
+  (org-blank-before-new-entry '((heading . nil)
+                                (plain-list-item . nil))
   (org-confirm-babel-evaluate nil)
   (org-cycle-include-plain-lists 'integrate)
   (org-ellipsis " ▾")
@@ -48,7 +48,7 @@
                  org-protocol
                  org-tempo))
   (org-refile-allow-creating-parent-nodes 'confirm)
-  (org-refile-targets '((org-agenda-files :maxlevel . 1)                        
+  (org-refile-targets '((org-agenda-files :maxlevel . 1)
                         ))
   (org-refile-use-cache nil)
   (org-refile-use-outline-path nil)
@@ -65,7 +65,8 @@
      ("easy" . ?E)
      ("medium" . ?M)
      ("challenging" . ?C)
-     (:endgroup)))     
+     (:endgroup)
+     ))
   (org-tags-exclude-from-inheritance '("crypt"))
   (org-todo-keywords '((sequence "TODO(t)"
                                  "STARTED(s)"
@@ -159,7 +160,7 @@
   (org-agenda-skip-deadline-if-done t)
   (org-agenda-skip-deadline-prewarning-if-scheduled 'pre-scheduled)
   (org-agenda-skip-scheduled-if-done t)
-  (org-agenda-span 2)
+  (org-agenda-span 7)
   (org-agenda-start-on-weekday 0)
   (org-agenda-start-with-log-mode t)
   (org-agenda-sticky nil)
@@ -179,23 +180,16 @@
 (use-package org-capture
   :ensure nil
   :preface
-  (defvar my/org-active-task-template
-    (concat "* TODO %^{Task}\n"
-            ":CAPTURED: %<%Y-%m-%d %H:%M>\n"
-            ":END:") "Template for basic task.")
   (defvar my/org-basic-task-template
-    (concat "* TODO %^{Task}\n"
+    (concat "** TODO %^{Task}\n"
             ":CAPTURED: %<%Y-%m-%d %H:%M>\n"
             ":END:") "Template for basic task.")
   :custom
   (org-capture-templates
    `(
-     ("a" "Active" entry (file+headline "~/Documents/org/agenda/inbox.org" "Active"),
-      my/org-active-task-template
-      :empty-lines 1
-      :immediate-finish t)
-     ("b" "Backlog" entry (file+headline "~/Documents/org/agenda/inbox.org" "Backlog"),
+     ("a" "Simple task" entry (file+headline "~/Documents/org/agenda/inbox.org" "Tasks"),
       my/org-basic-task-template
-      :empty-lines 1
-      :immediate-finish t)
+      :empty-lines 0
+      :prepend
+      :immediate-finish nil)
      )))
