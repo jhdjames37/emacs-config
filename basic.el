@@ -22,7 +22,7 @@
 
 ;; fonts
 (defun set-default-font ()
-  (set-face-attribute 'default nil :font "Noto Mono 14")
+  (set-face-attribute 'default nil :font "Noto Sans Mono 14")
   )
 (set-default-font)
 ;; enhancement:
@@ -36,7 +36,7 @@
                       (font-spec :family "Noto Sans Mono CJK SC" :size 14)))
   ;; tune rescale so that Chinese character width = 2 * English character width
   ;; 中文测试 test
-  (setq face-font-rescale-alist '(("Noto Mono" . 1.0) ("Noto Sans Mono CJK SC" . 1.23)))
+  (setq face-font-rescale-alist '(("Noto Sans Mono CJK SC" . 1.3)))
   )
 
 ;; setup font in client mode

@@ -30,16 +30,16 @@
        (funcall ,fnc)))
   :hook (
          (auto-save . org-save-all-org-buffers)
-         (org-mode . visual-line-mode))
+         )
   :custom
-  (org-archive-location "~/Documents/org/archives/%s::")
+  (org-archive-location "~/Documents/miscs/archives/%s::")
   (org-blank-before-new-entry '((heading . nil)
-                                (plain-list-item . nil))
+                                (plain-list-item . nil)))
   (org-confirm-babel-evaluate nil)
   (org-cycle-include-plain-lists 'integrate)
   (org-ellipsis " ▾")
   (org-export-backends '(ascii beamer html icalendar latex man md org texinfo))
-  (org-hide-emphasis-markers t)
+  (org-hide-emphasis-markers nil)
   (org-log-done 'time)
   (org-log-into-drawer t)
   (org-modules '(org-crypt
@@ -123,6 +123,7 @@
     (org-agenda-switch-to)
     (org-capture 0 "t"))
   :custom
+ 
   (org-agenda-category-icon-alist
    `(("home" ,(list (all-the-icons-faicon "home" :v-adjust -0.05)) nil nil :ascent center :mask heuristic)
      ("inbox" ,(list (all-the-icons-faicon "inbox" :v-adjust -0.1)) nil nil :ascent center :mask heuristic)
@@ -154,8 +155,8 @@
        (org-agenda-max-todos 20)
        (org-agenda-files org-agenda-files)))))
   (org-agenda-dim-blocked-tasks t)
-  (org-agenda-files '("~/Documents/org/agenda"))
-  (org-agenda-inhibit-startup t)
+  (org-agenda-files '("~/Documents/agenda"))
+  ;;(org-agenda-inhibit-startup t)
   (org-agenda-show-log t)
   (org-agenda-skip-deadline-if-done t)
   (org-agenda-skip-deadline-prewarning-if-scheduled 'pre-scheduled)
@@ -168,8 +169,8 @@
   (org-agenda-time-grid '((daily today require-timed)))
   (org-agenda-use-tag-inheritance t)
   (org-columns-default-format "%14SCHEDULED %1PRIORITY %TODO %50ITEM %TAGS")
-  (org-default-notes-file "~/Documents/org/agenda/inbox.org")
-  (org-directory "~/Documents/org")
+  (org-default-notes-file "~/Documents/agenda/inbox.org")
+  ;;(org-directory "~/Documents/agenda")
   (org-enforce-todo-dependencies t)
   (org-habit-completed-glyph ?✓)
   (org-habit-graph-column 80)
@@ -187,7 +188,7 @@
   :custom
   (org-capture-templates
    `(
-     ("a" "Simple task" entry (file+headline "~/Documents/org/agenda/inbox.org" "Tasks"),
+     ("a" "Simple task" entry (file+headline "~/Documents/agenda/inbox.org" "Tasks"),
       my/org-basic-task-template
       :empty-lines 0
       :prepend

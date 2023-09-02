@@ -127,9 +127,9 @@
   (dashboard-center-content t)
   (dashboard-startup-banner 'logo)
   (dashboard-set-file-icons t)
-  (dashboard-items '((recents  . 5)
-                     ;;(bookmarks . 5)
-                     (projects . 5)
+  (dashboard-items '((recents  . 10)
+                     (bookmarks . 3)
+                     (projects . 3)
                      (agenda . 5)
                      ))
   (dashboard-set-footer nil)
@@ -226,6 +226,23 @@
   (pdf-view-use-unicode-ligther nil)
   ;; Enable HiDPI support, at the cost of memory.
   (pdf-view-use-scaling t))
+
+;; better word wrap
+;; see https://ruib.in/posts/enable-line-wrapping-for-org-mode/
+(use-package visual-fill-column
+  :hook
+  (text-mode . visual-fill-column-mode)
+  (text-mode . (lambda ()
+                 (toggle-truncate-lines -1)
+                 (set-fill-column 80)
+                 ))
+
+  )
+
+(use-package keychain-environment
+  :config
+  (keychain-refresh-environment)
+  )
 
 ;; lsp-mode
 (load "~/.emacs.d/lsp.el")

@@ -124,14 +124,15 @@
     ("s" org-store-link "store-link")
     ("t" org-show-todo-tree "todo-tree"))))
 
-(pretty-hydra-define hydra-view
-  (:hint nil :color amaranth :quit-key "q" :title "View")
-  ("Move"
-   (("j" backward-char "Left")
-    ("l" forward-char "Right")
-    ("i" previous-line "Up")
-    ("k" next-line "Down")
-    ("a" move-beginning-of-line "Home")
-    ("d" move-end-of-line "End"))
-   ))
+(defhydra hydra-view
+  (:hint nil :color amaranth)
+         "View: move like vi, q to quit"
+  ("h" backward-char)
+  ("l" forward-char)
+  ("k" previous-line)
+  ("j" next-line)
+  ("a" move-beginning-of-line)
+  ("d" move-end-of-line)
+  ("q" nil :color blue)
+  )
 ;;(pretty-)
