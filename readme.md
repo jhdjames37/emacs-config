@@ -16,6 +16,8 @@ Some packages (e.g. lsp backends) should be installed via external package manag
 
 NOTE: The configuration has not been tested to build from scratch. So there might be some issues.
 
+In order to save your ssh/gpg passphrases, `keychain` should be installed.
+
 ## External Settings
 
 This configuration trys to be compatible with deamon mode.
@@ -26,6 +28,8 @@ To do this, use `systemd`:
 systemctl enable --user emacs
 systemctl start --user emacs
 ```
+
+Update: I found there may be a display issue when using X server. Now I use `Emacs (Client)`, which starts a server on the first run.
 
 ## reference
 
