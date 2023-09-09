@@ -1,5 +1,10 @@
 ;; Python configuration
 
+(when (and (version<= "29.1" emacs-version)
+           (treesit-language-available-p 'python))
+  (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
+  )
+
 
 (use-package python-mode
   :hook
@@ -20,3 +25,10 @@
 (use-package company-jedi
   :after lsp-jedi)
 
+(lsp-register-client
+    (make-lsp-client :new-connection (lsp-tramp-connection "pylsp")
+                     :major-modes '(python-mode python-ts-mode)
+                     :remote? t
+                     :server-id 'pyls-remote))
+
+(add-to-list 'lsp-enabled-clients 'pyls-remote)

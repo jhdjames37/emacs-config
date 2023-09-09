@@ -70,6 +70,8 @@
   (global-set-key [f9] 'hs-toggle-hiding)
   )
 
+(add-hook 'prog-mode-hook 'enable-hs)
+
 (use-package flycheck
   :hook (prog-mode . flycheck-mode))
 
@@ -229,20 +231,22 @@
 
 ;; better word wrap
 ;; see https://ruib.in/posts/enable-line-wrapping-for-org-mode/
-(use-package visual-fill-column
-  :hook
-  (text-mode . visual-fill-column-mode)
-  (text-mode . (lambda ()
-                 (toggle-truncate-lines -1)
-                 (set-fill-column 80)
-                 ))
+;; (use-package visual-fill-column
+;;   :hook
+;;   (text-mode . visual-fill-column-mode)
+;;   (text-mode . (lambda ()
+;;                  (toggle-truncate-lines -1)
+;;                  (set-fill-column 80)
+;;                  ))
 
-  )
+;;   )
 
 (use-package keychain-environment
   :config
   (keychain-refresh-environment)
   )
+
+(use-package deadgrep)
 
 ;; lsp-mode
 (load "~/.emacs.d/lsp.el")
@@ -254,6 +258,10 @@
 (load "~/.emacs.d/dired.el")
 
 (load "~/.emacs.d/hydra.el")
+
+;; Remote server settings
+(when (file-exists-p "~/.emacs.d/remote.el")
+  (load "~/.emacs.d/remote.el"))
 
 (provide 'setup)
 ;;; Setup.el ends here

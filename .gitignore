@@ -24,3 +24,5 @@ session.*
 /custom.el
 /*.bak
 /recentf
+/tree-sitter
+/remote.el

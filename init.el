@@ -19,7 +19,7 @@
 
 ;; Remove use of deprecated package `cl`
 ;; See: https://discourse.doomemacs.org/t/warning-at-startup-package-cl-is-deprecated/60/5
-(use-package cl-libify)
+;;(use-package cl-libify)
 
 
 (use-package delight :ensure t)

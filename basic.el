@@ -6,6 +6,10 @@
  indent-tabs-mode nil
  )
 
+(setq
+ word-wrap-by-category t ;; see https://emacs-china.org/t/topic/2616/25
+ )
+
 ;; common modes
 (column-number-mode t)
 (show-paren-mode t)
@@ -66,6 +70,8 @@
 (global-set-key [f7] #'(lambda () (interactive) (compile "make clean")))
 (global-set-key [f11] 'shell)
 
+
+
 ;; turn off sound
 
 ;; Auto complete via company
@@ -73,5 +79,5 @@
 ;;(setq visible-bell 1)
 
 ;; transparent style
-(set-frame-parameter (selected-frame) 'alpha (list 90 50))
-(add-to-list 'default-frame-alist (cons 'alpha (list 90 50)))
+(set-frame-parameter (selected-frame) 'alpha (list 90 90))
+(add-to-list 'default-frame-alist (cons 'alpha (list 90 90)))

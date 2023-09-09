@@ -1,12 +1,11 @@
 ;; configuration to company-mode
 
 (use-package company
-  :after lsp
   :hook (prog-mode . company-mode)
   :bind
-  ("C-i" . company-complete-common)
+  ;;("C-i" . company-complete-common)
   :custom
-  (company-idle-delay 0)
+  (company-idle-delay 1)
   (company-minimum-prefix-length 1)
   )
 

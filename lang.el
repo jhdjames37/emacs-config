@@ -5,7 +5,7 @@
 (load "~/.emacs.d/python.el")
 
 ;; js-mode
-(load "~/.emacs.d/js.el")
+;;(load "~/.emacs.d/js.el")
 
 ;; rust-mode
 (load "~/.emacs.d/rust.el")

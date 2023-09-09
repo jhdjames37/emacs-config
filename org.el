@@ -29,6 +29,7 @@
     `(lambda (&rest _rest)
        (funcall ,fnc)))
   :hook (
+         (org-mode . visual-line-mode)
          (auto-save . org-save-all-org-buffers)
          )
   :custom
@@ -131,29 +132,29 @@
      ("work" ,(list (all-the-icons-material "work" :v-adjust -0.25)) nil nil :ascent center :mask heuristic)
      ("routine" ,(list (all-the-icons-material "repeat" :v-adjust -0.25)) nil nil :ascent center :mask heuristic)
      ))
-  (org-agenda-custom-commands
-   '(("d" "Dashboard"
-      ((agenda "" ((org-deadline-warning-days 7)))
-       (todo "NEXT"
-             ((org-agenda-overriding-header "Next Tasks")))
-       (tags-todo "agenda/ACTIVE" ((org-agenda-overriding-header "Active Projects")))))
+  ;; (org-agenda-custom-commands
+  ;;  '(("d" "Dashboard"
+  ;;     ((agenda "" ((org-deadline-warning-days 7)))
+  ;;      (todo "NEXT"
+  ;;            ((org-agenda-overriding-header "Next Tasks")))
+  ;;      (tags-todo "agenda/ACTIVE" ((org-agenda-overriding-header "Active Projects")))))
 
-     ("n" "Next Tasks"
-      ((agenda "" ((org-deadline-warning-days 7)))
-       (todo "NEXT"
-             ((org-agenda-overriding-header "Next Tasks")))))
+  ;;    ("n" "Next Tasks"
+  ;;     ((agenda "" ((org-deadline-warning-days 7)))
+  ;;      (todo "NEXT"
+  ;;            ((org-agenda-overriding-header "Next Tasks")))))
 
-     ;;("h" "Home Tasks" tags-todo "@home")
-     ("w" "Project Tasks" tags-todo "@project")
-     ("r" "Routine Tasks" tags-todo "@routine")
+  ;;    ;;("h" "Home Tasks" tags-todo "@home")
+  ;;    ("w" "Project Tasks" tags-todo "@project")
+  ;;    ("r" "Routine Tasks" tags-todo "@routine")
 
-     ("E" "Easy Tasks" tags-todo "easy")
-     ("C" "Challenging Tasks" tags-todo "challenging")
+  ;;    ("E" "Easy Tasks" tags-todo "easy")
+  ;;    ("C" "Challenging Tasks" tags-todo "challenging")
 
-     ("e" tags-todo "+TODO=\"NEXT\"+Effort<15&+Effort>0"
-      ((org-agenda-overriding-header "Low Effort Tasks")
-       (org-agenda-max-todos 20)
-       (org-agenda-files org-agenda-files)))))
+  ;;    ("e" tags-todo "+TODO=\"NEXT\"+Effort<15&+Effort>0"
+  ;;     ((org-agenda-overriding-header "Low Effort Tasks")
+  ;;      (org-agenda-max-todos 20)
+  ;;      (org-agenda-files org-agenda-files)))))
   (org-agenda-dim-blocked-tasks t)
   (org-agenda-files '("~/Documents/agenda"))
   ;;(org-agenda-inhibit-startup t)
@@ -161,7 +162,7 @@
   (org-agenda-skip-deadline-if-done t)
   (org-agenda-skip-deadline-prewarning-if-scheduled 'pre-scheduled)
   (org-agenda-skip-scheduled-if-done t)
-  (org-agenda-span 7)
+  (org-agenda-span 14)
   (org-agenda-start-on-weekday 0)
   (org-agenda-start-with-log-mode t)
   (org-agenda-sticky nil)
