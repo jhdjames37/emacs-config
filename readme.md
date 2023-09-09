@@ -18,6 +18,12 @@ NOTE: The configuration has not been tested to build from scratch. So there migh
 
 In order to save your ssh/gpg passphrases, `keychain` should be installed.
 
+### Treesitter Configuration
+
+Since Emacs 29.1, treesitter has been itergrated into emacs.
+
+you can install language grammars following the guidelines [here](https://www.masteringemacs.org/article/how-to-get-started-tree-sitter).
+
 ## External Settings
 
 This configuration trys to be compatible with deamon mode.

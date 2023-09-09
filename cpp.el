@@ -4,12 +4,12 @@
 
 (when (and (version<= "29.1" emacs-version)
            (treesit-language-available-p 'cpp))
-  (add-to-list 'major-mode-remap-alist '(c++-mode c++-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
   )
 
 (when (and (version<= "29.1" emacs-version)
            (treesit-language-available-p 'c))
-  (add-to-list 'major-mode-remap-alist '(c-mode c-ts-mode))
+  (add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode))
   )
 
 ;; Use lsp-mode + ccls
