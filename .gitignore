@@ -26,3 +26,4 @@ session.*
 /recentf
 /tree-sitter
 /remote.el
+/eln-cache/

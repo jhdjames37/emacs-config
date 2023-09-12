@@ -8,7 +8,7 @@
 
 (use-package python-mode
   :hook
-  (python-mode . lsp)
+  ((python-mode python-ts-mode) . lsp)
   )
 
 ;; NOTE: run `jedi:install-server` in the first run

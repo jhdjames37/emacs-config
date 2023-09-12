@@ -11,7 +11,7 @@
 (load "~/.emacs.d/rust.el")
 
 ;; LaTeX mode
-(load "~/.emacs.d/latex.el")
+;;(load "~/.emacs.d/latex.el")
 
 ;; org-mode
 (load "~/.emacs.d/org.el")
