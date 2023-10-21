@@ -1,4 +1,6 @@
 ;; c++ mode
+(require 'settings)
+
 (when (member 'cpp my/enabled-lang)
   (load "~/.emacs.d/cpp.el"))
 

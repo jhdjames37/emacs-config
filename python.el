@@ -1,6 +1,7 @@
 ;; Python configuration
 
 (when (and (version<= "29.1" emacs-version)
+           (treesit-available-p)
            (treesit-language-available-p 'python))
   (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
   )
