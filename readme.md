@@ -7,7 +7,7 @@ The configuration I'm currently using for Emacs, including:
   - C++ with ccls
   - Python with jedi
   - Rust with rust-analyzer
-  - [Under development] LaTeX
+  - LaTeX with texlab
   - [Under development] Javascript/Typescript
 
 ## External packages

@@ -3,6 +3,8 @@
 
 ;;; Code:
 
+(require 'settings)
+
 ;;; Projectile
 (use-package projectile
   :hook
@@ -86,32 +88,39 @@
   :hook (prog-mode . editorconfig-mode)
   )
 
-;; NOTE: RUN `all-the-icons-install-fonts` in the first run.
-(use-package doom-themes
-  :config
-  ;; SEE: https://github.com/doomemacs/themes/tree/screenshots for more choices
-  (load-theme 'doom-fairy-floss t)
-  (add-hook 'after-make-frame-functions
-            (lambda (frame)
-              (select-frame frame)
-              (load-theme 'doom-fairy-floss t)))
-  (doom-themes-org-config)
-  (setq doom-themes-treemacs-theme "doom-colors") ; use "doom-colors" for less minimal icon theme
-  (doom-themes-treemacs-config)
+(when (not my/use-builtin-theme)
+  (use-package doom-themes
+    :config
+    ;; SEE: https://github.com/doomemacs/themes/tree/screenshots for more choices
+    (load-theme 'doom-fairy-floss t)
+    (add-hook 'after-make-frame-functions
+              (lambda (frame)
+                (select-frame frame)
+                (load-theme 'doom-fairy-floss t)))
+    (doom-themes-org-config)
+    (setq doom-themes-treemacs-theme "doom-colors") ; use "doom-colors" for less minimal icon theme
+    (doom-themes-treemacs-config)
+    
+    (when (not (window-system))
+      ;; no background color is provided in terminal
+      ;; so we need to force it to be no background
+      ;;(set-background-color )
+      )
+    )
+  
+  ;; NOTE: RUN `nerd-icons-install-fonts` in the first run.
+  (use-package doom-modeline
+    :ensure t
+    :init (doom-modeline-mode 1)
+    :custom
+    (doom-modeline-icon (display-graphic-p))
+    (doom-modeline-minor-modes t)
+    )
+
+  (use-package minions
+    :config (minions-mode 1))
   )
 
-
-;; NOTE: RUN `nerd-icons-install-fonts` in the first run.
-(use-package doom-modeline
-  :ensure t
-  :init (doom-modeline-mode 1)
-  :custom
-  (doom-modeline-icon (display-graphic-p))
-  (doom-modeline-minor-modes t)
-  )
-
-(use-package minions
-  :config (minions-mode 1))
 
 (use-package solaire-mode
   :defer 0.1
@@ -250,12 +259,14 @@
 
 (defvar use-lsp-frontend 'lsp-mode)
 
+(use-package eat
+  :bind
+  ("<f11>" . eat))
+
 ;; lsp-mode
 (cl-case use-lsp-frontend
   (lsp-mode (load "~/.emacs.d/lsp.el"))
   (eglot (load "~/.emacs.d/eglot.el")))
-
-
 
 ;; Company-mode
 (load "~/.emacs.d/company.el")

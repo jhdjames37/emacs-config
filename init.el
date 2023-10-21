@@ -36,6 +36,9 @@
     (load custom-file t))
   )
 
+;; Custom vars
+(load "~/.emacs.d/settings.el")
+
 ;; Basic settings
 (load "~/.emacs.d/basic.el")
 

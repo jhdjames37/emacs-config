@@ -1,5 +1,7 @@
 ;; Basic configs
 
+(require 'settings)
+
 (setq-default
  backup-inhibited t          
  inhibit-startup-screen t    
@@ -19,7 +21,9 @@
 ;;(global-linum-mode t)
 ;; use display-line-numbers-mode instead
 (global-display-line-numbers-mode)
-(load-theme 'tango-dark t)
+(when my/use-builtin-theme
+  (load-theme 'tango-dark t)
+  )
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 (global-hl-line-mode)
@@ -60,8 +64,11 @@
 ;; and to select theme
 ;; (theme with unicode does not work well due to
 ;;  the above font settings)
-(setenv "IN_EMACS" "1")
-(setq shell-file-name "/bin/zsh")
+(when my/use-zsh
+  (progn
+    (setenv "IN_EMACS" "1")
+    (setq shell-file-name "/bin/zsh")
+    ))
 
 ;; from orbitingflea
 ;; Global keyset
