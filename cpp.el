@@ -23,21 +23,28 @@
   (add-to-list 'lsp-enabled-clients 'ccls)
   )
 
-(use-package cuda-mode)
+;;(use-package cuda-mode)
 (use-package cmake-mode)
 
-(lsp-register-client
- (make-lsp-client :new-connection (lsp-tramp-connection "clangd")
-                  :major-modes '(c-mode c++-mode c-ts-mode c++-ts-mode)
-                  :remote? t
-                  :server-id 'clangd-remote))
+(with-eval-after-load 'lsp-mode
+  (progn
+    (require 'lsp)
+    (lsp-register-client
+     (make-lsp-client :new-connection (lsp-tramp-connection
+                                       ;;'("clangd" "--log=verbose"))
+                                       '("bash" "/home/jhd/1.sh"))
+                      :major-modes '(c-mode c++-mode c-ts-mode c++-ts-mode)
+                      :remote? t
+                      :server-id 'clangd-remote))
 
-(lsp-register-client
- (make-lsp-client :new-connection (lsp-tramp-connection "ccls")
-                  :major-modes '(c-mode c++-mode c-ts-mode c++-ts-mode)
-                  :remote? t
-                  :server-id 'ccls-remote))
-
-
-(add-to-list 'lsp-enabled-clients 'clangd-remote)
-(add-to-list 'lsp-enabled-clients 'ccls-remote)
+    (lsp-register-client
+     (make-lsp-client :new-connection (lsp-tramp-connection "ccls")
+                      :major-modes '(c-mode c++-mode c-ts-mode c++-ts-mode)
+                      :remote? t
+                      :server-id 'ccls-remote))
+    
+    
+    (add-to-list 'lsp-enabled-clients 'clangd-remote)
+    (add-to-list 'lsp-enabled-clients 'ccls-remote)
+    (add-to-list 'lsp-enabled-clients 'ccls-test)
+    ))

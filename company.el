@@ -5,7 +5,7 @@
   :bind
   ;;("C-i" . company-complete-common)
   :custom
-  (company-idle-delay 0.7)
+  (company-idle-delay 0.5)
   (company-minimum-prefix-length 1)
   )
 

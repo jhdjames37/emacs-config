@@ -9,6 +9,8 @@
   (read-process-output-max (* 1024 1024))
   (treemacs-space-between-root-nodes nil)
   (lsp-idle-delay 0.1)
+  (lsp-inlay-hint-enable t)
+  (lsp-rust-analyzer-inlay-hints-mode t)
   )
 
 (use-package lsp-ui

@@ -248,8 +248,14 @@
 
 (use-package deadgrep)
 
+(defvar use-lsp-frontend 'lsp-mode)
+
 ;; lsp-mode
-(load "~/.emacs.d/lsp.el")
+(cl-case use-lsp-frontend
+  (lsp-mode (load "~/.emacs.d/lsp.el"))
+  (eglot (load "~/.emacs.d/eglot.el")))
+
+
 
 ;; Company-mode
 (load "~/.emacs.d/company.el")
