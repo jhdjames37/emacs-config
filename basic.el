@@ -73,7 +73,7 @@
 ;; from orbitingflea
 ;; Global keyset
 ;;(setq shell-file-name "/bin/bash")
-(global-set-key [f5] #'(lambda () (interactive) (compile "make -k -j8")))
+(global-set-key [f5] #'(lambda () (interactive) (compile "make -k -j")))
 (global-set-key [f7] #'(lambda () (interactive) (compile "make clean")))
 (global-set-key [f11] 'shell)
 

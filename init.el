@@ -36,6 +36,9 @@
     (load custom-file t))
   )
 
+;;; set up load path
+;;(add-to-list 'load-path "~/.emacs.d/")
+
 ;; Custom vars
 (load "~/.emacs.d/settings.el")
 
