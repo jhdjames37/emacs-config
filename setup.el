@@ -263,6 +263,13 @@
   :bind
   ("<f11>" . eat))
 
+;; I don't know whether it works
+;;(use-package clipetty
+;;  :init
+;;  (unless (display-graphic-p)
+;;    (global-clipetty-mode)
+;;    ))
+
 ;; lsp-mode
 (cl-case use-lsp-frontend
   (lsp-mode (load "~/.emacs.d/lsp.el"))

@@ -88,3 +88,14 @@
 ;; transparent style
 (set-frame-parameter (selected-frame) 'alpha (list 90 90))
 (add-to-list 'default-frame-alist (cons 'alpha (list 90 90)))
+
+;; Terminal mouse integration
+;; Reference: https://www.gnu.org/software/emacs/manual/html_node/emacs/Text_002dOnly-Mouse.html
+;; https://stackoverflow.com/questions/18198387/how-do-i-mouse-scroll-in-emacs-in-the-terminal-i-havent-gotten-mouse-wheel-mod
+;; `gpm' may not properly setup, use xterm-mouse-mode instead
+;; TODO: add checks
+(unless (display-graphic-p)
+  (xterm-mouse-mode 1)
+  (global-set-key (kbd "<mouse-4>") 'scroll-down-line)
+  (global-set-key (kbd "<mouse-5>") 'scroll-up-line)
+  )
