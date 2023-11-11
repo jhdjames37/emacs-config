@@ -82,6 +82,7 @@
   (org-latex-listings "listings")
   (org-export-with-tags nil)
   (org-export-with-toc nil)
+  (org-export-with-section-numbers 0)
   :config
   ;;(add-to-list 'org-global-properties '("Effort_ALL". "0:05 0:15 0:30 1:00 2:00 3:00 4:00"))
   (add-to-list 'org-speed-commands '("$" call-interactively 'org-archive-subtree))
@@ -116,6 +117,8 @@
  amsthm, setspace, multirow, float, verbatim, booktabs, makecell,
  tabularx, lastpage, enumitem, xcolor, color, titlesec, enumitem, listings}
 \\usepackage[hmargin=1.25in, vmargin=1in]{geometry}
+[NO-DEFAULT-PACKAGES]
+[PACKAGES]
 \\usepackage{hyperref}
 \\hypersetup{pdfborder={0 0 0}, colorlinks, linkcolor=red, anchorcolor=blue, citecolor=blue, urlcolor=blue}
 \\setCJKmainfont[BoldFont={SimHei}, ItalicFont={KaiTi}]{SimSun}
@@ -147,8 +150,15 @@
   captionpos=b,
   numbers=left
 }
-[NO-DEFAULT-PACKAGES]
-[NO-PACKAGES]
+\\makeatletter
+\\renewcommand{\\maketitle}{
+  \\begin{center}
+    {\\bfseries \\LARGE \\@title }
+    \\vspace{6pt}
+  \\end{center}
+}
+\\makeatother
+[EXTRA]
 "
                  ("\\section{%s}" . "\\section*{%s}")
                  ("\\subsection{%s}" . "\\subsection*{%s}")
