@@ -77,6 +77,11 @@
   (org-use-effective-time t)
   (org-use-speed-commands 'my/org-use-speed-commands-for-headings-and-lists)
   (org-yank-adjusted-subtrees t)
+
+  (org-latex-compiler "xelatex")
+  (org-latex-listings "listings")
+  (org-export-with-tags nil)
+  (org-export-with-toc nil)
   :config
   ;;(add-to-list 'org-global-properties '("Effort_ALL". "0:05 0:15 0:30 1:00 2:00 3:00 4:00"))
   (add-to-list 'org-speed-commands '("$" call-interactively 'org-archive-subtree))
@@ -97,7 +102,61 @@
   (font-lock-add-keywords 'org-mode
                           '(("^ *\\([-]\\) "
                              (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
-  (org-load-modules-maybe t))
+  (org-load-modules-maybe t)
+  )
+
+(use-package ox-latex
+  :custom
+  (org-latex-default-class "org-article")
+  :config
+  (add-to-list 'org-latex-classes
+               '("org-article"
+                 "\\documentclass[10pt, a4paper]{article}
+\\usepackage{xeCJK, indentfirst, fancyhdr, ulem, graphicx, amsmath, amsfonts,
+ amsthm, setspace, multirow, float, verbatim, booktabs, makecell,
+ tabularx, lastpage, enumitem, xcolor, color, titlesec, enumitem, listings}
+\\usepackage[hmargin=1.25in, vmargin=1in]{geometry}
+\\usepackage{hyperref}
+\\hypersetup{pdfborder={0 0 0}, colorlinks, linkcolor=red, anchorcolor=blue, citecolor=blue, urlcolor=blue}
+\\setCJKmainfont[BoldFont={SimHei}, ItalicFont={KaiTi}]{SimSun}
+\\setCJKsansfont{SimHei}
+\\setCJKmonofont{KaiTi}
+\\linespread{1.3}
+\\setlength{\\parindent}{2em}
+\\setenumerate[1]{itemsep=0pt,partopsep=0pt,parsep=\\parskip,topsep=0pt,leftmargin=3em}
+\\setitemize[1]{itemsep=0pt,partopsep=0pt,parsep=\\parskip,topsep=0pt,leftmargin=3em}
+\\setdescription{itemsep=0pt,partopsep=0pt,parsep=\\parskip,topsep=0pt,leftmargin=3em}
+\\lstset{
+  columns=fullflexible,
+  keepspaces=true,
+  showspaces=false,
+  showtabs=false,
+  breaklines=true,
+  showstringspaces=false,
+  breakatwhitespace=true,
+  rulecolor=\\lst@ifdisplaystyle\\color{blue}\\fi,
+  commentstyle=\\itshape\\lst@ifdisplaystyle\\color{olive}\\fi,
+  stringstyle=\\bfseries\\lst@ifdisplaystyle\\color{orange}\\fi,
+  keywordstyle=\\bfseries\\lst@ifdisplaystyle\\color{blue}\\fi,
+  numberstyle=\\footnotesize\\ttfamily\\lst@ifdisplaystyle\\color{gray}\\fi,
+  basicstyle=\\ttfamily\\normalsize,
+  frame=single,
+  framesep=3pt,
+  xleftmargin=12pt,
+  tabsize=4,
+  captionpos=b,
+  numbers=left
+}
+[NO-DEFAULT-PACKAGES]
+[NO-PACKAGES]
+"
+                 ("\\section{%s}" . "\\section*{%s}")
+                 ("\\subsection{%s}" . "\\subsection*{%s}")
+                 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+                 ("\\paragraph{%s}" . "\\paragraph*{%s}")
+                 ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+
+  )
 
 (use-package org-bullets
   :hook (org-mode . org-bullets-mode)
