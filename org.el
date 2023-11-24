@@ -3,6 +3,8 @@
   :delight "Θ"
   :hook (org-mode . turn-off-auto-fill)
   :bind ("C-c i" . org-insert-structure-template)
+  :init
+  (require 'ox-latex)
   :preface
   (defun my/org-archive-done-tasks ()
     "Archive finished or cancelled tasks."
@@ -83,6 +85,8 @@
   (org-export-with-tags nil)
   (org-export-with-toc nil)
   (org-export-with-section-numbers 0)
+
+  (org-latex-default-class "org-article")
   :config
   ;;(add-to-list 'org-global-properties '("Effort_ALL". "0:05 0:15 0:30 1:00 2:00 3:00 4:00"))
   (add-to-list 'org-speed-commands '("$" call-interactively 'org-archive-subtree))
@@ -104,12 +108,7 @@
                           '(("^ *\\([-]\\) "
                              (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
   (org-load-modules-maybe t)
-  )
 
-(use-package ox-latex
-  :custom
-  (org-latex-default-class "org-article")
-  :config
   (add-to-list 'org-latex-classes
                '("org-article"
                  "\\documentclass[10pt, a4paper]{article}
@@ -167,6 +166,7 @@
                  ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
 
   )
+
 
 (use-package org-bullets
   :hook (org-mode . org-bullets-mode)
