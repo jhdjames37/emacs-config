@@ -21,15 +21,18 @@
   (with-eval-after-load "lsp-mode"
     ;;(add-to-list 'lsp-jedi-python-library-directories "/home/jhdjames37/miniconda3/") ;; Add conda support
     (add-to-list 'lsp-disabled-clients 'pyls)
-    (add-to-list 'lsp-enabled-clients 'jedi)))
+    (add-to-list 'lsp-enabled-clients 'jedi)
+    (add-to-list 'lsp-enabled-clients 'pyls-tramp)
+    (add-to-list 'lsp-enabled-clients 'jedi-tramp)
+    ))
 
 (use-package company-jedi
   :after lsp-jedi)
 
-(lsp-register-client
-    (make-lsp-client :new-connection (lsp-tramp-connection "pylsp")
-                     :major-modes '(python-mode python-ts-mode)
-                     :remote? t
-                     :server-id 'pyls-remote))
+;; (lsp-register-client
+;;     (make-lsp-client :new-connection (lsp-tramp-connection "pylsp")
+;;                      :major-modes '(python-mode python-ts-mode)
+;;                      :remote? t
+;;                      :server-id 'pyls-remote))
 
-(add-to-list 'lsp-enabled-clients 'pyls-remote)
+;; (add-to-list 'lsp-enabled-clients 'pyls-remote)
