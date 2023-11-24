@@ -67,7 +67,11 @@
 (when my/use-zsh
   (progn
     (setenv "IN_EMACS" "1")
-    (setq shell-file-name "/bin/zsh")
+    ;; lsp-mode accidentally use `shell-file-name` to identify remote shells
+    ;; which is not desired.
+    ;; https://github.com/emacs-lsp/lsp-mode/blob/master/lsp-mode.el#L7392
+    (setenv "ESHELL" "/bin/zsh")
+    ;;(setq shell-file-name "/bin/zsh")
     ))
 
 ;; from orbitingflea
