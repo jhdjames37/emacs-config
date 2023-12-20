@@ -35,6 +35,6 @@
 ;;                      :remote? t
 ;;                      :server-id 'pyls-remote))
 
+(add-to-list 'lsp-enabled-clients 'pyls-remote)
 
-;; (add-to-list 'lsp-enabled-clients 'pyls-remote)
 (use-package jupyter)

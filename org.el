@@ -86,6 +86,7 @@
   (org-export-with-toc nil)
   (org-export-with-section-numbers 0)
   (org-latex-default-class "org-article")
+
   (org-highlight-latex-and-related '(native scripts entities))
   :config
   ;;(add-to-list 'org-global-properties '("Effort_ALL". "0:05 0:15 0:30 1:00 2:00 3:00 4:00"))
