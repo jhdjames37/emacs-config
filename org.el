@@ -272,9 +272,9 @@
   (setq-default org-download-heading-lvl nil)
   (setq-default org-download-image-dir "./.org-img")
   (setq org-download-backend "wget")
-  (setq org-download-abbreviate-filename-function (lambda (fn) fn)) ; use original filename
   (defun dummy-org-download-annotate-function (link)
     "")
+  ;;(setq org-download-abbreviate-filename-function "relative")
   (setq org-download-annotate-function
         #'dummy-org-download-annotate-function)
   )
