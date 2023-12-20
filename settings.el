@@ -12,9 +12,9 @@
   "Use built-in background instead of doom-themes.")
 
 (defvar my/enabled-lang
-  '(cpp python js rust latex org markdown yaml dotenv dockerfile caddyfile bison)
+  '(cpp python js rust latex org markdown typst yaml dotenv dockerfile caddyfile bison)
   "Language extensions enabled.
-available: (cpp python js rust latex org markdown yaml dotenv dockerfile caddyfile bison)")
+available: (cpp python js rust latex org markdown typst yaml dotenv dockerfile caddyfile bison)")
 
 ;;(defvar my/org-path
 ;;  '(:archive

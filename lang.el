@@ -28,6 +28,9 @@
 (when (member 'markdown my/enabled-lang)
   (load "~/.emacs.d/markdown.el"))
 
+(when (member 'typst my/enabled-lang)
+  (load "~/.emacs.d/typst.el"))
+
 ;; yaml-mode
 (when (member 'yaml my/enabled-lang)
   (use-package yaml-mode

@@ -1,0 +1,3 @@
+[submodule "typst-ts-mode"]
+	path = deps/typst-ts-mode
+	url = https://git.sr.ht/~meow_king/typst-ts-mode
