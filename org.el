@@ -85,7 +85,6 @@
   (org-export-with-tags nil)
   (org-export-with-toc nil)
   (org-export-with-section-numbers 0)
-
   (org-latex-default-class "org-article")
   (org-highlight-latex-and-related '(native scripts entities))
   :config
