@@ -87,6 +87,7 @@
   (org-export-with-section-numbers 0)
 
   (org-latex-default-class "org-article")
+  (org-highlight-latex-and-related '(native scripts entities))
   :config
   ;;(add-to-list 'org-global-properties '("Effort_ALL". "0:05 0:15 0:30 1:00 2:00 3:00 4:00"))
   (add-to-list 'org-speed-commands '("$" call-interactively 'org-archive-subtree))
@@ -264,3 +265,17 @@
       :prepend
       :immediate-finish nil)
      )))
+
+;; Ref: https://hsingko.pages.dev/post/2021/12/23/org-download/
+(use-package org-download
+  :config
+  (setq-default org-download-heading-lvl nil)
+  (setq-default org-download-image-dir "./.org-img")
+  (setq org-download-backend "wget")
+  (setq org-download-abbreviate-filename-function (lambda (fn) fn)) ; use original filename
+  (defun dummy-org-download-annotate-function (link)
+    "")
+  (setq org-download-annotate-function
+        #'dummy-org-download-annotate-function)
+  )
+
