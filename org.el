@@ -277,5 +277,6 @@
   ;;(setq org-download-abbreviate-filename-function "relative")
   (setq org-download-annotate-function
         #'dummy-org-download-annotate-function)
+  (setq org-download-screenshot-method "spectacle -br -o %s")
   )
 
