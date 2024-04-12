@@ -1,8 +1,9 @@
 ;;(load "auctex.el" nil t t)
 ;;(load "preview-latex.el" nil t t)
 
+
 (use-package lsp-latex
-  :after lsp
+  ;;:after lsp
   :hook
   ((tex-mode latex-mode LaTeX-mode) . lsp-deferred)
   :init

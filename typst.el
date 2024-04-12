@@ -3,4 +3,3 @@
            (file-exists-p "~/.emacs.d/deps/typst-ts-mode/typst-ts-mode.el"))
   (load "~/.emacs.d/deps/typst-ts-mode/typst-ts-mode.el")
   )
-)
