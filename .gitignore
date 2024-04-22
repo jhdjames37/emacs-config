@@ -27,3 +27,4 @@ session.*
 /tree-sitter
 /remote.el
 /eln-cache/
+/keyfreq

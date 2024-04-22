@@ -287,5 +287,22 @@
 (when (file-exists-p "~/.emacs.d/remote.el")
   (load "~/.emacs.d/remote.el"))
 
+;; Copilot
+(when (file-exists-p "~/.emacs.d/deps/copilot/copilot.el")
+  (add-to-list 'load-path "~/.emacs.d/deps/copilot/")
+  (require 'copilot)
+  (define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
+  (define-key copilot-completion-map (kbd "TAB") 'copilot-accept-completion)
+  )
+
+(use-package keyfreq
+  :init
+  (keyfreq-mode)
+  (keyfreq-autosave-mode)
+  :custom
+  (keyfreq-file "~/.emacs.d/keyfreq")
+  (keyfreq-file-lock "~/.emacs.d/keyfreq.lock")
+  )
+
 (provide 'setup)
 ;;; Setup.el ends here

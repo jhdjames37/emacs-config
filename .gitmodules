@@ -1,3 +1,6 @@
 [submodule "typst-ts-mode"]
 	path = deps/typst-ts-mode
 	url = https://git.sr.ht/~meow_king/typst-ts-mode
+[submodule "deps/copilot"]
+	path = deps/copilot
+	url = https://github.com/copilot-emacs/copilot.el.git
