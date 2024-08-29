@@ -81,7 +81,8 @@
 (global-set-key [f7] #'(lambda () (interactive) (compile "make clean")))
 (global-set-key [f11] 'shell)
 
-
+;; delete selection
+(delete-selection-mode 1)
 
 ;; turn off sound
 

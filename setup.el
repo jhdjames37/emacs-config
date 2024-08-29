@@ -39,12 +39,28 @@
   :init (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
   )
 
+(use-package avy
+  :bind (("M-g f" . avy-goto-line)
+         ("M-g w" . avy-goto-word-1)
+         ("M-g e" . avy-goto-word-0)
+         )
+  )
+
 (use-package winner
   :ensure nil
   :config (winner-mode))
 
 ;; iedit-mode
-(use-package iedit)
+(use-package iedit
+  :bind (("C-:" . iedit-mode)))
+
+(use-package smart-hungry-delete
+  :ensure t
+  :bind (([remap backward-delete-char-untabify] . smart-hungry-delete-backward-char)
+	 ([remap delete-backward-char] . smart-hungry-delete-backward-char)
+	 ([remap delete-char] . smart-hungry-delete-forward-char))
+  :init (smart-hungry-delete-add-default-hooks)
+  )
 
 ;; tramp
 ;(with-eval-after-load "tramp"
