@@ -154,6 +154,10 @@
 (use-package dashboard
   ;;:hook
   ;;(dashboard-mode . emacs-lock-mode)
+  :bind
+  ("C-c d" . dashboard-open)
+  :init
+  (setq initial-buffer-choice 'dashboard-open)
   :custom
   (dashboard-center-content t)
   (dashboard-startup-banner 'logo)
@@ -164,16 +168,14 @@
                      (agenda . 5)
                      ))
   (dashboard-set-footer nil)
-  (initial-buffer-choice (lambda ()
-                           ;;(dashboard-refresh-buffer)
-                           (get-buffer-create "*dashboard*")))
+
   :config
   (dashboard-setup-startup-hook)
-  (add-hook 'after-make-frame-functions
-            (lambda (frame)
-              (select-frame frame)
-              (dashboard-refresh-buffer))
-            )
+  ;;(add-hook 'after-make-frame-functions
+  ;          (lambda (frame)
+  ;            (select-frame frame)
+  ;            (dashboard-refresh-buffer))
+  ;          )
   )
 
 (use-package treemacs
@@ -275,7 +277,9 @@
   (keychain-refresh-environment)
   )
 
-(use-package deadgrep)
+(use-package deadgrep
+  :bind
+  ("<f6>" . deadgrep))
 
 (defvar use-lsp-frontend 'lsp-mode)
 
