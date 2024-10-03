@@ -185,7 +185,8 @@
   ("M-o" . treemacs-select-window)
   :hook
   (treemacs-mode . (lambda () (display-line-numbers-mode 0)))
-  
+  :config
+  (treemacs-project-follow-mode)
   )
 (use-package treemacs-projectile
   :after (treemacs projectile))
