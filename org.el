@@ -57,6 +57,8 @@
   (org-refile-use-outline-path nil)
   (org-startup-indented t)
   (org-startup-with-inline-images t)
+  ;; https://emacs.stackexchange.com/questions/73528/emacs-visibility-not-working
+  (org-startup-folded 'showall)
   (org-tag-alist
    '((:startgroup . "Context")
      ("@errands" . ?e)
