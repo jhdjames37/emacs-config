@@ -16,6 +16,8 @@
   "Language extensions enabled.
 available: (cpp python js rust latex org markdown typst yaml dotenv dockerfile caddyfile bison)")
 
+(defvar my/minibuffer-backend 'vertico)
+
 ;;(defvar my/org-path
 ;;  '(:archive
 ;;   :agenda)
