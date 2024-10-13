@@ -329,5 +329,10 @@
   (keyfreq-file-lock "~/.emacs.d/keyfreq.lock")
   )
 
+;; Guess and adjust indent styles.
+(use-package dtrt-indent
+  :init
+  (dtrt-indent-global-mode))
+
 (provide 'setup)
 ;;; Setup.el ends here
