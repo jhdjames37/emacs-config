@@ -1,5 +1,0 @@
-(when (and (version<= "29.1" emacs-version)
-           (treesit-available-p)
-           (file-exists-p "~/.emacs.d/deps/typst-ts-mode/typst-ts-mode.el"))
-  (load "~/.emacs.d/deps/typst-ts-mode/typst-ts-mode.el")
-  )
