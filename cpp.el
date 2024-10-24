@@ -58,5 +58,7 @@
   (add-to-list 'lsp-enabled-clients 'clangd-tramp)
   )
 
-;;(use-package cuda-mode)
+(use-package cuda-mode
+  :hook
+  (cuda-mode-hook . my-c-style))
 (use-package cmake-mode)

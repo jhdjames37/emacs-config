@@ -31,7 +31,9 @@
 ;; fonts
 (defun set-default-font ()
   (set-face-attribute 'default nil :font "Noto Sans Mono 14")
+  (set-face-attribute 'help-key-binding nil :font "Noto Sans Mono 14")
   )
+
 (set-default-font)
 ;; enhancement:
 ;; ref: https://www.cnblogs.com/aqing1987/p/4464106.html

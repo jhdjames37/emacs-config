@@ -9,6 +9,7 @@
         ("melpa-stable" . "https://mirrors.tuna.tsinghua.edu.cn/elpa/stable-melpa/")
         ("non-gnu" . "https://mirrors.tuna.tsinghua.edu.cn/elpa/nongnu/")
         ;;("melpa-stable" . "https://stable.melpa.org/packages/")
+        ;;("melpa" . "https://melpa.org/packages/")
         ("melpa" . "https://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
       ))
 (package-initialize)

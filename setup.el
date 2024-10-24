@@ -487,5 +487,32 @@
   :init
   (dtrt-indent-global-mode))
 
+(use-package undo-fu
+  :config
+  (setq undo-limit 400000           ; 400kb (default is 160kb)
+        undo-strong-limit 3000000   ; 3mb   (default is 240kb)
+        undo-outer-limit 48000000)  ; 48mb  (default is 24mb)
+  :bind
+  (([remap undo] . undo-fu-only-undo)
+   ("C-?" . undo-fu-only-redo)
+   )
+  )
+
+(use-package vundo)
+
+(use-package persp-mode
+  :disabled
+  :config
+  (setq wg-morph-on nil) ;; switch off animation
+  (setq persp-autokill-buffer-on-remove 'kill-weak)
+  (add-hook 'window-setup-hook #'(lambda () (persp-mode 1)))
+  )
+
+
+(use-package atomic-chrome
+  :init
+  (atomic-chrome-start-server)
+  )
+
 (provide 'setup)
 ;;; Setup.el ends here
