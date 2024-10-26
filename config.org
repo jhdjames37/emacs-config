@@ -1,4 +1,7 @@
 #+title: Emacs Configuration
+#+STARTUP: overview
+#+TODO: TODO(t) | DONE(d)
+#+PROPERTY: LOGGING nil
 
 * Custom Variables
 
@@ -28,7 +31,6 @@
 #+end_src
 
 * Package configurations
-
 ** Upstream server
 
 #+begin_src emacs-lisp
@@ -63,7 +65,6 @@ NOTE: It seems like that Emacs auto-compiles =.org= into =.el=? BUT No modificat
 NOTE: https://stackoverflow.com/questions/37564071/can-company-mode-complete-my-code-in-org-mode
 
 * Custom Files
-
 #+begin_src emacs-lisp
   (use-package cus-edit
     :ensure nil
@@ -73,9 +74,7 @@ NOTE: https://stackoverflow.com/questions/37564071/can-company-mode-complete-my-
       (load custom-file t))
     )
 #+end_src
-
 * Basic Settings
-
 ** Built-in config and modes
 
 #+begin_src emacs-lisp
@@ -193,7 +192,6 @@ NOTE: https://stackoverflow.com/questions/37564071/can-company-mode-complete-my-
 #+end_src
 
 * Plugins
-
 ** Interfaces
 
 #+begin_src emacs-lisp
@@ -940,7 +938,6 @@ lsp-mode
     )
 #+end_src
 * Languages
-
 ** Treesitter
 
 #+begin_src emacs-lisp
@@ -1025,7 +1022,6 @@ lsp-mode
     (cuda-mode-hook . my-c-style))
   (use-package cmake-mode)
 #+end_src
-
 
 ** Python
 
@@ -1186,7 +1182,7 @@ lsp-mode
     :when (member 'latex my/enabled-lang))
 #+end_src
 
-** TODO Typst
+** DONE Typst
 
 #+begin_src emacs-lisp
   (use-package typst-ts-mode
@@ -1216,7 +1212,6 @@ lsp-mode
     :when (member 'dotenv my/enabled-lang))
 #+end_src
 
-
 ** Dockerfile
 
 #+begin_src emacs-lisp
@@ -1236,7 +1231,6 @@ lsp-mode
   (use-package bison-mode
     :when (member 'bison my/enabled-lang))
 #+end_src
-
 
 * Org mode
 
