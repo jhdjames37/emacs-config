@@ -28,3 +28,4 @@ session.*
 /remote.el
 /eln-cache/
 /keyfreq
+/config.el
