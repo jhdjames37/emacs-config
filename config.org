@@ -87,6 +87,9 @@ NOTE: https://stackoverflow.com/questions/37564071/can-company-mode-complete-my-
 
   (setq
    word-wrap-by-category t ;; see https://emacs-china.org/t/topic/2616/25
+   enable-remote-dir-locals t ; https://www.gnu.org/software/emacs/manual/html_node/emacs/Directory-Variables.html
+   ring-bell-function 'ignore;; https://emacs-china.org/t/topic/4972
+
    )
 
   ;; common modes
@@ -1091,7 +1094,7 @@ lsp-mode
 ** Rust
 
 #+begin_src emacs-lisp
-  ;;; NOTE: install rust-analyzer through rustup.
+    ;;; NOTE: install rust-analyzer through rustup.
   (use-package rust-mode
     :when (member 'rust my/enabled-lang)
     :hook (rust-mode . lsp-deferred)
@@ -1099,14 +1102,14 @@ lsp-mode
     (add-to-list 'lsp-enabled-clients 'rust-analyzer)  
     )
 
-;;  (use-package rust-ts-mode
-;;    :when (and (version<= "29.1" emacs-version)
-;;               (treesit-available-p)
-;;               (treesit-language-available-p 'rust)
-;;               (member 'rust my/enabled-lang))
-;;    :init
-;;    (add-to-list 'major-mode-remap-alist '(rust-mode . rust-ts-mode))
-;;    )
+  ;;  (use-package rust-ts-mode
+  ;;    :when (and (version<= "29.1" emacs-version)
+  ;;               (treesit-available-p)
+  ;;               (treesit-language-available-p 'rust)
+  ;;               (member 'rust my/enabled-lang))
+  ;;    :init
+  ;;    (add-to-list 'major-mode-remap-alist '(rust-mode . rust-ts-mode))
+  ;;    )
 
 
   (use-package cargo)
