@@ -5,24 +5,14 @@
 
 ;;; Code:
 
-(defvar my/use-zsh t
-  "Whether to use zsh."
-  )
-(defvar my/use-builtin-theme nil
-  "Use built-in background instead of doom-themes.")
+(setq my/use-zsh t)
 
-(defvar my/enabled-lang
-  '(cpp python js rust latex org markdown typst yaml dotenv dockerfile caddyfile bison)
-  "Language extensions enabled.
-available: (cpp python js rust latex org markdown typst yaml dotenv dockerfile caddyfile bison)")
+(setq my/use-builtin-theme nil)
 
-(defvar my/minibuffer-backend 'vertico)
+(setq my/enabled-lang
+      '(cpp python js rust latex org markdown typst yaml dotenv dockerfile caddyfile bison))
 
-;;(defvar my/org-path
-;;  '(:archive
-;;   :agenda)
-;;  "Path used in org-mode. nil when not set")
-  
+(setq my/minibuffer-backend 'vertico)
 
 (provide 'settings)
 ;;; settings.el ends here

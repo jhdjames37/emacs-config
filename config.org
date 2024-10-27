@@ -15,19 +15,24 @@
   (defvar my/enabled-lang
     '(cpp cuda python js rust latex org markdown typst yaml dotenv dockerfile caddyfile bison)
     "Language extensions enabled.
-  available: (cpp cuda python js rust latex org markdown typst yaml dotenv dockerfile caddyfile bison)")
+      available: (cpp cuda python js rust latex org markdown typst yaml dotenv dockerfile caddyfile bison)")
 
-  (defvar my/minibuffer-backend 'vertico)
+  (defvar my/minibuffer-backend 'vertico
+    "Backend for completion of minibuffer
+    available: vertico helm")
 
-  (defvar my/use-lsp-frontend 'lsp-mode)
+  (defvar my/use-lsp-frontend 'lsp-mode
+    "LSP frontend")
 
-  ;;(when (file-exists-p (expand-file-name "settings.el" user-emacs-directory))
-  ;;  (load (expand-file-name "settings.el" user-emacs-directory))
-  ;;  )
+  (defvar my/font-scale 1.4
+    "Chinese font scale")
+
+  (when (file-exists-p (expand-file-name "settings.el" user-emacs-directory))
+    (load (expand-file-name "settings.el" user-emacs-directory))
+    )
 
   (defun my/expand-config-dir (filename)
     (expand-file-name filename user-emacs-directory))
-
 #+end_src
 
 * Package configurations
@@ -143,7 +148,9 @@ NOTE: https://stackoverflow.com/questions/37564071/can-company-mode-complete-my-
                         (font-spec :family "Noto Sans Mono CJK SC" :size 14)))
     ;; tune rescale so that Chinese character width = 2 * English character width
     ;; 中文测试 test
-    (setq face-font-rescale-alist '(("Noto Sans Mono CJK SC" . 1.8)))
+    (setq face-font-rescale-alist
+          ;; Use list and cons to evaluate the symbols
+          (list (cons "Noto Sans Mono CJK SC" my/font-scale)))
     )
 
   ;; setup font in client mode

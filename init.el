@@ -17,6 +17,6 @@
 ;;(add-to-list 'load-path "~/.emacs.d/")
 
 ;; Specific language settings
-(load "~/.emacs.d/lang.el")
+;;(load "~/.emacs.d/lang.el")
 
 (setq gc-cons-threshold (* 10 1024 1024))
