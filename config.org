@@ -93,7 +93,6 @@ NOTE: https://stackoverflow.com/questions/37564071/can-company-mode-complete-my-
    word-wrap-by-category t ;; see https://emacs-china.org/t/topic/2616/25
    enable-remote-dir-locals t ; https://www.gnu.org/software/emacs/manual/html_node/emacs/Directory-Variables.html
    ring-bell-function 'ignore;; https://emacs-china.org/t/topic/4972
-
    )
 
   ;; common modes
@@ -124,7 +123,6 @@ NOTE: https://stackoverflow.com/questions/37564071/can-company-mode-complete-my-
   (global-set-key [f5] #'(lambda () (interactive) (compile "make -k -j")))
   (global-set-key [f7] #'(lambda () (interactive) (compile "make clean")))
   (global-set-key [f11] 'shell)
-
 #+end_src
 
 ** Font Settings
@@ -560,53 +558,6 @@ NOTE: https://stackoverflow.com/questions/37564071/can-company-mode-complete-my-
     :after (treemacs magit))
 #+end_src
 
-** Miscs
-
-#+begin_src emacs-lisp
-  (use-package hl-todo
-    :config
-    (global-hl-todo-mode)
-    )
-
-  ;; hs-minor-mode
-  (defun enable-hs ()
-    "Enable hs-minor mode and key binding."
-    (hs-minor-mode)
-    (global-set-key [f9] 'hs-toggle-hiding)
-    )
-
-  (add-hook 'prog-mode-hook 'enable-hs)
-
-  (use-package magit)
-
-  (use-package which-key
-    :init (which-key-mode))
-
-  (use-package keychain-environment
-    :config
-    (keychain-refresh-environment)
-    )
-
-  (use-package deadgrep
-    :bind
-    ("<f6>" . deadgrep))
-
-  (use-package eat
-    :bind
-    ("<f11>" . eat))
-
-  ;; Guess and adjust indent styles.
-  (use-package dtrt-indent
-    :init
-    (dtrt-indent-global-mode))
-
-  (use-package atomic-chrome
-    :init
-    (atomic-chrome-start-server)
-    )
-
-#+end_src
-
 ** Undo
 
 #+begin_src emacs-lisp
@@ -935,6 +886,7 @@ lsp-mode
 
 ** TODO workspace
 
+
 #+begin_src emacs-lisp
   (use-package persp-mode
     :disabled
@@ -944,6 +896,54 @@ lsp-mode
     (add-hook 'window-setup-hook #'(lambda () (persp-mode 1)))
     )
 #+end_src
+
+** Miscs
+
+#+begin_src emacs-lisp
+  (use-package hl-todo
+    :config
+    (global-hl-todo-mode)
+    )
+
+  ;; hs-minor-mode
+  (defun enable-hs ()
+    "Enable hs-minor mode and key binding."
+    (hs-minor-mode)
+    (global-set-key [f9] 'hs-toggle-hiding)
+    )
+
+  (add-hook 'prog-mode-hook 'enable-hs)
+
+  (use-package magit)
+
+  (use-package which-key
+    :init (which-key-mode))
+
+  (use-package keychain-environment
+    :config
+    (keychain-refresh-environment)
+    )
+
+  (use-package deadgrep
+    :bind
+    ("<f6>" . deadgrep))
+
+  (use-package eat
+    :bind
+    ("<f11>" . eat))
+
+  ;; Guess and adjust indent styles.
+  (use-package dtrt-indent
+    :init
+    (dtrt-indent-global-mode))
+
+  (use-package atomic-chrome
+    :init
+    (atomic-chrome-start-server)
+    )
+
+#+end_src
+
 * Languages
 ** Treesitter
 
