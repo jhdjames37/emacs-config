@@ -126,6 +126,17 @@ NOTE: https://stackoverflow.com/questions/37564071/can-company-mode-complete-my-
 #+end_src
 
 ** Font Settings
+包含基础字体配置、CJK/Unicode 类字体配置。
+
+值得注意的是，中文字体需要进行 rescale 以确保大小和英文字体匹配，比例和显示设置有关。
+
+测试：
++ 中文测试 test
++ Emoji test 😅
+
+可能存在的 Bug：
++ 部分 face 可能错误绑定 CJK 字体
+  使用 ~C-u C-x =~ 查看当前字符的字体信息，并作针对性调整
 
 #+begin_src emacs-lisp
   ;; fonts
@@ -145,7 +156,6 @@ NOTE: https://stackoverflow.com/questions/37564071/can-company-mode-complete-my-
                         ;;(font-spec :family "Source Han Sans CN" :size 18)))
                         (font-spec :family "Noto Sans Mono CJK SC" :size 14)))
     ;; tune rescale so that Chinese character width = 2 * English character width
-    ;; 中文测试 test
     (setq face-font-rescale-alist
           ;; Use list and cons to evaluate the symbols
           (list (cons "Noto Sans Mono CJK SC" my/font-scale)))
@@ -161,6 +171,9 @@ NOTE: https://stackoverflow.com/questions/37564071/can-company-mode-complete-my-
   (if window-system
       (s-font))
 #+end_src
+
+#+RESULTS:
+: ((Noto Sans Mono CJK SC . 1.4))
 
 ** Use ZSH
 
