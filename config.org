@@ -173,9 +173,6 @@ NOTE: https://stackoverflow.com/questions/37564071/can-company-mode-complete-my-
       (s-font))
 #+end_src
 
-#+RESULTS:
-: ((Noto Sans Mono CJK SC . 1.4))
-
 ** Use ZSH
 
 #+begin_src emacs-lisp
