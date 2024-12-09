@@ -1,0 +1,47 @@
+\documentclass[10pt, a4paper]{article}
+\usepackage{xeCJK, indentfirst, fancyhdr, ulem, graphicx, amsmath, amsfonts,
+  amsthm, setspace, multirow, float, verbatim, booktabs, makecell,
+  tabularx, lastpage, enumitem, xcolor, color, titlesec, enumitem, listings}
+\usepackage[hmargin=1.25in, vmargin=1in]{geometry}
+[NO-DEFAULT-PACKAGES]
+[PACKAGES]
+\usepackage{hyperref}
+\hypersetup{pdfborder={0 0 0}, colorlinks, linkcolor=red, anchorcolor=blue, citecolor=blue, urlcolor=blue}
+% \setCJKmainfont[BoldFont={SimHei}, ItalicFont={KaiTi}]{SimSun}
+% \setCJKsansfont{SimHei}
+% \setCJKmonofont{KaiTi}
+\linespread{1.3}
+\setlength{\parindent}{2em}
+\setenumerate[1]{itemsep=0pt,partopsep=0pt,parsep=\parskip,topsep=0pt,leftmargin=3em}
+\setitemize[1]{itemsep=0pt,partopsep=0pt,parsep=\parskip,topsep=0pt,leftmargin=3em}
+\setdescription{itemsep=0pt,partopsep=0pt,parsep=\parskip,topsep=0pt,leftmargin=3em}
+\lstset{
+  columns=fullflexible,
+  keepspaces=true,
+  showspaces=false,
+  showtabs=false,
+  breaklines=true,
+  showstringspaces=false,
+  breakatwhitespace=true,
+  rulecolor=\lst@ifdisplaystyle\color{blue}\fi,
+commentstyle=\itshape\lst@ifdisplaystyle\color{olive}\fi,
+stringstyle=\bfseries\lst@ifdisplaystyle\color{orange}\fi,
+keywordstyle=\bfseries\lst@ifdisplaystyle\color{blue}\fi,
+numberstyle=\footnotesize\ttfamily\lst@ifdisplaystyle\color{gray}\fi,
+basicstyle=\ttfamily\normalsize,
+frame=single,
+framesep=3pt,
+xleftmargin=12pt,
+tabsize=4,
+captionpos=b,
+numbers=left
+}
+\makeatletter
+\renewcommand{\maketitle}{
+  \begin{center}
+    {\bfseries \LARGE \@title }
+    \vspace{6pt}
+  \end{center}
+}
+\makeatother
+[EXTRA]
