@@ -29,3 +29,4 @@ session.*
 /eln-cache/
 /keyfreq
 /config.el
+/.mc-lists.el
