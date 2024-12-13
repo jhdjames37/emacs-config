@@ -3,7 +3,15 @@
 #+TODO: TODO(t) | DONE(d)
 #+PROPERTY: LOGGING nil
 
+* Overview
+
+Here is my emacs config.
+
 * Custom Variables
+
+These are custom varibles, which may vary in different platforms
+
+Modify them in =settings.el=
 
 #+begin_src emacs-lisp
   (defvar my/use-zsh t
@@ -31,6 +39,8 @@
     "File for org-agenda")
 #+end_src
 
+Loading and auxilliary functions.
+
 #+begin_src elisp
   (when (file-exists-p (expand-file-name "settings.el" user-emacs-directory))
     (load (expand-file-name "settings.el" user-emacs-directory))
@@ -40,8 +50,12 @@
     (expand-file-name filename user-emacs-directory))
 #+end_src
 
-* Package configurations
+* Basic setups
 ** Upstream server
+
+Setting upstream package servers (enabling melpa as well).
+
+I use git submodules instead of packages like *straight* so that some of them can be imported optionally.
 
 #+begin_src emacs-lisp
   (setq package-archives
@@ -55,6 +69,8 @@
 #+end_src
 
 ** use-package
+
+Including =use-package=. All packages are set to be installed by default.
 
 #+begin_src emacs-lisp
   (unless (package-installed-p 'use-package)
@@ -74,7 +90,10 @@ NOTE: It seems like that Emacs auto-compiles =.org= into =.el=? BUT No modificat
 
 NOTE: https://stackoverflow.com/questions/37564071/can-company-mode-complete-my-code-in-org-mode
 
-* Custom Files
+** Custom Files
+
+Do not let custom-faces accidentally pollute =init.el= or other files.
+
 #+begin_src emacs-lisp
   (use-package cus-edit
     :ensure nil
@@ -84,8 +103,9 @@ NOTE: https://stackoverflow.com/questions/37564071/can-company-mode-complete-my-
       (load custom-file t))
     )
 #+end_src
-* Basic Settings
 ** Built-in config and modes
+
+These are native configuration of emacs. A minimal config without installing other packages can also be seen in =simple.el=.
 
 #+begin_src emacs-lisp
   (setq-default
@@ -180,12 +200,10 @@ NOTE: https://stackoverflow.com/questions/37564071/can-company-mode-complete-my-
 
 ** Use ZSH
 
+Switch shell to zsh use =IN_EMACS= env. var. to recognize and to select theme
+(theme with unicode does not work well due to the above font settings)
+
 #+begin_src emacs-lisp
-  ;; Switch shell to zsh
-  ;; use `IN_EMACS` env. var. to recognize
-  ;; and to select theme
-  ;; (theme with unicode does not work well due to
-  ;;  the above font settings)
   (when my/use-zsh
     (progn
       (setenv "IN_EMACS" "1")
@@ -198,6 +216,8 @@ NOTE: https://stackoverflow.com/questions/37564071/can-company-mode-complete-my-
 #+end_src
 
 ** Terminal Intergration
+
+Sometimes a terminal emacs is also used. These configs enable mouse support (click and scroll) in supported terminals.
 
 #+begin_src emacs-lisp
   ;; Terminal mouse integration
@@ -1535,7 +1555,7 @@ lsp-mode
     ;;(setq org-download-abbreviate-filename-function "relative")
     (setq org-download-annotate-function
           #'dummy-org-download-annotate-function)
-    (setq org-download-screenshot-method "spectacle -br -o %s")
+    (setq org-download-screenshot-method "spectacle -brn -o %s")
     )
 #+end_src
 
