@@ -1231,7 +1231,7 @@ lsp-mode
     (setq TeX-auto-save t)
     (setq TeX-parse-self t)
     (setq-default Tex-master nil)
-    (set-face-attribute 'font-latex-verbatim-face nil :font "Noto Sans Mono 14")
+    ;;(set-face-attribute 'font-latex-verbatim-face nil :font "Noto Sans Mono 14")
     )
 
   (use-package reftex
@@ -1502,7 +1502,7 @@ lsp-mode
     (org-agenda-time-grid '((daily today require-timed)))
     (org-agenda-use-tag-inheritance t)
     (org-columns-default-format "%14SCHEDULED %1PRIORITY %TODO %50ITEM %TAGS")
-    (org-default-notes-file my/org-agenda-locaion)
+    (org-default-notes-file 'my/org-agenda-location)
     ;;(org-directory "~/Documents/agenda")
     (org-enforce-todo-dependencies t)
     (org-habit-completed-glyph ?✓)
