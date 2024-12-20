@@ -1142,7 +1142,7 @@ For example, it uses =delete*= in common lisp (which is cl-delete in elisp).
         ((parent-is "argument_list") (nth-sibling 1) 0)
         ((match nil "parameter_list" nil 1 1) parent-bol c-ts-mode-indent-offset)
         ((parent-is "parameter_list") (nth-sibling 1) 0)
-        ((lambda (node parent &rest _)
+        ((lambda (node parent bol &rest _)
            (and (string-match-p "compound_statement" (treesit-node-type parent))
                 ;; from treesit.el, finding prev-sibling + parent-is
                 (string-match-p "preproc"
@@ -1158,7 +1158,7 @@ For example, it uses =delete*= in common lisp (which is cl-delete in elisp).
                                     "")
                                 )
                 ))
-          standalone-parent c-ts-mode-indent-offset)
+         standalone-parent c-ts-mode-indent-offset)
         ;; Append here the indent style you want as base
         ,@(alist-get 'gnu (c-ts-mode--indent-styles 'cpp))))
     :custom
