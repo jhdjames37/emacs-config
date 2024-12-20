@@ -13,6 +13,10 @@ These are custom varibles, which may vary in different platforms
 
 Modify them in =settings.el=
 
+TODO: 
++ [ ] Set them to =defcustom=
+  This has to ensure that they are not used before =custom.el= is loaded
+
 #+begin_src emacs-lisp
   (defvar my/use-zsh t
     "Whether to use zsh."
@@ -24,6 +28,11 @@ Modify them in =settings.el=
     '(cpp cuda python js rust latex org markdown typst yaml dotenv dockerfile caddyfile bison)
     "Language extensions enabled.
       available: (cpp cuda python js rust latex org markdown typst yaml dotenv dockerfile caddyfile bison)")
+
+  (defvar my/enabled-feat
+    '()
+    "Extended feature which requires external support
+     available: (ellama)")
 
   (defvar my/minibuffer-backend 'vertico
     "Backend for completion of minibuffer
@@ -910,7 +919,7 @@ lsp-mode
 #+end_src
 
 ** AI
-
+*** Copilot
 #+begin_src emacs-lisp
   (use-package copilot
     :when (file-exists-p (my/expand-config-dir "deps/copilot/copilot.el"))
@@ -919,20 +928,117 @@ lsp-mode
     (define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
     (define-key copilot-completion-map (kbd "TAB") 'copilot-accept-completion))
 #+end_src
-
+*** Ellama
+#+begin_src elisp
+  (use-package ellama
+    :when (member 'ellama my/enabled-feat)
+    :bind ("C-c e" . ellama-transient-main-menu)
+    )
+#+end_src
 ** TODO workspace
+*** Perspective.el
+Key bindings (Prefix is =C-x p=, which overrides projectile, which is now =C-c P=):
++ =p/n=: next/prev perspective
++ =s=: switch (new) perspective
 
+For consult, =C-x b= switches to current perspective, type =b <SPC>= re-enables all perspectives. See [[https://github.com/minad/consult#narrowing-and-grouping][here]].
+
+However, it does not support frame, which means perspectives cannot share among emacs clients.
+
+#+begin_src emacs-lisp
+  ;; (use-package perspective
+  ;;   :bind
+  ;;   ("C-x C-b" . persp-list-buffers)         ; or use a nicer switcher, see below
+  ;;   :custom
+  ;;   (persp-mode-prefix-key (kbd "C-x p"))  ; pick your own prefix key here
+  ;;   :init
+  ;;   (persp-mode)
+  ;;   :hook
+  ;;   (ibuffer . (lambda ()
+  ;;                (persp-ibuffer-set-filter-groups)
+  ;;                (unless (eq ibuffer-sorting-mode 'alphabetic)
+  ;;                  (ibuffer-do-sort-by-alphabetic))))
+  ;;   :config
+  ;;   (with-eval-after-load 'consult
+  ;;     (consult-customize consult--source-buffer :hidden t :default nil)
+  ;;     (add-to-list 'consult-buffer-sources persp-consult-source))
+  ;;   )
+#+end_src
+
+*** Presp-mode
+There are some issues
+
+Use [[https://github.com/Bad-ptr/persp-mode.el][persp-mode]].
+
+[[https://gist.github.com/Bad-ptr/1aca1ec54c3bdb2ee80996eb2b68ad2d][Here]] provides usage examples to interact with other packages. However, some of them do not compile.
+For example, it uses =delete*= in common lisp (which is cl-delete in elisp).
 
 #+begin_src emacs-lisp
   (use-package persp-mode
-    :disabled
+    :custom
+    (wg-morph-on nil)
+    (persp-autokill-buffer-on-remove 'kill-weak)
+    (persp-auto-resume-time -1)
+    :init
+    (persp-mode 1)
     :config
-    (setq wg-morph-on nil) ;; switch off animation
-    (setq persp-autokill-buffer-on-remove 'kill-weak)
-    (add-hook 'window-setup-hook #'(lambda () (persp-mode 1)))
+
+
+    (with-eval-after-load 'consult
+      (defun my/consult-switch-to-buffer ()
+        "`consult-buffer' with buffers provided by persp."
+        (interactive)
+        (with-persp-buffer-list () (consult-buffer)))
+      (global-set-key (kbd "C-x b") #'my/consult-switch-to-buffer))
+
+    ;; Shows groups for all perspectives. But can't show same buffer in multiple groups.
+
+    (with-eval-after-load 'ibuffer
+      (require 'ibuf-ext)
+
+      (define-ibuffer-filter persp
+          "Toggle current view to buffers of current perspective."
+        (:description "persp-mode"
+                      :reader (persp-prompt nil nil (safe-persp-name (get-frame-persp)) t))
+        (cl-find buf (safe-persp-buffers (persp-get-by-name qualifier))))
+
+      (defun persp-add-ibuffer-group ()
+        (let ((perspslist (mapcar #'(lambda (pn)
+                                      (list pn (cons 'persp pn)))
+                                  (nconc
+                                   (cl-delete persp-nil-name
+                                              (persp-names-current-frame-fast-ordered)
+                                              :test 'string=)
+                                   (list persp-nil-name)))))
+          (setq ibuffer-saved-filter-groups
+                (cl-delete "persp-mode" ibuffer-saved-filter-groups
+                           :test 'string= :key 'car))
+          (push
+           (cons "persp-mode" perspslist)
+           ibuffer-saved-filter-groups)))
+
+      (defun persp-ibuffer-visit-buffer ()
+        (interactive)
+        (let ((buf (ibuffer-current-buffer t))
+              (persp-name (get-text-property
+                           (line-beginning-position) 'ibuffer-filter-group)))
+          (persp-switch persp-name)
+          (switch-to-buffer buf)))
+
+      (define-key ibuffer-mode-map (kbd "RET") 'persp-ibuffer-visit-buffer)
+      (define-key ibuffer-mode-map (kbd "g") #'(lambda () (interactive)
+                                                 ;; We need to update perspective lists before
+                                                 ;; updating ibuffer
+                                                 (persp-add-ibuffer-group)
+                                                 (ibuffer-switch-to-saved-filter-groups "persp-mode")
+                                                 ))
+      (add-hook 'ibuffer-mode-hook
+                #'(lambda ()
+                    (persp-add-ibuffer-group)
+                    (ibuffer-switch-to-saved-filter-groups "persp-mode")
+                    )))
     )
 #+end_src
-
 ** Miscs
 
 #+begin_src emacs-lisp

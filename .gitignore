@@ -30,3 +30,6 @@ session.*
 /keyfreq
 /config.el
 /.mc-lists.el
+/ellama-sessions/
+/persp-confs/
+/auto/
