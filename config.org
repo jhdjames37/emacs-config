@@ -2,6 +2,7 @@
 #+STARTUP: overview
 #+TODO: TODO(t) | DONE(d)
 #+PROPERTY: LOGGING nil
+#+PROPERTY: header-args    :results silent
 
 * Overview
 
@@ -677,7 +678,7 @@ Sometimes a terminal emacs is also used. These configs enable mouse support (cli
     )
 #+end_src
 
-lsp-mode
+*** lsp-mode
 
 #+begin_src emacs-lisp
   (use-package lsp-mode
@@ -703,7 +704,11 @@ lsp-mode
     )
 #+end_src
 
+*** TODO lsp-bridge
+
 ** Dired
+
+*** Simple Config
 
 #+begin_src emacs-lisp
   (use-package dired
@@ -748,6 +753,11 @@ lsp-mode
 
 #+end_src
 
+*** Dirvish
+
+#+begin_src elisp :tangle no
+  (message "test")
+#+end_src
 ** Hydra
 
 #+begin_src emacs-lisp
@@ -935,7 +945,7 @@ lsp-mode
     :bind ("C-c e" . ellama-transient-main-menu)
     )
 #+end_src
-** TODO workspace
+** workspace
 *** Perspective.el
 Key bindings (Prefix is =C-x p=, which overrides projectile, which is now =C-c P=):
 + =p/n=: next/prev perspective
@@ -945,7 +955,7 @@ For consult, =C-x b= switches to current perspective, type =b <SPC>= re-enables 
 
 However, it does not support frame, which means perspectives cannot share among emacs clients.
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   ;; (use-package perspective
   ;;   :bind
   ;;   ("C-x C-b" . persp-list-buffers)         ; or use a nicer switcher, see below
