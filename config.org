@@ -566,14 +566,16 @@ Sometimes a terminal emacs is also used. These configs enable mouse support (cli
     (company-minimum-prefix-length 1)
     )
 
-  ;;(use-package company-box
-  ;;  :hook (company-mode . company-box-mode))
+  (use-package company-box
+    :hook (company-mode . company-box-mode))
 
   (use-package yasnippet
     :after company
     :hook (prog-mode . yas-minor-mode)
     :init
     (add-to-list 'company-backends '(company-capf :with company-yasnippet))
+    :config
+    (yas-reload-all)
     )
 
   (use-package flycheck
@@ -678,7 +680,22 @@ Sometimes a terminal emacs is also used. These configs enable mouse support (cli
     )
 #+end_src
 
-*** lsp-mode
+#+begin_src emacs-lisp
+  (defun my/start-lsp ()
+    "The start command of lsp frontent"
+    (when (eq my/use-lsp-frontend 'lsp-mode) (lsp-deferred)) 
+    (when (eq my/use-lsp-frontend 'eglot) (eglot-ensure))
+    )
+
+  (use-package eglot
+    :when (eq my/use-lsp-frontend 'eglot)
+    :config
+    (add-hook 'eglot-managed-mode-hook (lambda ()
+                                         (add-to-list 'company-backends
+                                                      '(company-capf :with company-yasnippet))))
+    )
+#+end_src
+*** COMMENT lsp-mode
 
 #+begin_src emacs-lisp
   (use-package lsp-mode
@@ -690,7 +707,7 @@ Sometimes a terminal emacs is also used. These configs enable mouse support (cli
     (gc-cons-threshold (* 100 1024 1024))
     (read-process-output-max (* 1024 1024))
     (treemacs-space-between-root-nodes nil)
-    (lsp-idle-delay 0.1)
+    (lsp-idle-delay 0.5)
     (lsp-inlay-hint-enable t)
     (lsp-rust-analyzer-inlay-hints-mode t)
     )
@@ -1125,6 +1142,8 @@ For example, it uses =delete*= in common lisp (which is cl-delete in elisp).
     :bind
     ("<f11>" . eat))
 
+  (use-package all-the-icons)
+
   ;; Guess and adjust indent styles.
   (use-package dtrt-indent
     :init
@@ -1175,6 +1194,8 @@ For example, it uses =delete*= in common lisp (which is cl-delete in elisp).
                                        (arglist-close . 0)))))
     :hook
     (c-mode-common-hook  . my-c-style)
+    ((c-mode c++-mode objc-mode cuda-mode c-ts-mode c++-ts-mode) .
+     my/start-lsp)
     )
 
   (use-package c-ts-mode
@@ -1223,7 +1244,8 @@ For example, it uses =delete*= in common lisp (which is cl-delete in elisp).
   ;; NOTE: Install ccls through your package manager / compile yourself.
   (use-package ccls
     :when (and (member 'cpp my/enabled-lang)
-               (eq my/use-lsp-frontend 'lsp-mode))
+               (eq my/use-lsp-frontend 'lsp-mode)
+               nil)
     ;;    :after (projectile lsp)
     :hook ((c-mode c++-mode objc-mode cuda-mode c-ts-mode c++-ts-mode) .
            lsp-deferred)
@@ -1235,7 +1257,6 @@ For example, it uses =delete*= in common lisp (which is cl-delete in elisp).
 
 
     )
-
 
   (use-package cuda-mode
     :when (member 'cuda my/enabled-lang)
@@ -1251,7 +1272,7 @@ For example, it uses =delete*= in common lisp (which is cl-delete in elisp).
 
   (use-package python-mode
     :hook
-    ((python-mode python-ts-mode) . lsp)
+    ((python-mode python-ts-mode) . my/start-lsp)
     )
 
   ;;(use-package python-ts-mode
@@ -1314,7 +1335,7 @@ For example, it uses =delete*= in common lisp (which is cl-delete in elisp).
     ;;; NOTE: install rust-analyzer through rustup.
   (use-package rust-mode
     :when (member 'rust my/enabled-lang)
-    :hook (rust-mode . lsp-deferred)
+    :hook (rust-mode . my/start-lsp)
     :init
     (add-to-list 'lsp-enabled-clients 'rust-analyzer)  
     )
@@ -1359,9 +1380,12 @@ For example, it uses =delete*= in common lisp (which is cl-delete in elisp).
     :when (member 'latex my/enabled-lang)
     ;;:after lsp
     :hook
-    ((tex-mode latex-mode LaTeX-mode) . lsp-deferred)
+    ((tex-mode latex-mode LaTeX-mode) . my/start-lsp)
     :init
     (add-to-list 'lsp-enabled-clients 'texlab)
+    (add-to-list 'eglot-server-programs
+                 '((tex-mode context-mode texinfo-mode bibtex-mode) .
+                  ("texlab")))
     :custom
     (lsp-latex-forward-search-executable "okular")
     (lsp-latex-forward-search-args '("--unique" "file:%p#src:%l%f"))
@@ -1376,14 +1400,13 @@ For example, it uses =delete*= in common lisp (which is cl-delete in elisp).
     :hook
     ((LaTeX-mode tex-mode latex-mode) .
      (lambda ()
-       (yas-reload-all)             ;; must reload for some reasons
-       (company-mode t)
-       (yas-minor-mode t)
+       (company-mode)
+       (yas-minor-mode)
        (setq TeX-auto-untabify t     ; remove all tabs before saving
              TeX-engine 'xetex       ; use xelatex default
              TeX-show-compilation t) ; display compilation windows
        (setq TeX-save-query nil)
-       (imenu-add-menubar-index)
+       (imenu-add-menubar-index)  
        )
      )
     :config
@@ -1400,8 +1423,8 @@ For example, it uses =delete*= in common lisp (which is cl-delete in elisp).
     (reftex-use-multiple-selection-buffers t)
     )
 
-  (use-package company-auctex
-    :when (member 'latex my/enabled-lang))
+  ;;(use-package company-auctex
+  ;;  :when (member 'latex my/enabled-lang))
 #+end_src
 
 ** DONE Typst
