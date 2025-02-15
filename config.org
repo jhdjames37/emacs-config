@@ -1286,7 +1286,8 @@ For example, it uses =delete*= in common lisp (which is cl-delete in elisp).
   ;; NOTE: run `jedi:install-server` in the first run
   ;; NOTE: Install jedi-language-server through pip (or other package manager)
   (use-package lsp-jedi
-    :when (member 'python my/enabled-lang)
+    :when (and (member 'python my/enabled-lang)
+               (eq my/use-lsp-frontend 'lsp-mode))
     :config
     (with-eval-after-load "lsp-mode"
       ;;(add-to-list 'lsp-jedi-python-library-directories "/home/jhdjames37/miniconda3/") ;; Add conda support
