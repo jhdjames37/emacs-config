@@ -8,6 +8,10 @@
 
 Here is my emacs config.
 
+** Notes
+
++ checkout: https://emacs-china.org/t/emacs-builtin-mode/11937/1
+
 * Custom Variables
 
 These are custom varibles, which may vary in different platforms
@@ -52,12 +56,13 @@ TODO:
 Loading and auxilliary functions.
 
 #+begin_src elisp
-  (when (file-exists-p (expand-file-name "settings.el" user-emacs-directory))
-    (load (expand-file-name "settings.el" user-emacs-directory))
-    )
-
   (defun my/expand-config-dir (filename)
+    "FILENAME: filename in the config directory."
     (expand-file-name filename user-emacs-directory))
+
+  (when (file-exists-p (my/expand-config-dir "settings.el"))
+    (load (my/expand-config-dir "settings.el"))
+    )
 #+end_src
 
 * Basic setups
@@ -70,10 +75,10 @@ I use git submodules instead of packages like *straight* so that some of them ca
 #+begin_src emacs-lisp
   (setq package-archives
         '(("gnu"   . "https://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
-          ("melpa-stable" . "https://mirrors.tuna.tsinghua.edu.cn/elpa/stable-melpa/")
           ("non-gnu" . "https://mirrors.tuna.tsinghua.edu.cn/elpa/nongnu/")
           ;;("melpa-stable" . "https://stable.melpa.org/packages/")
           ;;("melpa" . "https://melpa.org/packages/")
+          ("melpa-stable" . "https://mirrors.tuna.tsinghua.edu.cn/elpa/stable-melpa/")
           ("melpa" . "https://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
           ))
 #+end_src
@@ -102,7 +107,7 @@ NOTE: https://stackoverflow.com/questions/37564071/can-company-mode-complete-my-
 
 ** Custom Files
 
-Do not let custom-faces accidentally pollute =init.el= or other files.
+Do not let custom-variables accidentally pollute =init.el= or other files.
 
 #+begin_src emacs-lisp
   (use-package cus-edit
@@ -113,39 +118,41 @@ Do not let custom-faces accidentally pollute =init.el= or other files.
       (load custom-file t))
     )
 #+end_src
+
 ** Built-in config and modes
 
 These are native configuration of emacs. A minimal config without installing other packages can also be seen in =simple.el=.
 
 #+begin_src emacs-lisp
   (setq-default
-   backup-inhibited t          
-   inhibit-startup-screen t    
-   indent-tabs-mode nil
+   backup-inhibited t ; No backup file needed
+   inhibit-startup-screen t ; Do not use default startup screen, use customized instead
+   indent-tabs-mode nil ; Do not replace spaces with tabs
    )
 
-  (setq
-   word-wrap-by-category t ;; see https://emacs-china.org/t/topic/2616/25
-   enable-remote-dir-locals t ; https://www.gnu.org/software/emacs/manual/html_node/emacs/Directory-Variables.html
-   ring-bell-function 'ignore;; https://emacs-china.org/t/topic/4972
+  (setq                                        
+   word-wrap-by-category t ; See https://emacs-china.org/t/topic/2616/25
+   enable-remote-dir-locals t ; See https://www.gnu.org/software/emacs/manual/html_node/emacs/Directory-Variables.html
+   ring-bell-function 'ignore ; See https://emacs-china.org/t/topic/4972
    )
 
   ;; common modes
-  (column-number-mode t)
+  (column-number-mode t) ; Show column number in the modebar
   (show-paren-mode t)
   (fset 'yes-or-no-p 'y-or-n-p)
   (global-font-lock-mode t)
   ;; It seems that in Emacs 29.1, linum-mode has been removed
-  ;;(global-linum-mode t)
+  ;; (global-linum-mode t)
   ;; use display-line-numbers-mode instead
-  (global-display-line-numbers-mode)
-  (when my/use-builtin-theme
+  ;;(global-display-line-numbers-mode)
+  (add-hook 'prog-mode-hook 'display-line-numbers-mode)
+  (when my/use-builtin-theme ; Use builtin theme
     (load-theme 'tango-dark t)
     )
   (tool-bar-mode -1)
   (menu-bar-mode -1)
   (global-hl-line-mode)
-  ;; delete selection
+  ;; delete selection instead of removing only one character
   (delete-selection-mode 1)
 
   ;; transparent style
@@ -153,8 +160,7 @@ These are native configuration of emacs. A minimal config without installing oth
   (add-to-list 'default-frame-alist (cons 'alpha (list 90 90)))
 
   ;; from orbitingflea
-  ;; Global keyset
-  ;;(setq shell-file-name "/bin/bash")
+  ;; set some basic keybinding. 
   (global-set-key [f5] #'(lambda () (interactive) (compile "make -k -j")))
   (global-set-key [f7] #'(lambda () (interactive) (compile "make clean")))
   (global-set-key [f11] 'shell)
@@ -210,7 +216,7 @@ These are native configuration of emacs. A minimal config without installing oth
 
 ** Use ZSH
 
-Switch shell to zsh use =IN_EMACS= env. var. to recognize and to select theme
+Switch shell to zsh use =IN_EMACS= environment variable to recognize and to select theme
 (theme with unicode does not work well due to the above font settings)
 
 #+begin_src emacs-lisp
@@ -243,7 +249,15 @@ Sometimes a terminal emacs is also used. These configs enable mouse support (cli
 #+end_src
 
 * Plugins
+
+We are using external packages.
+
 ** Interfaces
+
+*** Parentheses
+
+Display better parentheses.
++ Using =rainbow-delimiters= for different color for different levels.
 
 #+begin_src emacs-lisp
   ;; Prettify display
@@ -260,8 +274,31 @@ Sometimes a terminal emacs is also used. These configs enable mouse support (cli
     :hook
     (prog-mode . rainbow-delimiters-mode)
     )
+#+end_src
+
+*** Indentation
+
++ Using =highlight-indent-guides=, which gives a dashline for levels of indentation.
+
+#+begin_src elisp
+  (use-package highlight-indent-guides
+    :hook (prog-mode . highlight-indent-guides-mode)
+    :custom ((highlight-indent-guides-method 'bitmap)
+             (highlight-indent-guides-auto-enabled nil))
+    :config
+    (set-face-foreground 'highlight-indent-guides-character-face "dimgray")
+    )
+#+end_src
 
 
+*** Theme
+
+More complicated and pretty theme settings.
++ Using =doom-themes= for global themes
++ Using =minions= for better minor-mode display
++ Using =solaire-mode= to provide different display between editing buffers and functional buffers
+
+#+begin_src elisp
   (use-package doom-themes
     :unless my/use-builtin-theme
     :config
@@ -307,6 +344,14 @@ Sometimes a terminal emacs is also used. These configs enable mouse support (cli
     (push '(treemacs-hl-line-face . solaire-hl-line-face) solaire-mode-remap-alist)
     )
 
+#+end_src
+
+*** Dashboard
+
++ Using =dashboard=, which gives a cleaner view for the startup window.
+
+#+begin_src elisp
+
   (use-package dashboard
     ;;:hook
     ;;(dashboard-mode . emacs-lock-mode)
@@ -323,21 +368,24 @@ Sometimes a terminal emacs is also used. These configs enable mouse support (cli
                        (projects . 3)
                        (agenda . 5)
                        ))
-    (dashboard-set-footer nil)
+    ;;(dashboard-set-footer nil)
+    (dashboard-startupify-list
+     '(dashboard-insert-banner
+       dashboard-insert-newline
+       dashboard-insert-banner-title
+       dashboard-insert-newline
+       dashboard-insert-init-info
+       dashboard-insert-items))
 
     :config
     (dashboard-setup-startup-hook))
-
-  (use-package highlight-indent-guides
-    :hook (prog-mode . highlight-indent-guides-mode)
-    :custom ((highlight-indent-guides-method 'bitmap)
-             (highlight-indent-guides-auto-enabled nil))
-    :config
-    (set-face-foreground 'highlight-indent-guides-character-face "dimgray")
-    )
 #+end_src
 
 ** Buffer & Windows
+
++ Using =ace-window= to select which buffer to switch
++ Using =winner-mode= (builtin) to undo buffer size changes (ref. Hydra settings)
++ Setting =ibuffer= not to kill specific buffers
 
 #+begin_src emacs-lisp
   ;; ACE-window
@@ -366,6 +414,12 @@ Sometimes a terminal emacs is also used. These configs enable mouse support (cli
 #+end_src
 
 ** Navigation & Minibuffer
+
++ Using =avy= for quick jump to line
++ For better minibuffer completion
+  - Option 1: helm
+  - Option 2: vertico/consult/orderless
+
 
 #+begin_src emacs-lisp
   (use-package avy
@@ -539,6 +593,8 @@ Sometimes a terminal emacs is also used. These configs enable mouse support (cli
 
 ** Multiple Editing
 
++ Using =multiple-cursors= and =iedit= to allowing rectangular multi-cursors, or replacing all occurance at once.
+
 #+begin_src emacs-lisp
   ;; multiple cursors
   (use-package multiple-cursors
@@ -554,7 +610,13 @@ Sometimes a terminal emacs is also used. These configs enable mouse support (cli
 
 #+end_src
 
-** Completion & Syntax Checking & Formatting 
+** Completion & Syntax Checking & Formatting
+
++ Using =company= for completion
++ Using =yasnippet= for template completion (templates are underway)
++ Using =flycheck= for syntax checking
++ Allowing =editorconfig= specifications
+
 
 #+begin_src emacs-lisp
   (use-package company
@@ -589,6 +651,8 @@ Sometimes a terminal emacs is also used. These configs enable mouse support (cli
 
 ** Treemacs
 
+Not using anymore (too complicated), switched to dirvish.
+
 #+begin_src emacs-lisp :tangle no
   (use-package treemacs
     :ensure t
@@ -608,6 +672,9 @@ Sometimes a terminal emacs is also used. These configs enable mouse support (cli
 
 ** Undo
 
++ Using =undo-fu= for better undo logic,
++ Using =vundo= for undo trees
+
 #+begin_src emacs-lisp
   (use-package undo-fu
     :config
@@ -626,6 +693,8 @@ Sometimes a terminal emacs is also used. These configs enable mouse support (cli
 
 ** Editing
 
++ Using =smart-hungry-delete= to allow delete multiple whitespaces at once.
+
 #+begin_src emacs-lisp
   (use-package smart-hungry-delete
     :ensure t
@@ -639,9 +708,11 @@ Sometimes a terminal emacs is also used. These configs enable mouse support (cli
 
 ** History
 
++ Setting =resentf=
++ Using =keyfreq= to record keybinding usages.
+
 #+begin_src emacs-lisp
   (use-package recentf
-    :ensure nil
     :bind ("C-x C-r" . recentf-open-files)
     :init (recentf-mode)
     :custom
@@ -652,7 +723,10 @@ Sometimes a terminal emacs is also used. These configs enable mouse support (cli
                            "~$"
                            "COMMIT_EDITMSG"
                            "~/.emacs.d/recentf"
-                           "~/.emacs.d/bookmarks"))
+                           "~/.emacs.d/bookmarks"
+                           "~/.emacs.d/persp-confs"
+                           "~/Desktop/\\..+"
+                           ))
     (recentf-max-menu-items 15)
     (recentf-max-saved-items 200)
     ;; Save recent files every 5 minutes to manage abnormal output.
@@ -727,96 +801,124 @@ Sometimes a terminal emacs is also used. These configs enable mouse support (cli
 *** Simple Config
 
 #+begin_src emacs-lisp :tangle no
-  (use-package dired
-    :ensure nil
-    :commands (dired dired-jump)
-    ;; :bind (:map dired-mode-map
-    ;;             ("h" . dired-up-directory)
-    ;;             ("j" . dired-next-line)
-    ;;             ("k" . dired-previous-line)
-    ;;             ("l" . dired-single-buffer))
-    :delight "Dired"
-    :custom
-    (dired-auto-revert-buffer t)
-    (dired-dwim-target t)
-    (dired-hide-details-hide-symlink-targets nil)
-    (dired-listing-switches "-alh --group-directories-first --time-style=iso")
-    (dired-ls-F-marks-symlinks nil)
-    )
+   (use-package dired
+     :ensure nil
+     :commands (dired dired-jump)
+     ;; :bind (:map dired-mode-map
+     ;;             ("h" . dired-up-directory)
+     ;;             ("j" . dired-next-line)
+     ;;             ("k" . dired-previous-line)
+     ;;             ("l" . dired-single-buffer))
+     :delight "Dired"
+     :custom
+     (dired-auto-revert-buffer t)
+     (dired-dwim-target t)
+     (dired-hide-details-hide-symlink-targets nil)
+     (dired-listing-switches "-alh --group-directories-first --time-style=iso")
+     (dired-ls-F-marks-symlinks nil)
+     )
 
-  (use-package dired-single
-    :after dired
-    :bind (:map dired-mode-map
-                ([remap dired-find-file] . dired-single-buffer)
-                ([remap dired-up-directory] . dired-single-up-directory)
-                ("M-DEL" . dired-prev-subdir)))
+   (use-package dired-single
+     :after dired
+     :bind (:map dired-mode-map
+                 ([remap dired-find-file] . dired-single-buffer)
+                 ([remap dired-up-directory] . dired-single-up-directory)
+                 ("M-DEL" . dired-prev-subdir)))
 
-  (use-package all-the-icons-dired
-    :if (display-graphic-p)
-    :hook (dired-mode . all-the-icons-dired-mode))
+   (use-package all-the-icons-dired
+     :if (display-graphic-p)
+     :hook (dired-mode . all-the-icons-dired-mode))
 
-  (use-package dired-hide-dotfiles
-    :hook (dired-mode . dired-hide-dotfiles-mode)
-    :bind (:map dired-mode-map
-                ("H" . dired-hide-dotfiles-mode)))
+   (use-package dired-hide-dotfiles
+     :hook (dired-mode . dired-hide-dotfiles-mode)
+     :bind (:map dired-mode-map
+                 ("H"
+                  . dired-hide-dotfiles-mode)))
 
-  (use-package dired-subtree
-    :after dired
-    :bind (:map dired-mode-map
-                ("<tab>" . dired-subtree-toggle)))
+   (use-package dired-subtree
+     :after dired
+     :bind (:map dired-mode-map
+                 ("<tab>" . dired-subtree-toggle)))
 
-  (use-package dired-git)
+   (use-package dired-git)
 
 #+end_src
 
-*** TODO Dirvish
+*** Dirvish
+
++ Iconized & subtree display
++ Support file preview
++ Support sidebar
++ Can also be used as a real file manager
 
 #+begin_src elisp
   (use-package dirvish
-   :init
-   (dirvish-override-dired-mode)
-   :custom
-   (dirvish-quick-access-entries ; It's a custom option, `setq' won't work
-    '(("h" "~/"                          "Home")
-      ("d" "~/Downloads/"                "Downloads")
-      ("s" "~/Documents/"                "Documents")
-      ("w" "~/workspace/"                "Workspace")
-      ))
-   :hook
-   (dired-mode . (lambda () (display-line-numbers-mode -1)))
-   :config
-   ;; (dirvish-peek-mode) ; Preview files in minibuffer
-   ;; (dirvish-side-follow-mode) ; similar to `treemacs-follow-mode'
-   (setq dirvish-mode-line-format
-         '(:left (sort symlink) :right (omit yank index)))
-   (setq dirvish-attributes
-         '(all-the-icons file-time file-size collapse subtree-state vc-state git-msg))
-   (setq delete-by-moving-to-trash t)
-   (setq dired-listing-switches
-         "-l --human-readable --group-directories-first --no-group")
-   :bind ; Bind `dirvish|dirvish-side|dirvish-dwim' as you see fit
-   (;;("C-c f" . dirvish-fd)
-    ([f12] . dirvish-side)
-    :map dirvish-mode-map ; Dirvish inherits `dired-mode-map'
-    ("a"   . dirvish-quick-access)
-    ("f"   . dirvish-file-info-menu)
-    ("y"   . dirvish-yank-menu)
-    ("N"   . dirvish-narrow)
-    ("^"   . dirvish-history-last)
-    ("h"   . dirvish-history-jump) ; remapped `describe-mode'
-    ("s"   . dirvish-quicksort)    ; remapped `dired-sort-toggle-or-edit'
-    ("v"   . dirvish-vc-menu)      ; remapped `dired-view-file'
-    ("TAB" . dirvish-subtree-toggle)
-    ("M-f" . dirvish-history-go-forward)
-    ("M-b" . dirvish-history-go-backward)
-    ("M-l" . dirvish-ls-switches-menu)
-    ("M-m" . dirvish-mark-menu)
-    ("M-t" . dirvish-layout-toggle)
-    ("M-s" . dirvish-setup-menu)
-    ("M-e" . dirvish-emerge-menu)
-    ("M-j" . dirvish-fd-jump)))
+    :init
+    (dirvish-override-dired-mode)
+    :preface
+    (defun my/toggle-dired-hidden-files ()
+      "Toggle hidden files by modifying `dired-listing-switches`."
+      (interactive)
+      (if (string-match-p " --almost-all " (concat " " dired-actual-switches " ")) ; 检查是否包含 --almost-all
+          (progn
+            (setq dired-listing-switches (replace-regexp-in-string " ?--almost-all ?" " " dired-listing-switches)) ; 移除 --almost-all
+            (setq dired-actual-switches (replace-regexp-in-string " ?--almost-all ?" " " dired-actual-switches)) ; 如果 actual 包含也移除
+            )
+        (progn
+          (setq dired-actual-switches (concat dired-actual-switches " --almost-all")) ; 添加 --almost-all
+          (unless (string-match-p " --almost-all " (concat " " dired-listing-switches " ")) ; 检查是否包含 --almost-all
+            (setq dired-listing-switches (concat dired-listing-switches " --almost-all"))
+            )
+          ))
+      (revert-buffer)) ; 刷新目录
+
+    :custom
+    (dirvish-quick-access-entries ; It's a custom option, `setq' won't work
+     '(("h" "~/"                          "Home")
+       ("d" "~/Downloads/"                "Downloads")
+       ("s" "~/Documents/"                "Documents")
+       ("w" "~/workspace/"                "Workspace")
+       ))
+    :hook
+    (dired-mode . (lambda () (display-line-numbers-mode -1)))
+    :config
+    ;; (dirvish-peek-mode) ; Preview files in minibuffer
+    ;; (dirvish-side-follow-mode) ; similar to `treemacs-follow-mode'
+    (setq dirvish-mode-line-format
+          '(:left (sort symlink) :right (omit yank index)))
+    (setq dirvish-attributes
+          '(all-the-icons file-time file-size collapse subtree-state vc-state git-msg))
+    (setq delete-by-moving-to-trash t)
+    (setq dired-listing-switches
+          "-l --human-readable --group-directories-first --no-group")
+
+    :bind ; Bind `dirvish|dirvish-side|dirvish-dwim' as you see fit
+    (;;("C-c f" . dirvish-fd)
+     ([f12] . dirvish-side)
+     :map dirvish-mode-map ; Dirvish inherits `dired-mode-map'
+     ("a"   . dirvish-quick-access)
+     ("f"   . dirvish-file-info-menu)
+     ("y"   . dirvish-yank-menu)
+     ("N"   . dirvish-narrow)
+     ("^"   . dirvish-history-last)
+     ("DEL" . dired-up-directory)
+     ("h"   . dirvish-history-jump) ; remapped `describe-mode'
+     ("s"   . dirvish-quicksort)    ; remapped `dired-sort-toggle-or-edit'
+     ("v"   . dirvish-vc-menu)      ; remapped `dired-view-file'
+     ("P"   . my/toggle-dired-hidden-files)
+     ("TAB" . dirvish-subtree-toggle)
+     ("M-f" . dirvish-history-go-forward)
+     ("M-b" . dirvish-history-go-backward)
+     ("M-l" . dirvish-ls-switches-menu)
+     ("M-m" . dirvish-mark-menu)
+     ("M-t" . dirvish-layout-toggle)
+     ("M-s" . dirvish-setup-menu)
+     ("M-e" . dirvish-emerge-menu)
+     ("M-j" . dirvish-fd-jump)))
 #+end_src
 ** Hydra
+
+Integrated keybindings for some modes.
 
 #+begin_src emacs-lisp
   (use-package hydra
@@ -961,16 +1063,20 @@ Sometimes a terminal emacs is also used. These configs enable mouse support (cli
 
 ** PDF
 
+Better pdf-preview with =pdf-tool= and =pdf-view=.
+
+*External package installation required.*
+
 #+begin_src emacs-lisp
   (use-package pdf-tools
     :magic ("%PDF" . pdf-view-mode)
     :init (pdf-tools-install :no-query)
-    :hook (pdf-view-mode . (lambda () (display-line-numbers-mode -1)))
     )
 
   (use-package pdf-view
     :ensure nil
     :after pdf-tools
+    :hook (pdf-view-mode . (lambda () (display-line-numbers-mode -1)))    
     :bind (:map pdf-view-mode-map
                 ("C-s" . isearch-forward)
                 ("d" . pdf-annot-delete)
@@ -987,7 +1093,11 @@ Sometimes a terminal emacs is also used. These configs enable mouse support (cli
 #+end_src
 
 ** AI
+
 *** Copilot
+
+AI-based code generation
+
 #+begin_src emacs-lisp
   (use-package copilot
     :when (file-exists-p (my/expand-config-dir "deps/copilot/copilot.el"))
@@ -996,7 +1106,12 @@ Sometimes a terminal emacs is also used. These configs enable mouse support (cli
     (define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
     (define-key copilot-completion-map (kbd "TAB") 'copilot-accept-completion))
 #+end_src
+
 *** Ellama
+
+Chat-based AI assistant.
+*Current using local Ollama instance*.
+
 #+begin_src elisp
   (use-package ellama
     :when (member 'ellama my/enabled-feat)
@@ -1110,22 +1225,25 @@ For example, it uses =delete*= in common lisp (which is cl-delete in elisp).
 ** Miscs
 
 #+begin_src emacs-lisp
+  ;; Highlight all TODO/FIXME/etc.
   (use-package hl-todo
     :config
     (global-hl-todo-mode)
     )
 
+  ;; Allow code folding
   ;; hs-minor-mode
   (defun enable-hs ()
     "Enable hs-minor mode and key binding."
     (hs-minor-mode)
     (global-set-key [f9] 'hs-toggle-hiding)
     )
-
   (add-hook 'prog-mode-hook 'enable-hs)
 
+  ;; Git integration
   (use-package magit)
 
+  ;; Key binding help
   (use-package which-key
     :init (which-key-mode))
 
@@ -1134,10 +1252,12 @@ For example, it uses =delete*= in common lisp (which is cl-delete in elisp).
     (keychain-refresh-environment)
     )
 
+  ;; Frontend of ripgrep (rg)
   (use-package deadgrep
     :bind
     ("<f6>" . deadgrep))
 
+  ;; Terminal Replacement
   (use-package eat
     :bind
     ("<f11>" . eat))
@@ -1149,15 +1269,19 @@ For example, it uses =delete*= in common lisp (which is cl-delete in elisp).
     :init
     (dtrt-indent-global-mode))
 
+  ;; Use Emacs as editor in browsers (but losing loads of features)
   (use-package atomic-chrome
     :init
     (atomic-chrome-start-server)
     )
-
 #+end_src
 
 * Languages
 ** Treesitter
+
+Some helper functions to enable treesitter in certain languages.
+
+*All treesitter library should be prepared in advance.*
 
 #+begin_src emacs-lisp
   (when (and (version<= "29.1" emacs-version)
@@ -1177,6 +1301,11 @@ For example, it uses =delete*= in common lisp (which is cl-delete in elisp).
 #+end_src
 
 ** C/C++
+
+I slightly changed the default coding style (gnu) by adjusting the indentation of multiple lines in parentheses.
+
+*Using either =ccls= or =clangd= as language server, which should be installed externally*.
+
 #+begin_src emacs-lisp
   (use-package cc-mode
     :preface
@@ -1198,6 +1327,7 @@ For example, it uses =delete*= in common lisp (which is cl-delete in elisp).
      my/start-lsp)
     )
 
+  ;; Treesitter of C/C++ should be set independantly
   (use-package c-ts-mode
     :if (and (version<= "29.1" emacs-version)
              (treesit-available-p)
@@ -1250,12 +1380,10 @@ For example, it uses =delete*= in common lisp (which is cl-delete in elisp).
     :hook ((c-mode c++-mode objc-mode cuda-mode c-ts-mode c++-ts-mode) .
            lsp-deferred)
     :config
-
     (add-to-list 'lsp-enabled-clients 'ccls)
+    (add-to-list 'lsp-enabled-clients 'clangd)
     (add-to-list 'lsp-enabled-clients 'ccls-tramp)
     (add-to-list 'lsp-enabled-clients 'clangd-tramp)
-
-
     )
 
   (use-package cuda-mode
@@ -1266,6 +1394,8 @@ For example, it uses =delete*= in common lisp (which is cl-delete in elisp).
 #+end_src
 
 ** Python
+
+*Mainly use =jedi= as language server*.
 
 #+begin_src emacs-lisp
   ;; Python configuration
@@ -1341,16 +1471,6 @@ For example, it uses =delete*= in common lisp (which is cl-delete in elisp).
     (add-to-list 'lsp-enabled-clients 'rust-analyzer)  
     )
 
-  ;;  (use-package rust-ts-mode
-  ;;    :when (and (version<= "29.1" emacs-version)
-  ;;               (treesit-available-p)
-  ;;               (treesit-language-available-p 'rust)
-  ;;               (member 'rust my/enabled-lang))
-  ;;    :init
-  ;;    (add-to-list 'major-mode-remap-alist '(rust-mode . rust-ts-mode))
-  ;;    )
-
-
   (use-package cargo)
 #+end_src
 
@@ -1375,6 +1495,8 @@ For example, it uses =delete*= in common lisp (which is cl-delete in elisp).
 #+end_src
 
 ** TeX
+
+*Using =texlab= as lsp server*.
 
 #+begin_src emacs-lisp
   (use-package lsp-latex
