@@ -88,15 +88,13 @@ I use git submodules instead of packages like *straight* so that some of them ca
 Including =use-package=. All packages are set to be installed by default.
 
 #+begin_src emacs-lisp
+  ;; In Emacs 30, `use-package` has integrated into built-in package.
   (unless (package-installed-p 'use-package)
     (package-refresh-contents)
     (package-install 'use-package))
 
+  (use-package use-package-ensure-system-package)
   (use-package delight :ensure t)
-
-  ;; In Emacs 30, `use-package` has integrated into built-in package.
-  (when (version< emacs-version "30.1")
-    (use-package use-package-ensure-system-package :ensure t))
 
   (require 'use-package-ensure)
   (setq use-package-always-ensure t)  
@@ -138,6 +136,21 @@ These are native configuration of emacs. A minimal config without installing oth
    enable-remote-dir-locals t ; See https://www.gnu.org/software/emacs/manual/html_node/emacs/Directory-Variables.html
    ring-bell-function 'ignore ; See https://emacs-china.org/t/topic/4972
    )
+
+  ;; New feature for matching parenthses outside of the screen
+  ;; Ref: https://emacs-china.org/t/emacs-30/29017/14
+  (when (version<= "30.1" emacs-version)
+    (defun childframe-workable-p ()
+      "Whether childframe is workable."
+      (and (>= emacs-major-version 26)
+           (not noninteractive)
+           (not emacs-basic-display)
+           (or (display-graphic-p)
+               (featurep 'tty-child-frames))
+           (eq (frame-parameter (selected-frame) 'minibuffer) 't)))
+    (setq blink-matching-paren-highlight-offscreen t
+          show-paren-context-when-offscreen
+          (if (childframe-workable-p) 'child-frame 'overlay)))
 
   ;; common modes
   (column-number-mode t) ; Show column number in the modebar
