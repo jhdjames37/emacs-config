@@ -93,7 +93,10 @@ Including =use-package=. All packages are set to be installed by default.
     (package-install 'use-package))
 
   (use-package delight :ensure t)
-  (use-package use-package-ensure-system-package :ensure t)
+
+  ;; In Emacs 30, `use-package` has integrated into built-in package.
+  (when (version< emacs-version "30.1")
+    (use-package use-package-ensure-system-package :ensure t))
 
   (require 'use-package-ensure)
   (setq use-package-always-ensure t)  
@@ -1468,7 +1471,8 @@ I slightly changed the default coding style (gnu) by adjusting the indentation o
     :when (member 'rust my/enabled-lang)
     :hook (rust-mode . my/start-lsp)
     :init
-    (add-to-list 'lsp-enabled-clients 'rust-analyzer)  
+    (when (eq my/use-lsp-frontend 'lsp-mode)
+      (add-to-list 'lsp-enabled-clients 'rust-analyzer))
     )
 
   (use-package cargo)
@@ -1505,10 +1509,12 @@ I slightly changed the default coding style (gnu) by adjusting the indentation o
     :hook
     ((tex-mode latex-mode LaTeX-mode) . my/start-lsp)
     :init
-    (add-to-list 'lsp-enabled-clients 'texlab)
-    (add-to-list 'eglot-server-programs
-                 '((tex-mode context-mode texinfo-mode bibtex-mode) .
-                  ("texlab")))
+    (when (eq my/use-lsp-frontend 'lsp-mode)
+      (add-to-list 'lsp-enabled-clients 'texlab))
+    (when (eq my/use-lsp-frontend 'eglot)
+      (add-to-list 'eglot-server-programs
+                   '((tex-mode context-mode texinfo-mode bibtex-mode) .
+                     ("texlab"))))
     :custom
     (lsp-latex-forward-search-executable "okular")
     (lsp-latex-forward-search-args '("--unique" "file:%p#src:%l%f"))
