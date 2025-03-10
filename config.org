@@ -264,6 +264,22 @@ Sometimes a terminal emacs is also used. These configs enable mouse support (cli
     )
 #+end_src
 
+** Remote
+
+Config to accelerate Dirvish
+
+#+begin_src elisp
+(use-package tramp
+  :config
+  ;; Enable full-featured Dirvish over TRAMP on certain connections
+  ;; https://www.gnu.org/software/tramp/#Improving-performance-of-asynchronous-remote-processes-1.
+  (add-to-list 'tramp-connection-properties
+               (list (regexp-quote "/ssh:node[0-9]+:")
+                     "direct-async-process" t))
+  ;; Tips to speed up connections
+  (setq tramp-verbose 0)
+  (setq tramp-chunksize 2000))
+  #+end_src
 * Plugins
 
 We are using external packages.
@@ -302,7 +318,7 @@ Display better parentheses.
     :custom ((highlight-indent-guides-method 'bitmap)
              (highlight-indent-guides-auto-enabled nil))
     :config
-    (set-face-foreground 'highlight-indent-guides-character-face "dimgray")
+    (set-face-foreground 'highlight-indent-guides-character-face "darkgray")
     )
 #+end_src
 
@@ -657,7 +673,13 @@ More complicated and pretty theme settings.
     )
 
   (use-package flycheck
+    :when (not (eq my/use-lsp-frontend 'eglot))
     :hook (prog-mode . flycheck-mode))
+
+  (use-package flymake
+    :when (eq my/use-lsp-frontend 'eglot)
+    :hook (prog-mode . flymake-mode)
+  )
 
 
   (use-package editorconfig
