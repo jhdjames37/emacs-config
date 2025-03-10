@@ -1271,12 +1271,16 @@ For example, it uses =delete*= in common lisp (which is cl-delete in elisp).
 
   ;; Allow code folding
   ;; hs-minor-mode
-  (defun enable-hs ()
-    "Enable hs-minor mode and key binding."
-    (hs-minor-mode)
-    (global-set-key [f9] 'hs-toggle-hiding)
+  (use-package hideshow
+    :preface
+    (defun enable-hs ()    
+      "Enable hs-minor mode and key binding."
+      (hs-minor-mode)
+      (global-set-key [f9] 'hs-toggle-hiding)
+      )
+    :hook
+    (prog-mode . enable-hs)
     )
-  (add-hook 'prog-mode-hook 'enable-hs)
 
   ;; Git integration
   (use-package magit)
@@ -1591,7 +1595,7 @@ I slightly changed the default coding style (gnu) by adjusting the indentation o
   ;;  :when (member 'latex my/enabled-lang))
 #+end_src
 
-** DONE Typst
+** Typst
 
 #+begin_src emacs-lisp
   (use-package typst-ts-mode
@@ -1642,6 +1646,9 @@ I slightly changed the default coding style (gnu) by adjusting the indentation o
 #+end_src
 
 * Org mode
+
+There are much settings that I never use.
+
 ** Basic Setup
 #+begin_src emacs-lisp
   (use-package org
