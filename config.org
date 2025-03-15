@@ -131,7 +131,7 @@ These are native configuration of emacs. A minimal config without installing oth
    indent-tabs-mode nil ; Do not replace spaces with tabs
    )
 
-  (setq                                        
+  (setq
    word-wrap-by-category t ; See https://emacs-china.org/t/topic/2616/25
    enable-remote-dir-locals t ; See https://www.gnu.org/software/emacs/manual/html_node/emacs/Directory-Variables.html
    ring-bell-function 'ignore ; See https://emacs-china.org/t/topic/4972
@@ -180,6 +180,17 @@ These are native configuration of emacs. A minimal config without installing oth
   (global-set-key [f5] #'(lambda () (interactive) (compile "make -k -j")))
   (global-set-key [f7] #'(lambda () (interactive) (compile "make clean")))
   (global-set-key [f11] 'shell)
+
+  ;; For search adjustments
+  ;; From https://github.com/condy0919/emacs-newbie/blob/master/introduction-to-builtin-modes.md#isearch
+  (use-package isearch
+    :ensure nil
+    :bind (:map isearch-mode-map
+                ([remap isearch-delete-char] . isearch-del-char))
+    :custom
+    (isearch-lazy-count t)
+    (lazy-count-prefix-format "%s/%s ")
+    (lazy-highlight-cleanup nil))
 #+end_src
 
 ** Font Settings
@@ -925,11 +936,13 @@ Not using anymore (too complicated), switched to dirvish.
     (dired-mode . (lambda () (display-line-numbers-mode -1)))
     :config
     ;; (dirvish-peek-mode) ; Preview files in minibuffer
-    ;; (dirvish-side-follow-mode) ; similar to `treemacs-follow-mode'
+    (dirvish-side-follow-mode) ; similar to `treemacs-follow-mode'
     (setq dirvish-mode-line-format
           '(:left (sort symlink) :right (omit yank index)))
-    (setq dirvish-attributes
-          '(all-the-icons file-time file-size collapse subtree-state vc-state git-msg))
+    (setq dirvish-attributes           ; The order *MATTERS* for some attributes
+          '(vc-state subtree-state nerd-icons collapse git-msg file-time file-size)
+          dirvish-side-attributes
+          '(vc-state nerd-icons collapse file-size))
     (setq delete-by-moving-to-trash t)
     (setq dired-listing-switches
           "-l --human-readable --group-directories-first --no-group")
@@ -938,6 +951,7 @@ Not using anymore (too complicated), switched to dirvish.
     (;;("C-c f" . dirvish-fd)
      ([f12] . dirvish-side)
      :map dirvish-mode-map ; Dirvish inherits `dired-mode-map'
+     ("?"   . dirvish-dispatch)
      ("a"   . dirvish-quick-access)
      ("f"   . dirvish-file-info-menu)
      ("y"   . dirvish-yank-menu)
@@ -957,6 +971,11 @@ Not using anymore (too complicated), switched to dirvish.
      ("M-s" . dirvish-setup-menu)
      ("M-e" . dirvish-emerge-menu)
      ("M-j" . dirvish-fd-jump)))
+#+end_src
+*** Other Configs
+#+begin_src emacs-lisp
+  ;; view package into separate file.
+  (use-package arview)
 #+end_src
 ** Hydra
 
