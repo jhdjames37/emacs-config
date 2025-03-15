@@ -1264,6 +1264,24 @@ For example, it uses =delete*= in common lisp (which is cl-delete in elisp).
                     )))
     )
 #+end_src
+** Search
+=ripgrep= is a good utility to search files in a directory.
+#+begin_src elisp
+  ;; Frontend of ripgrep (rg)
+  (use-package deadgrep
+    :when (not (file-exists-p (my/expand-config-dir "deps/color-rg")))
+    :bind
+    ("<f6>" . deadgrep))
+
+  ;; Find and replace
+  (use-package color-rg
+    :when (file-exists-p (my/expand-config-dir "deps/color-rg"))
+    :load-path "deps/color-rg"
+    :bind
+    (("<f6>" . color-rg-search-input-in-project)
+     ("C-<f6>" . color-rg-search-symbol-in-project))
+    )
+#+end_src
 ** Miscs
 
 #+begin_src emacs-lisp
@@ -1298,11 +1316,6 @@ For example, it uses =delete*= in common lisp (which is cl-delete in elisp).
     (keychain-refresh-environment)
     )
 
-  ;; Frontend of ripgrep (rg)
-  (use-package deadgrep
-    :bind
-    ("<f6>" . deadgrep))
-
   ;; Terminal Replacement
   (use-package eat
     :bind
@@ -1320,6 +1333,7 @@ For example, it uses =delete*= in common lisp (which is cl-delete in elisp).
     :init
     (atomic-chrome-start-server)
     )
+
 #+end_src
 
 * Languages

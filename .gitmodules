@@ -4,3 +4,6 @@
 [submodule "deps/copilot"]
 	path = deps/copilot
 	url = https://github.com/copilot-emacs/copilot.el.git
+[submodule "deps/color-rg"]
+	path = deps/color-rg
+	url = https://github.com/manateelazycat/color-rg.git
