@@ -1169,8 +1169,6 @@ AI-based code generation
 
 #+begin_src emacs-lisp
   (use-package copilot
-    :when (file-exists-p (my/expand-config-dir "deps/copilot/copilot.el"))
-    :load-path "deps/copilot"
     :config
     (define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
     (define-key copilot-completion-map (kbd "TAB") 'copilot-accept-completion))
