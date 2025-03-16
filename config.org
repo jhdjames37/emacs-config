@@ -167,6 +167,7 @@ These are native configuration of emacs. A minimal config without installing oth
     )
   (tool-bar-mode -1)
   (menu-bar-mode -1)
+  (scroll-bar-mode -1) ;; Vanilla Scroll-bar is not pretty TODO: scroll-bar replacement
   (global-hl-line-mode)
   ;; delete selection instead of removing only one character
   (delete-selection-mode 1)
@@ -903,7 +904,8 @@ Not using anymore (too complicated), switched to dirvish.
 + Support file preview
 + Support sidebar
 + Can also be used as a real file manager
-
++ See [[https://github.com/alexluigit/dirvish/blob/main/docs/CUSTOMIZING.org#install-dependencies-for-an-enhanced-preview-experience][here]] for dependency specification
+  
 #+begin_src elisp
   (use-package dirvish
     :init
