@@ -946,6 +946,8 @@ Not using anymore (too complicated), switched to dirvish.
     (setq delete-by-moving-to-trash t)
     (setq dired-listing-switches
           "-l --human-readable --group-directories-first --no-group")
+
+    ;; Ref: https://emacs-china.org/t/dirvish-dired/20189/310
     (with-eval-after-load "persp-mode"
       (setq dirvish--scopes
             '(:frame selected-frame :tab tab-bar--current-tab-index :persp get-current-persp)))
@@ -1106,10 +1108,14 @@ Integrated keybindings for some modes.
       ("i" org-insert-link-global "insert-link")
       ("j" org-capture-goto-last-stored "jump-capture")
       ("k" org-cut-subtree "cut-subtree")
+      ("m" org-modern-mode "modern display")
       ("o" org-open-at-point-global "open-link")
       ("r" org-refile "refile")
       ("s" org-store-link "store-link")
-      ("t" org-show-todo-tree "todo-tree"))))
+      ("t" org-show-todo-tree "todo-tree")
+      )
+
+     ))
 
   (defhydra hydra-view
     (:hint nil :color amaranth)
@@ -1838,6 +1844,8 @@ There are much settings that I never use.
     :when (member 'org my/enabled-lang)
     :hook (org-mode . org-bullets-mode)
     )
+
+  (use-package org-modern)
 #+end_src
 ** Agenda
 #+begin_src elisp
