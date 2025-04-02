@@ -191,7 +191,8 @@ These are native configuration of emacs. A minimal config without installing oth
     :custom
     (isearch-lazy-count t)
     (lazy-count-prefix-format "%s/%s ")
-    (lazy-highlight-cleanup nil))
+    ;;(lazy-highlight-cleanup nil)
+    )
 #+end_src
 
 ** Font Settings
@@ -1310,7 +1311,6 @@ TODO: Auto persp for each ssh session, [[https://gist.github.com/Bad-ptr/1aca1ec
 #+begin_src elisp
   ;; Frontend of ripgrep (rg)
   (use-package deadgrep
-    :when (not (file-exists-p (my/expand-config-dir "deps/color-rg")))
     :bind
     ("<f6>" . deadgrep))
 
@@ -1319,8 +1319,7 @@ TODO: Auto persp for each ssh session, [[https://gist.github.com/Bad-ptr/1aca1ec
     :when (file-exists-p (my/expand-config-dir "deps/color-rg"))
     :load-path "deps/color-rg"
     :bind
-    (("<f6>" . color-rg-search-input-in-project)
-     ("C-<f6>" . color-rg-search-symbol-in-project))
+    (("C-<f6>" . color-rg-search-symbol-in-project))
     )
 #+end_src
 ** Miscs
