@@ -1031,7 +1031,7 @@ This is a simple config for dired. It is enough for brief file navigation, but m
              ;; ("C-c e" . hydra-circe/body)
              ("C-c f" . hydra-flycheck/body)
              ("C-c g" . hydra-go-to-file/body)
-             ;; ("C-c m" . hydra-magit/body)
+             ("C-c m" . hydra-git/body)
              ("C-c o" . hydra-org/body)
              ;; ("C-c p" . hydra-projectile/body)
              ;; ("C-c s" . hydra-spelling/body)
@@ -1102,52 +1102,66 @@ As =Eglot= only supports FlyMake, there needs some selection.
 Merge git conflicts. 
 
 #+begin_src elisp
-    (pretty-hydra-define hydra-merge
-      (:hint nil :color pink :quit-key "q" :title (with-octicon "mark-github" "Merge" 1 -0.05))
-      ("Move"
-       (("n" smerge-next "next")
-        ("p" smerge-prev "previous"))
-       "Keep"
-       (("RET" smerge-keep-current "current")
-        ("a" smerge-keep-all "all")
-        ("b" smerge-keep-base "base")
-        ("l" smerge-keep-lower "lower")
-        ("u" smerge-keep-upper "upper"))
-       "Diff"
-       (("<" smerge-diff-base-upper "upper/base")
-        ("=" smerge-diff-upper-lower "upper/lower")
-        (">" smerge-diff-base-lower "base/lower")
-        ("R" smerge-refine "redefine")
-        ("E" smerge-ediff "ediff"))
-       "Other"
-       (("C" smerge-combine-with-next "combine")
-        ("r" smerge-resolve "resolve")
-        ("k" smerge-kill-current "kill current"))))
+  (pretty-hydra-define hydra-merge
+    (:hint nil :color pink :quit-key "q" :title (with-octicon "mark-github" "Merge" 1 -0.05))
+    ("Move"
+     (("n" smerge-next "next")
+      ("p" smerge-prev "previous"))
+     "Keep"
+     (("RET" smerge-keep-current "current")
+      ("a" smerge-keep-all "all")
+      ("b" smerge-keep-base "base")
+      ("l" smerge-keep-lower "lower")
+      ("u" smerge-keep-upper "upper"))
+     "Diff"
+     (("<" smerge-diff-base-upper "upper/base")
+      ("=" smerge-diff-upper-lower "upper/lower")
+      (">" smerge-diff-base-lower "base/lower")
+      ("R" smerge-refine "redefine")
+      ("E" smerge-ediff "ediff"))
+     "Other"
+     (("C" smerge-combine-with-next "combine")
+      ("r" smerge-resolve "resolve")
+      ("k" smerge-kill-current "kill current"))))
 #+end_src
+*** Git Diff
 
+Manage Git modify with =git-gutter=
+#+begin_src emacs-lisp
+  (pretty-hydra-define hydra-git
+    (:hint nil :color pink :quit-key "q" :title (with-octicon "mark-github" "Git" 1 -0.05))
+    ("Move"
+     (("n" git-gutter:next-hunk "next")
+      ("p" git-gutter:previous-hunk "previous"))
+     "Operation"
+     (("s" git-gutter:stage-hunk "Stage")
+      ("r" git-gutter:revert-hunk "Revert")
+      ("m" git-gutter:mark-hunk "Mark"))
+     ))
+#+end_src
 *** Window Size
 
 #+begin_src elisp
-      (pretty-hydra-define hydra-windows
-        (:hint nil :forein-keys warn :quit-key "q" :title (with-faicon "windows" "Windows" 1 -0.05))
-        ("Window"
-         (("b" balance-windows "balance")
-          ;;("c" centered-window-mode "center")
-          ("i" enlarge-window "heighten")
-          ("j" shrink-window-horizontally "narrow")
-          ("k" shrink-window "lower")
-          ("u" winner-undo "undo")
-          ("r" winner-redo "redo")
-          ("l" enlarge-window-horizontally "widen")
-          ("o" ace-window "switch")
-          ("t" treemacs-select-window "treemacs")
-          ;;("s" switch-window-then-swap-buffer "swap" :color teal)
-          )
-         "Zoom"
-         (("-" text-scale-decrease "out")
-          ("+" text-scale-increase "in")
-          ("=" (text-scale-increase 0) "reset"))))
-#+end_src elisp
+  (pretty-hydra-define hydra-windows
+    (:hint nil :forein-keys warn :quit-key "q" :title (with-faicon "windows" "Windows" 1 -0.05))
+    ("Window"
+     (("b" balance-windows "balance")
+      ;;("c" centered-window-mode "center")
+      ("i" enlarge-window "heighten")
+      ("j" shrink-window-horizontally "narrow")
+      ("k" shrink-window "lower")
+      ("u" winner-undo "undo")
+      ("r" winner-redo "redo")
+      ("l" enlarge-window-horizontally "widen")
+      ("o" ace-window "switch")
+      ("t" treemacs-select-window "treemacs")
+      ;;("s" switch-window-then-swap-buffer "swap" :color teal)
+      )
+     "Zoom"
+     (("-" text-scale-decrease "out")
+      ("+" text-scale-increase "in")
+      ("=" (text-scale-increase 0) "reset"))))
+#+end_src
 *** COMMENT Treemacs
 #+begin_src elisp
   (pretty-hydra-define hydra-treemacs
@@ -1441,6 +1455,14 @@ TODO: Auto persp for each ssh session, [[https://gist.github.com/Bad-ptr/1aca1ec
   (use-package magit)
 #+end_src
 
++ And also =git-gutter= to show changes of file.
+#+begin_src emacs-lisp
+  (use-package git-gutter
+    :init
+    (global-git-gutter-mode))
+#+end_src
+
+
 + =which-key= prompts key guidance, and is integrated into Emacs since 30.1.
 #+begin_src elisp
   ;; Key binding help
@@ -1484,6 +1506,17 @@ TODO: Auto persp for each ssh session, [[https://gist.github.com/Bad-ptr/1aca1ec
     (atomic-chrome-start-server))
 #+end_src
 
++ =visual-replace= gives a better replace interface
+  #+begin_src emacs-lisp
+    (use-package visual-replace
+      :defer t
+      :init
+      (visual-replace-global-mode 1)
+      :bind (("C-c r" . visual-replace)
+             :map isearch-mode-map
+             ("C-c r" . visual-replace-from-isearch)
+             ))
+  #+end_src
 * Languages
 ** Treesitter
 Some helper functions to enable treesitter in certain languages.
