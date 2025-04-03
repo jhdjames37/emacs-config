@@ -1,0 +1,27 @@
+#+TITLE: My Emacs Configuration
+
+For Detailed Configuration, please see [[file:config.org][here]].
+
+* Intro
+
+Here's my person =.emacs.d= configuration.
+
+* Install
+
+Clone the repo and place it in =~/.emacs.d=. Required packages will be downloaded automatically.
+
+Some Notes:
++ Some system packages should be installed, and the configuration are only tested under Linux systems.
+  - LSP servers for your language (e.g., =clangd= or =ccls= for C++)
+  - ripgrep(rg)
+  - keychain
+  - others (I haven't made a thorough list right now)
++ No startup speed optimization currently. Therefore it is suggested to use Emacs client/server mode.
+
+* Acknowledgement
+
++ [[https://github.com/rememberYou/.emacs.d][rememberYou's]] config provides excellent remarks on usages of the packages. Many packages configs in this repo are also from here.
++ [[https://github.com/emacs-tw/awesome-emacs][awesome-emacs]] lists different choices of packages in categories, which is a good place to explore.
++ For Chinese users, you can learn a lot from [[https://emacs-china.org][EmacsChina]].
++ Other references are also included in the configuration itself.
+

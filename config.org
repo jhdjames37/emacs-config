@@ -4,14 +4,6 @@
 #+PROPERTY: LOGGING nil
 #+PROPERTY: header-args    :results silent
 
-* Overview
-
-Here is my emacs config.
-
-** Notes
-
-+ checkout: https://emacs-china.org/t/emacs-builtin-mode/11937/1
-
 * Custom Variables
 
 These are custom varibles, which may vary in different platforms
@@ -123,6 +115,8 @@ Do not let custom-variables accidentally pollute =init.el= or other files.
 ** Built-in config and modes
 
 These are native configuration of emacs. A minimal config without installing other packages can also be seen in =simple.el=.
+
++ checkout: https://emacs-china.org/t/emacs-builtin-mode/11937/1
 
 #+begin_src emacs-lisp
   (setq-default
@@ -264,11 +258,13 @@ Switch shell to zsh use =IN_EMACS= environment variable to recognize and to sele
 
 Sometimes a terminal emacs is also used. These configs enable mouse support (click and scroll) in supported terminals.
 
++ Reference:
+  - https://www.gnu.org/software/emacs/manual/html_node/emacs/Text_002dOnly-Mouse.html
+  - https://stackoverflow.com/questions/18198387/how-do-i-mouse-scroll-in-emacs-in-the-terminal-i-havent-gotten-mouse-wheel-mod
++ NOTE: `gpm' may not properly setup, use xterm-mouse-mode instead
+  
 #+begin_src emacs-lisp
   ;; Terminal mouse integration
-  ;; Reference: https://www.gnu.org/software/emacs/manual/html_node/emacs/Text_002dOnly-Mouse.html
-  ;; https://stackoverflow.com/questions/18198387/how-do-i-mouse-scroll-in-emacs-in-the-terminal-i-havent-gotten-mouse-wheel-mod
-  ;; `gpm' may not properly setup, use xterm-mouse-mode instead
   ;; TODO: add checks
   (unless (display-graphic-p)
     (xterm-mouse-mode 1)
@@ -277,7 +273,7 @@ Sometimes a terminal emacs is also used. These configs enable mouse support (cli
     )
 #+end_src
 
-** Remote
+** COMMENT Remote
 
 Config to accelerate Dirvish
 
@@ -302,6 +298,8 @@ Config to accelerate Dirvish
 We are using external packages.
 
 ** Interfaces
+
+Better interface for better modes (?)
 
 *** Parentheses
 
@@ -339,14 +337,10 @@ Display better parentheses.
     )
 #+end_src
 
-
 *** Theme
-
-More complicated and pretty theme settings.
+More complicated and prettier theme settings.
 + Using =doom-themes= for global themes
-+ Using =minions= for better minor-mode display
-+ Using =solaire-mode= to provide different display between editing buffers and functional buffers
-
+  
 #+begin_src elisp
   (use-package doom-themes
     :unless my/use-builtin-theme
@@ -367,7 +361,8 @@ More complicated and pretty theme settings.
       ;;(set-background-color )
       )
     )
-
+#+end_src
+#+begin_src elisp
   ;; NOTE: RUN `nerd-icons-install-fonts` in the first run.
   (use-package doom-modeline
     :unless my/use-builtin-theme
@@ -377,12 +372,19 @@ More complicated and pretty theme settings.
     (doom-modeline-icon (display-graphic-p))
     (doom-modeline-minor-modes t)
     )
+#+end_src
 
++ Using =minions= for better minor-mode display
+  
+#+begin_src elisp
   (use-package minions
     :unless my/use-builtin-theme
     :config (minions-mode 1))
+#+end_src
 
-
++ Using =solaire-mode= to provide different display between editing buffers and functional buffers
+  
+#+begin_src elisp
 
   (use-package solaire-mode
     :defer 0.1
@@ -400,10 +402,7 @@ More complicated and pretty theme settings.
 + Using =dashboard=, which gives a cleaner view for the startup window.
 
 #+begin_src elisp
-
   (use-package dashboard
-    ;;:hook
-    ;;(dashboard-mode . emacs-lock-mode)
     :bind
     ("C-c d" . dashboard-open)
     :init
@@ -417,7 +416,6 @@ More complicated and pretty theme settings.
                        (projects . 3)
                        (agenda . 5)
                        ))
-    ;;(dashboard-set-footer nil)
     (dashboard-startupify-list
      '(dashboard-insert-banner
        dashboard-insert-newline
@@ -432,20 +430,23 @@ More complicated and pretty theme settings.
 
 ** Buffer & Windows
 
-+ Using =ace-window= to select which buffer to switch
-+ Using =winner-mode= (builtin) to undo buffer size changes (ref. Hydra settings)
-+ Setting =ibuffer= not to kill specific buffers
-
++ Using =ace-window= to select which buffer to switch when number of windows is > 2.
 #+begin_src emacs-lisp
-  ;; ACE-window
   (use-package ace-window
     :bind ("C-x o" . ace-window)
     :init (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
     )
+#+end_src
+
++ Using =winner-mode= (builtin) to undo buffer size changes (ref. Hydra settings).
+#+begin_src elisp
   (use-package winner
     :ensure nil
     :config (winner-mode))
+#+end_src
 
++ Setting =ibuffer= not to kill specific buffers.
+#+begin_src elisp
   (use-package ibuffer
     :ensure nil
     :after dashboard
@@ -465,17 +466,20 @@ More complicated and pretty theme settings.
 ** Navigation & Minibuffer
 
 + Using =avy= for quick jump to line
-+ For better minibuffer completion
-  - Option 1: helm
-  - Option 2: vertico/consult/orderless
-
 
 #+begin_src emacs-lisp
   (use-package avy
     :bind (("M-g f" . avy-goto-line)
            ("M-g w" . avy-goto-word-1)
            ("M-g e" . avy-goto-word-0)))
+#+end_src
 
++ For better minibuffer completion
+  - Option 1: helm
+  - Option 2: vertico/consult/orderless
+
+*** Helm
+#+begin_src elisp
   (use-package helm
     :when (eq my/minibuffer-backend 'helm)
     :bind (("M-x" . helm-M-x)
@@ -486,8 +490,10 @@ More complicated and pretty theme settings.
   (use-package helm-lsp
     :when (eq my/minibuffer-backend 'helm)
     :after (helm lsp))
+#+end_src
 
-
+*** vertico/consult/orderless
+#+begin_src elisp
   (use-package vertico
     :when (eq my/minibuffer-backend 'vertico)
     :init (vertico-mode)
@@ -505,6 +511,7 @@ More complicated and pretty theme settings.
   (use-package marginalia
     :when (eq my/minibuffer-backend 'vertico)
     :init (marginalia-mode))
+  
   (use-package embark
     :bind
     (("C-." . embark-act)
@@ -662,24 +669,24 @@ More complicated and pretty theme settings.
 ** Completion & Syntax Checking & Formatting
 
 + Using =company= for completion
-+ Using =yasnippet= for template completion (templates are underway)
-+ Using =flycheck= for syntax checking
-+ Allowing =editorconfig= specifications
-
 
 #+begin_src emacs-lisp
-  (use-package company
-    :hook (prog-mode . company-mode)
-    :bind
-    ;;("C-i" . company-complete-common)
-    :custom
-    (company-idle-delay 0.5)
-    (company-minimum-prefix-length 1)
-    )
+    (use-package company
+      :hook (prog-mode . company-mode)
+      :bind
+      ;;("C-i" . company-complete-common)
+      :custom
+      (company-idle-delay 0.5)
+      (company-minimum-prefix-length 1)
+      )
 
-  (use-package company-box
-    :hook (company-mode . company-box-mode))
+    (use-package company-box
+      :hook (company-mode . company-box-mode))
+#+end_src
 
++ Using =yasnippet= for template completion (templates are underway)
+  
+#+begin_src elisp
   (use-package yasnippet
     :after company
     :hook (prog-mode . yas-minor-mode)
@@ -688,23 +695,30 @@ More complicated and pretty theme settings.
     :config
     (yas-reload-all)
     )
+#+end_src
 
++ Using =flycheck= / =flymake= (when using Eglot) for syntax checking
+  
+#+begin_src elisp
   (use-package flycheck
     :when (not (eq my/use-lsp-frontend 'eglot))
     :hook (prog-mode . flycheck-mode))
-
+  
   (use-package flymake
     :when (eq my/use-lsp-frontend 'eglot)
     :hook (prog-mode . flymake-mode)
-  )
+    )
+#+end_src
 
-
++ And allowing =editorconfig= specifications
+  
+#+begin_src elisp
   (use-package editorconfig
     :hook (prog-mode . editorconfig-mode)
     )
 #+end_src
 
-** Treemacs
+** COMMENT Treemacs
 
 Not using anymore (too complicated), switched to dirvish.
 
@@ -741,9 +755,7 @@ Not using anymore (too complicated), switched to dirvish.
      ("C-?" . undo-fu-only-redo)
      )
     )
-
   (use-package vundo)
-
 #+end_src
 
 ** Editing
@@ -756,16 +768,12 @@ Not using anymore (too complicated), switched to dirvish.
     :bind (([remap backward-delete-char-untabify] . smart-hungry-delete-backward-char)
            ([remap delete-backward-char] . smart-hungry-delete-backward-char)
            ([remap delete-char] . smart-hungry-delete-forward-char))
-    :init (smart-hungry-delete-add-default-hooks)
-    )
-
+    :init (smart-hungry-delete-add-default-hooks))
 #+end_src
 
 ** History
 
-+ Setting =resentf=
-+ Using =keyfreq= to record keybinding usages.
-
++ Setting =resentf= to ignore specific paths.
 #+begin_src emacs-lisp
   (use-package recentf
     :bind ("C-x C-r" . recentf-open-files)
@@ -786,7 +794,10 @@ Not using anymore (too complicated), switched to dirvish.
     (recentf-max-saved-items 200)
     ;; Save recent files every 5 minutes to manage abnormal output.
     :config (run-at-time nil (* 5 60) 'recentf-save-list))
+#+end_src
 
++ Using =keyfreq= to record keybinding usages.
+#+begin_src elisp
   (use-package keyfreq
     :init
     (keyfreq-mode)
@@ -799,6 +810,8 @@ Not using anymore (too complicated), switched to dirvish.
 
 ** Project & LSP
 
++ =Projectile= is essetially installed as (lagacy) dependency.
+
 #+begin_src emacs-lisp
   ;;; Projectile
   (use-package projectile
@@ -809,21 +822,31 @@ Not using anymore (too complicated), switched to dirvish.
     )
 #+end_src
 
++ For LSP usage, I think current approaches all have its pros and cons.
+  - =lsp-mode= is the first commonly available LSP frontend. However, I do not like its project management logic (Manually importing), especially when editing single files.
+  - Currently, I use =eglot=. It has good functionability, and acceptable speed.
+  - For =lsp-bridge= (also other python-involved packages developed by [[https://github.com/manateelazycat][manateelazycat]]), I would like to figure out a comfortable way to manage all python dependencies, especially remotely.
+
 #+begin_src emacs-lisp
   (defun my/start-lsp ()
     "The start command of lsp frontent"
     (when (eq my/use-lsp-frontend 'lsp-mode) (lsp-deferred)) 
     (when (eq my/use-lsp-frontend 'eglot) (eglot-ensure))
     )
-
+#+end_src
+  
+*** Eglot
+#+begin_src elisp
   (use-package eglot
     :when (eq my/use-lsp-frontend 'eglot)
     :config
-    (add-hook 'eglot-managed-mode-hook (lambda ()
-                                         (add-to-list 'company-backends
-                                                      '(company-capf :with company-yasnippet))))
+    (add-hook 'eglot-managed-mode-hook
+              (lambda ()
+                (add-to-list 'company-backends
+                             '(company-capf :with company-yasnippet))))
     )
 #+end_src
+
 *** COMMENT lsp-mode
 
 #+begin_src emacs-lisp
@@ -854,6 +877,8 @@ Not using anymore (too complicated), switched to dirvish.
 
 ** Dired
 *** Simple Config
+
+This is a simple config for dired. It is enough for brief file navigation, but more advanced features are lost.
 
 #+begin_src emacs-lisp :tangle no
    (use-package dired
@@ -901,11 +926,15 @@ Not using anymore (too complicated), switched to dirvish.
 
 *** Dirvish
 
+=Dirvish= further enhances Dired experience: 
+
 + Iconized & subtree display
 + Support file preview
 + Support sidebar
 + Can also be used as a real file manager
 + See [[https://github.com/alexluigit/dirvish/blob/main/docs/CUSTOMIZING.org#install-dependencies-for-an-enhanced-preview-experience][here]] for dependency specification
+
+..., which may allow it to become a real modern file manager.
   
 #+begin_src elisp
   (use-package dirvish
@@ -981,114 +1010,146 @@ Not using anymore (too complicated), switched to dirvish.
      ("M-j" . dirvish-fd-jump)))
 #+end_src
 *** Other Configs
++ =Arview= automatically decompresses archives, like most GUI viewers do.
 #+begin_src emacs-lisp
-  ;; view package into separate file.
   (use-package arview)
 #+end_src
 ** Hydra
 
-Integrated keybindings for some modes.
+=Hydra= integrates keybindings for some specific modes.
+
+*** Basic Setup
 
 #+begin_src emacs-lisp
-  (use-package hydra
-    :bind (;;("C-c I" . hydra-image/body)
-           ;;("C-c L" . hydra-ledger/body)
-           ("C-c M" . hydra-merge/body)
-           ;; ("C-c T" . hydra-tool/body)
-           ;; ("C-c b" . hydra-btoggle/body)
-           ;; ("C-c c" . hydra-clock/body)
-           ;; ("C-c e" . hydra-circe/body)
-           ("C-c f" . hydra-flycheck/body)
-           ("C-c g" . hydra-go-to-file/body)
-           ;; ("C-c m" . hydra-magit/body)
-           ("C-c o" . hydra-org/body)
-           ;; ("C-c p" . hydra-projectile/body)
-           ;; ("C-c s" . hydra-spelling/body)
-           ;; ("C-c t" . hydra-tex/body)
-           ;; ("C-c u" . hydra-upload/body)
-           ("C-c w" . hydra-windows/body)
-           ;;("C-c r" . hydra-treemacs/body)
-           ("C-c v" . hydra-view/body)
-           )
-    )
-
-  (use-package major-mode-hydra
-    :after hydra
-    :preface
-    (defun with-alltheicon (icon str &optional height v-adjust face)
-      "Display an icon from all-the-icon."
-      (s-concat (all-the-icons-alltheicon icon :v-adjust (or v-adjust 0) :height (or height 1) :face face) " " str))
-
-    (defun with-faicon (icon str &optional height v-adjust face)
-      "Display an icon from Font Awesome icon."
-      (s-concat (all-the-icons-faicon icon ':v-adjust (or v-adjust 0) :height (or height 1) :face face) " " str))
-
-    (defun with-fileicon (icon str &optional height v-adjust face)
-      "Display an icon from the Atom File Icons package."
-      (s-concat (all-the-icons-fileicon icon :v-adjust (or v-adjust 0) :height (or height 1) :face face) " " str))
-
-    (defun with-octicon (icon str &optional height v-adjust face)
-      "Display an icon from the GitHub Octicons."
-      (s-concat (all-the-icons-octicon icon :v-adjust (or v-adjust 0) :height (or height 1) :face face) " " str)))
-
-  (pretty-hydra-define hydra-flycheck
-    (:hint nil :color teal :quit-key "q" :title (with-faicon "plane" "Flycheck" 1 -0.05))
-    ("Checker"
-     (("?" flycheck-describe-checker "describe")
-      ("d" flycheck-disable-checker "disable")
-      ("m" flycheck-mode "mode")
-      ("s" flycheck-select-checker "select"))
-     "Errors"
-     (("<" flycheck-previous-error "previous" :color pink)
-      (">" flycheck-next-error "next" :color pink)
-      ("f" flycheck-buffer "check")
-      ("l" flycheck-list-errors "list"))
-     "Other"
-     (("M" flycheck-manual "manual")
-      ("v" flycheck-verify-setup "verify setup"))))
-
-  (pretty-hydra-define hydra-merge
-    (:hint nil :color pink :quit-key "q" :title (with-octicon "mark-github" "Magit" 1 -0.05))
-    ("Move"
-     (("n" smerge-next "next")
-      ("p" smerge-prev "previous"))
-     "Keep"
-     (("RET" smerge-keep-current "current")
-      ("a" smerge-keep-all "all")
-      ("b" smerge-keep-base "base")
-      ("l" smerge-keep-lower "lower")
-      ("u" smerge-keep-upper "upper"))
-     "Diff"
-     (("<" smerge-diff-base-upper "upper/base")
-      ("=" smerge-diff-upper-lower "upper/lower")
-      (">" smerge-diff-base-lower "base/lower")
-      ("R" smerge-refine "redefine")
-      ("E" smerge-ediff "ediff"))
-     "Other"
-     (("C" smerge-combine-with-next "combine")
-      ("r" smerge-resolve "resolve")
-      ("k" smerge-kill-current "kill current"))))
-
-  (pretty-hydra-define hydra-windows
-    (:hint nil :forein-keys warn :quit-key "q" :title (with-faicon "windows" "Windows" 1 -0.05))
-    ("Window"
-     (("b" balance-windows "balance")
-      ;;("c" centered-window-mode "center")
-      ("i" enlarge-window "heighten")
-      ("j" shrink-window-horizontally "narrow")
-      ("k" shrink-window "lower")
-      ("u" winner-undo "undo")
-      ("r" winner-redo "redo")
-      ("l" enlarge-window-horizontally "widen")
-      ("o" ace-window "switch")
-      ("t" treemacs-select-window "treemacs")
-      ;;("s" switch-window-then-swap-buffer "swap" :color teal)
+    (use-package hydra
+      :bind (;;("C-c I" . hydra-image/body)
+             ;;("C-c L" . hydra-ledger/body)
+             ("C-c M" . hydra-merge/body)
+             ;; ("C-c T" . hydra-tool/body)
+             ;; ("C-c b" . hydra-btoggle/body)
+             ;; ("C-c c" . hydra-clock/body)
+             ;; ("C-c e" . hydra-circe/body)
+             ("C-c f" . hydra-flycheck/body)
+             ("C-c g" . hydra-go-to-file/body)
+             ;; ("C-c m" . hydra-magit/body)
+             ("C-c o" . hydra-org/body)
+             ;; ("C-c p" . hydra-projectile/body)
+             ;; ("C-c s" . hydra-spelling/body)
+             ;; ("C-c t" . hydra-tex/body)
+             ;; ("C-c u" . hydra-upload/body)
+             ("C-c w" . hydra-windows/body)
+             ;;("C-c r" . hydra-treemacs/body)
+             ("C-c v" . hydra-view/body)
+             )
       )
-     "Zoom"
-     (("-" text-scale-decrease "out")
-      ("+" text-scale-increase "in")
-      ("=" (text-scale-increase 0) "reset"))))
 
+    (use-package major-mode-hydra
+      :after hydra
+      :preface
+      (defun with-alltheicon (icon str &optional height v-adjust face)
+        "Display an icon from all-the-icon."
+        (s-concat (all-the-icons-alltheicon icon :v-adjust (or v-adjust 0) :height (or height 1) :face face) " " str))
+
+      (defun with-faicon (icon str &optional height v-adjust face)
+        "Display an icon from Font Awesome icon."
+        (s-concat (all-the-icons-faicon icon ':v-adjust (or v-adjust 0) :height (or height 1) :face face) " " str))
+
+      (defun with-fileicon (icon str &optional height v-adjust face)
+        "Display an icon from the Atom File Icons package."
+        (s-concat (all-the-icons-fileicon icon :v-adjust (or v-adjust 0) :height (or height 1) :face face) " " str))
+
+      (defun with-octicon (icon str &optional height v-adjust face)
+        "Display an icon from the GitHub Octicons."
+        (s-concat (all-the-icons-octicon icon :v-adjust (or v-adjust 0) :height (or height 1) :face face) " " str)))
+  #+end_src
+
+*** FlyCheck/FlyMake
+
+As =Eglot= only supports FlyMake, there needs some selection.
+
+#+begin_src elisp
+  (if (eq my/use-lsp-frontend 'eglot)
+      ;; Use Flymake
+      (pretty-hydra-define hydra-flycheck
+        (:hint nil :color teal :quit-key "q" :title (with-faicon "plane" "Flymake" 1 -0.05))
+        ("Errors"
+         (("<" flymake-goto-prev-error "previous" :color pink)
+          (">" flymake-goto-next-error "next" :color pink)
+          ("f" flymake-show-diagnostics "check")
+          ("l" flymake-show-buffer-diagnostics "list"))
+         )
+        )
+    ;; Use FlyCheck
+      (pretty-hydra-define hydra-flycheck
+        (:hint nil :color teal :quit-key "q" :title (with-faicon "plane" "Flycheck" 1 -0.05))
+        ("Checker"
+         (("?" flycheck-describe-checker "describe")
+          ("d" flycheck-disable-checker "disable")
+          ("m" flycheck-mode "mode")
+          ("s" flycheck-select-checker "select"))
+         "Errors"
+         (("<" flycheck-previous-error "previous" :color pink)
+          (">" flycheck-next-error "next" :color pink)
+          ("f" flycheck-buffer "check")
+          ("l" flycheck-list-errors "list"))
+         "Other"
+         (("M" flycheck-manual "manual")
+          ("v" flycheck-verify-setup "verify setup")))))
+#+end_src
+
+*** Git Merge
+
+Merge git conflicts. 
+
+#+begin_src elisp
+    (pretty-hydra-define hydra-merge
+      (:hint nil :color pink :quit-key "q" :title (with-octicon "mark-github" "Merge" 1 -0.05))
+      ("Move"
+       (("n" smerge-next "next")
+        ("p" smerge-prev "previous"))
+       "Keep"
+       (("RET" smerge-keep-current "current")
+        ("a" smerge-keep-all "all")
+        ("b" smerge-keep-base "base")
+        ("l" smerge-keep-lower "lower")
+        ("u" smerge-keep-upper "upper"))
+       "Diff"
+       (("<" smerge-diff-base-upper "upper/base")
+        ("=" smerge-diff-upper-lower "upper/lower")
+        (">" smerge-diff-base-lower "base/lower")
+        ("R" smerge-refine "redefine")
+        ("E" smerge-ediff "ediff"))
+       "Other"
+       (("C" smerge-combine-with-next "combine")
+        ("r" smerge-resolve "resolve")
+        ("k" smerge-kill-current "kill current"))))
+#+end_src
+
+*** Window Size
+
+#+begin_src elisp
+      (pretty-hydra-define hydra-windows
+        (:hint nil :forein-keys warn :quit-key "q" :title (with-faicon "windows" "Windows" 1 -0.05))
+        ("Window"
+         (("b" balance-windows "balance")
+          ;;("c" centered-window-mode "center")
+          ("i" enlarge-window "heighten")
+          ("j" shrink-window-horizontally "narrow")
+          ("k" shrink-window "lower")
+          ("u" winner-undo "undo")
+          ("r" winner-redo "redo")
+          ("l" enlarge-window-horizontally "widen")
+          ("o" ace-window "switch")
+          ("t" treemacs-select-window "treemacs")
+          ;;("s" switch-window-then-swap-buffer "swap" :color teal)
+          )
+         "Zoom"
+         (("-" text-scale-decrease "out")
+          ("+" text-scale-increase "in")
+          ("=" (text-scale-increase 0) "reset"))))
+#+end_src elisp
+*** COMMENT Treemacs
+#+begin_src elisp
   (pretty-hydra-define hydra-treemacs
     (:hint nil :color pink :quit-key "q" :title (with-faicon "tree" "Treemacs" 1 -0.05))
     ("Project"
@@ -1100,7 +1161,13 @@ Integrated keybindings for some modes.
       )
      )
     )
+#+end_src
 
+*** Org-mode
+
+Some (not-so-)short-cuts for (not-so-)common org commands.
+
+#+begin_src elisp
   (pretty-hydra-define hydra-org
     (:hint nil :color teal :quit-key "q" :title (with-fileicon "org" "Org" 1 -0.05))
     ("Action"
@@ -1116,28 +1183,38 @@ Integrated keybindings for some modes.
       ("s" org-store-link "store-link")
       ("t" org-show-todo-tree "todo-tree")
       )
-
      ))
+#+end_src
 
+*** View mode
+
+A =view-mode= to view the file with out modifier keys.
+Move either in vallina Emacs way (b/f/p/n) or Vim way (h/l/k/j).
+(I'm not a big fan of modal editor).
+
+#+begin_src elisp
   (defhydra hydra-view
     (:hint nil :color amaranth)
-    "View: move like vi, q to quit"
+    "View-mode, q to quit"
     ("h" backward-char)
     ("l" forward-char)
     ("k" previous-line)
     ("j" next-line)
+    ("b" backward-char)
+    ("f" forward-char)
+    ("p" previous-line)
+    ("n" next-line)
     ("a" move-beginning-of-line)
-    ("d" move-end-of-line)
+    ("e" move-end-of-line)
     ("q" nil :color blue)
     )
-
 #+end_src
 
 ** PDF
 
 Better pdf-preview with =pdf-tool= and =pdf-view=.
 
-*External package installation required.*
+*External*: install as the package requires.
 
 #+begin_src emacs-lisp
   (use-package pdf-tools
@@ -1166,9 +1243,13 @@ Better pdf-preview with =pdf-tool= and =pdf-view=.
 
 ** AI
 
+With the current trend of AI+editor, AI tools in Emacs are also evolving rapidly.
+
+For example, packages like =aider=, =aidermacs= and =Emigo= are trying to support Cursor-style AI-guided programming in Emacs. I'm still monitoring their progress.
+
 *** Copilot
 
-AI-based code generation
+GitHub Copilot is the very first generation of practical AI-programming tool.
 
 #+begin_src emacs-lisp
   (use-package copilot
@@ -1179,8 +1260,7 @@ AI-based code generation
 
 *** Ellama
 
-Chat-based AI assistant.
-*Current using local Ollama instance*.
+Also some Chat-based AI assistant. *Current using local Ollama instance*.
 
 #+begin_src elisp
   (use-package ellama
@@ -1188,7 +1268,11 @@ Chat-based AI assistant.
     :bind ("C-c e" . ellama-transient-main-menu)
     )
 #+end_src
+
 ** workspace
+
+Workspace is to make =switch-buffer= menu cleaner when 
+
 *** Perspective.el
 Key bindings (Prefix is =C-x p=, which overrides projectile, which is now =C-c P=):
 + =p/n=: next/prev perspective
@@ -1219,9 +1303,8 @@ However, it does not support frame, which means perspectives cannot share among 
 #+end_src
 
 *** Presp-mode
-There are some issues
 
-Use [[https://github.com/Bad-ptr/persp-mode.el][persp-mode]].
+Compared to =perspective.el=, =Presp-mode= allows different workspace view for each Emacs frame.
 
 [[https://gist.github.com/Bad-ptr/1aca1ec54c3bdb2ee80996eb2b68ad2d][Here]] provides usage examples to interact with other packages. However, some of them do not compile.
 For example, it uses =delete*= in common lisp (which is =cl-delete= in elisp).
@@ -1301,13 +1384,18 @@ TODO: Auto persp for each ssh session, [[https://gist.github.com/Bad-ptr/1aca1ec
     ;; above setting will not discriminate and bring ephemeral buffers e.g.
     ;; *magit* which you probably don't want. You can filter them out.
     (add-hook 'persp-common-buffer-filter-functions
-    ;; there is also `persp-add-buffer-on-after-change-major-mode-filter-functions'
-        #'(lambda (b) (string-prefix-p "*" (buffer-name b))))
+              ;; there is also `persp-add-buffer-on-after-change-major-mode-filter-functions'
+              #'(lambda (b) (string-prefix-p "*" (buffer-name b))))
 
     )
 #+end_src
 ** Search
+
 =ripgrep= is a good utility to search files in a directory.
+
++ =deadgrep= is a basic frontend. Notably, it supports =C-x C-q= to enter the edit mode (similar to dired).
++ =color-rg= enhances the function especially in refactoring. However, it is not working well in my Tramp environment for some reason.
+
 #+begin_src elisp
   ;; Frontend of ripgrep (rg)
   (use-package deadgrep
@@ -1319,20 +1407,21 @@ TODO: Auto persp for each ssh session, [[https://gist.github.com/Bad-ptr/1aca1ec
     :when (file-exists-p (my/expand-config-dir "deps/color-rg"))
     :load-path "deps/color-rg"
     :bind
-    (("C-<f6>" . color-rg-search-symbol-in-project))
-    )
+    (("C-<f6>" . color-rg-search-symbol-in-project)))
 #+end_src
+
 ** Miscs
 
++ =hl-todo= Highlights all TODO/FIXME/etc.
 #+begin_src emacs-lisp
-  ;; Highlight all TODO/FIXME/etc.
   (use-package hl-todo
     :config
-    (global-hl-todo-mode)
-    )
+    (global-hl-todo-mode))
+#+end_src
 
-  ;; Allow code folding
-  ;; hs-minor-mode
++ =hideshow= enables code folding.
+  
+#+begin_src elisp  
   (use-package hideshow
     :preface
     (defun enable-hs ()    
@@ -1341,51 +1430,70 @@ TODO: Auto persp for each ssh session, [[https://gist.github.com/Bad-ptr/1aca1ec
       (global-set-key [f9] 'hs-toggle-hiding)
       )
     :hook
-    (prog-mode . enable-hs)
-    )
+    (prog-mode . enable-hs))
+#+end_src
 
++ =Magit= is a great frontend for =git=.
+  - Its command selection interface based on =transient= is already sufficient for everyday git commands. Therefore, I do not need further configuration.
+  
+#+begin_src elisp
   ;; Git integration
   (use-package magit)
+#+end_src
 
++ =which-key= prompts key guidance, and is integrated into Emacs since 30.1.
+#+begin_src elisp
   ;; Key binding help
   (use-package which-key
     :init (which-key-mode))
+#+end_src
 
++ =keychain-environment= (ideally) stores passpharse of SSH/GPG keys.
+:external: =keychain=
+  
+#+begin_src elisp
   (use-package keychain-environment
     :config
-    (keychain-refresh-environment)
-    )
+    (keychain-refresh-environment))
+#+end_src
 
++ Actually, I use external terminal typically.
+#+begin_src elisp
   ;; Terminal Replacement
   (use-package eat
     :bind
     ("<f11>" . eat))
+#+end_src
 
++ icon support
+#+begin_src elisp
   (use-package all-the-icons)
+#+end_src
 
-  ;; Guess and adjust indent styles.
++ =dtrt-indent= guesses and adjusts indent styles. This is very great for viewing and editing external projects (which does not provide format specification files).
+#+begin_src elisp
   (use-package dtrt-indent
     :init
     (dtrt-indent-global-mode))
+#+end_src
 
-  ;; Use Emacs as editor in browsers (but losing loads of features)
++ =atomic-chrome= (and its browser plugin) theoretically can use Emacs as editor in browsers (but losing loads of useful features).
+#+begin_src elisp
   (use-package atomic-chrome
     :init
-    (atomic-chrome-start-server)
-    )
-
+    (atomic-chrome-start-server))
 #+end_src
 
 * Languages
 ** Treesitter
-
 Some helper functions to enable treesitter in certain languages.
 
-*All treesitter library should be prepared in advance.*
+*All treesitter library should be prepared in advance.* You can install language grammars following the guidelines [[https://www.masteringemacs.org/article/how-to-get-started-tree-sitter][here]].
 
 #+begin_src emacs-lisp
   (when (and (version<= "29.1" emacs-version)
              (treesit-available-p))
+    ;; This macro hopefully works for most built-in languages ts mode.
     (defmacro my/enable-treesitter (lang)
       `(when (treesit-language-available-p ',lang)
          (add-to-list 'major-mode-remap-alist
@@ -1396,15 +1504,16 @@ Some helper functions to enable treesitter in certain languages.
          )
       )
     (my/enable-treesitter python)
-    (my/enable-treesitter rust)
-    )
+    (my/enable-treesitter rust))
 #+end_src
 
 ** C/C++
 
-I slightly changed the default coding style (gnu) by adjusting the indentation of multiple lines in parentheses.
+I slightly changed the default coding style (gnu) by adjusting the indentation of multiple lines in parentheses to meet my needs.
 
 *Using either =ccls= or =clangd= as language server, which should be installed externally*.
+
+Note that C++ tree-sitter parsers still suffer from some bugs (especially regarding with parentheses).
 
 #+begin_src emacs-lisp
   (use-package cc-mode
@@ -1495,10 +1604,11 @@ I slightly changed the default coding style (gnu) by adjusting the indentation o
 
 ** Python
 
-*Mainly use =jedi= as language server*.
+I sometimes use Python and typically very simple scripts.
+
+TODO: Note that no virtual environment support currently
 
 #+begin_src emacs-lisp
-  ;; Python configuration
 
   (use-package python-mode
     :hook
@@ -1526,14 +1636,14 @@ I slightly changed the default coding style (gnu) by adjusting the indentation o
       (add-to-list 'lsp-enabled-clients 'pyls-tramp)
       (add-to-list 'lsp-enabled-clients 'jedi-tramp)
       ))
-
   (use-package company-jedi
     :after lsp-jedi)
-
   (use-package jupyter)
 #+end_src
 
 ** TODO Javascript
+
+I do not edit web-frontend currently. Therefore, I do not have any motivation to make it work.
 
 #+begin_src emacs-lisp
   ;; Config for javascript/typescript
@@ -1562,6 +1672,8 @@ I slightly changed the default coding style (gnu) by adjusting the indentation o
 
 ** Rust
 
+As a new language, its environment can be setup without much effort. (Although this configuration is written for a while and I haven't tested it recently.)
+
 #+begin_src emacs-lisp
     ;;; NOTE: install rust-analyzer through rustup.
   (use-package rust-mode
@@ -1576,6 +1688,8 @@ I slightly changed the default coding style (gnu) by adjusting the indentation o
 #+end_src
 
 ** TODO Markdown
+
+It renders markdown file, but no further functionality can be fluently provided (e.g., export to pdf/html).
 
 #+begin_src emacs-lisp
   ;; Markdown mode
@@ -1596,6 +1710,10 @@ I slightly changed the default coding style (gnu) by adjusting the indentation o
 #+end_src
 
 ** TeX
+
+For local LaTeX files, I compile it locally. Theoretically, SyncTeX should be set appropriately when correctly setting up PDF viewers. However, I never successfully configured it so far.
+
+TODO: Also, I want to support editing Overleaf files locally in Emacs without Premium. By exploiting its API, it could be done.
 
 *Using =texlab= as lsp server*.
 
@@ -1648,12 +1766,11 @@ I slightly changed the default coding style (gnu) by adjusting the indentation o
     (reftex-save-parse-info t)
     (reftex-use-multiple-selection-buffers t)
     )
-
-  ;;(use-package company-auctex
-  ;;  :when (member 'latex my/enabled-lang))
 #+end_src
 
 ** Typst
+
+I never really had a chance to use typst. So I just installed its major mode.
 
 #+begin_src emacs-lisp
   (use-package typst-ts-mode
@@ -1664,9 +1781,7 @@ I slightly changed the default coding style (gnu) by adjusting the indentation o
 #+end_src
 
 ** TODO Shell Scripts
-
 ** TODO Elisp
-
 ** YAML
 
 #+begin_src emacs-lisp
@@ -1676,28 +1791,30 @@ I slightly changed the default coding style (gnu) by adjusting the indentation o
     (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode)))
 #+end_src
 
-** Dot-Env
+** Other major-mode-only Languages
 
+I seldom use these languages, so that only syntax highlighting is needed.
+
++ .env
 #+begin_src emacs-lisp
   (use-package dotenv-mode
     :when (member 'dotenv my/enabled-lang))
 #+end_src
 
-** Dockerfile
++ dockerfile
 
 #+begin_src emacs-lisp
   (use-package dockerfile-mode
     :when (member 'dockerfile my/enabled-lang))
 #+end_src
 
-** Caddyfile
-
++ caddyfile
 #+begin_src emacs-lisp
   (use-package caddyfile-mode
     :when (member 'caddyfile my/enabled-lang))
 #+end_src
 
-** Bison
++ bison
 #+begin_src emacs-lisp
   (use-package bison-mode
     :when (member 'bison my/enabled-lang))
@@ -1705,7 +1822,9 @@ I slightly changed the default coding style (gnu) by adjusting the indentation o
 
 * Org mode
 
-There are much settings that I never use.
+Now I do use org-mode to locally manage some ageda files, and some local notes (in replacement of markdown).
+
+However, Its config is still chaotic and contains much config that I'm actually not using.
 
 ** Basic Setup
 #+begin_src emacs-lisp
