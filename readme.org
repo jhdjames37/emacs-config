@@ -11,6 +11,7 @@ Here's my person =.emacs.d= configuration.
 Clone the repo and place it in =~/.emacs.d=. Required packages will be downloaded automatically.
 
 Some Notes:
++ You may setup some customized settings in =settings.el= (=settings.example.el= shows a example).
 + Some system packages should be installed, and the configuration are only tested under Linux systems.
   - LSP servers for your language (e.g., =clangd= or =ccls= for C++)
   - ripgrep(rg)

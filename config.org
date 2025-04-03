@@ -50,7 +50,7 @@ Loading and auxilliary functions.
 #+begin_src elisp
   (defun my/expand-config-dir (filename)
     "FILENAME: filename in the config directory."
-    (expand-file-name filename user-emacs-directory))
+    (expand-file-name filename user-emacs-directory))  
 
   (when (file-exists-p (my/expand-config-dir "settings.el"))
     (load (my/expand-config-dir "settings.el"))
