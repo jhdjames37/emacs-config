@@ -12,7 +12,7 @@
       my/minibuffer-backend 'vertico
       my/font-scale 1.8
       my/enabled-feat '(ellama)
-      my/use-lsp-frontend 'eglot
+      my/use-lsp-frontend 'eglot)
 
 (provide 'settings)
 ;;; settings.el ends here
