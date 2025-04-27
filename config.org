@@ -165,7 +165,8 @@ These are native configuration of emacs. A minimal config without installing oth
   (global-hl-line-mode)
   ;; delete selection instead of removing only one character
   (delete-selection-mode 1)
-
+  ;; scroll smoothly
+  (pixel-scroll-mode)
   ;; transparent style
   (set-frame-parameter (selected-frame) 'alpha (list 90 90))
   (add-to-list 'default-frame-alist (cons 'alpha (list 90 90)))
