@@ -896,16 +896,17 @@ Not using anymore (too complicated), switched to dirvish.
       (yas-global-mode 1)
       
       (require 'lsp-bridge)
-
+      (global-lsp-bridge-mode)
       (setq
        lsp-bridge-python-command
        (my/expand-config-dir ".python-environments/lsp-bridge/bin/python3")
        lsp-bridge-inlay-hint t
        lsp-bridge-enable-hover-diagnostic t
-            )
-      
-      (global-lsp-bridge-mode)
-
+       lsp-bridge-remote-start-automatically t
+       lsp-bridge-remote-python-command "~/lsp-bridge/venv/bin/python3"
+       lsp-bridge-remote-python-file "~/lsp-bridge/lsp_bridge.py"
+       lsp-bridge-remote-log "~/lsp-bridge/lbr_log.txt"
+       )      
       ))
 #+end_src
 ** Dired
