@@ -1287,7 +1287,7 @@ Also some Chat-based AI assistant. *Current using local Ollama instance*.
 
 Workspace is to make =switch-buffer= menu cleaner when 
 
-*** Perspective.el
+*** COMMENT Perspective.el
 Key bindings (Prefix is =C-x p=, which overrides projectile, which is now =C-c P=):
 + =p/n=: next/prev perspective
 + =s=: switch (new) perspective
@@ -1296,24 +1296,24 @@ For consult, =C-x b= switches to current perspective, type =b <SPC>= re-enables 
 
 However, it does not support frame, which means perspectives cannot share among emacs clients.
 
-#+begin_src emacs-lisp :tangle no
-  ;; (use-package perspective
-  ;;   :bind
-  ;;   ("C-x C-b" . persp-list-buffers)         ; or use a nicer switcher, see below
-  ;;   :custom
-  ;;   (persp-mode-prefix-key (kbd "C-x p"))  ; pick your own prefix key here
-  ;;   :init
-  ;;   (persp-mode)
-  ;;   :hook
-  ;;   (ibuffer . (lambda ()
-  ;;                (persp-ibuffer-set-filter-groups)
-  ;;                (unless (eq ibuffer-sorting-mode 'alphabetic)
-  ;;                  (ibuffer-do-sort-by-alphabetic))))
-  ;;   :config
-  ;;   (with-eval-after-load 'consult
-  ;;     (consult-customize consult--source-buffer :hidden t :default nil)
-  ;;     (add-to-list 'consult-buffer-sources persp-consult-source))
-  ;;   )
+#+begin_src emacs-lisp 
+  (use-package perspective
+    :bind
+    ("C-x C-b" . persp-list-buffers)         ; or use a nicer switcher, see below
+    :custom
+    (persp-mode-prefix-key (kbd "C-x p"))  ; pick your own prefix key here
+    :init
+    (persp-mode)
+    :hook
+    (ibuffer . (lambda ()
+                 (persp-ibuffer-set-filter-groups)
+                 (unless (eq ibuffer-sorting-mode 'alphabetic)
+                   (ibuffer-do-sort-by-alphabetic))))
+    :config
+    (with-eval-after-load 'consult
+      (consult-customize consult--source-buffer :hidden t :default nil)
+      (add-to-list 'consult-buffer-sources persp-consult-source))
+    )
 #+end_src
 
 *** Presp-mode
@@ -1427,15 +1427,15 @@ TODO: Auto persp for each ssh session, [[https://gist.github.com/Bad-ptr/1aca1ec
 ** Miscs
 
 + =hl-todo= Highlights all TODO/FIXME/etc.
-#+begin_src emacs-lisp
-  (use-package hl-todo
-    :config
-    (global-hl-todo-mode))
-#+end_src
+  #+begin_src emacs-lisp
+    (use-package hl-todo
+      :config
+      (global-hl-todo-mode))
+  #+end_src
 
 + =hideshow= enables code folding.
   
-#+begin_src elisp  
+  #+begin_src elisp  
   (use-package hideshow
     :preface
     (defun enable-hs ()    
@@ -1445,66 +1445,65 @@ TODO: Auto persp for each ssh session, [[https://gist.github.com/Bad-ptr/1aca1ec
       )
     :hook
     (prog-mode . enable-hs))
-#+end_src
+  #+end_src
 
 + =Magit= is a great frontend for =git=.
   - Its command selection interface based on =transient= is already sufficient for everyday git commands. Therefore, I do not need further configuration.
   
-#+begin_src elisp
-  ;; Git integration
-  (use-package magit)
-#+end_src
+  #+begin_src elisp
+    ;; Git integration
+    (use-package magit)
+  #+end_src
 
 + And also =git-gutter= to show changes of file.
-#+begin_src emacs-lisp
-  (use-package git-gutter
-    :init
-    (global-git-gutter-mode))
-#+end_src
+  #+begin_src emacs-lisp
+    (use-package git-gutter
+      :init
+      (global-git-gutter-mode))
+  #+end_src
 
 
 + =which-key= prompts key guidance, and is integrated into Emacs since 30.1.
-#+begin_src elisp
-  ;; Key binding help
-  (use-package which-key
-    :init (which-key-mode))
-#+end_src
+  #+begin_src elisp
+    ;; Key binding help
+    (use-package which-key
+      :init (which-key-mode))
+  #+end_src
 
 + =keychain-environment= (ideally) stores passpharse of SSH/GPG keys.
 :external: =keychain=
-  
-#+begin_src elisp
-  (use-package keychain-environment
-    :config
-    (keychain-refresh-environment))
-#+end_src
+  #+begin_src elisp
+    (use-package keychain-environment
+      :config
+      (keychain-refresh-environment))
+  #+end_src
 
 + Actually, I use external terminal typically.
-#+begin_src elisp
-  ;; Terminal Replacement
-  (use-package eat
-    :bind
-    ("<f11>" . eat))
-#+end_src
+  #+begin_src elisp
+    ;; Terminal Replacement
+    (use-package eat
+      :bind
+      ("<f11>" . eat))
+  #+end_src
 
 + icon support
-#+begin_src elisp
-  (use-package all-the-icons)
-#+end_src
+  #+begin_src elisp
+    (use-package all-the-icons)
+  #+end_src
 
 + =dtrt-indent= guesses and adjusts indent styles. This is very great for viewing and editing external projects (which does not provide format specification files).
-#+begin_src elisp
-  (use-package dtrt-indent
-    :init
-    (dtrt-indent-global-mode))
-#+end_src
+  #+begin_src elisp
+    (use-package dtrt-indent
+      :init
+      (dtrt-indent-global-mode))
+  #+end_src
 
 + =atomic-chrome= (and its browser plugin) theoretically can use Emacs as editor in browsers (but losing loads of useful features).
-#+begin_src elisp
-  (use-package atomic-chrome
-    :init
-    (atomic-chrome-start-server))
-#+end_src
+  #+begin_src elisp
+    (use-package atomic-chrome
+      :init
+      (atomic-chrome-start-server))
+  #+end_src
 
 + =visual-replace= gives a better replace interface
   #+begin_src emacs-lisp
