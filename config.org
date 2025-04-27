@@ -671,17 +671,19 @@ More complicated and prettier theme settings.
 + Using =company= for completion
 
 #+begin_src emacs-lisp
-    (use-package company
-      :hook (prog-mode . company-mode)
-      :bind
-      ;;("C-i" . company-complete-common)
-      :custom
-      (company-idle-delay 0.5)
-      (company-minimum-prefix-length 1)
-      )
+  (use-package company
+    :when (not (eq my/use-lsp-frontend 'lsp-bridge))
+    :hook (prog-mode . company-mode)
+    :bind
+    ;;("C-i" . company-complete-common)
+    :custom
+    (company-idle-delay 0.5)
+    (company-minimum-prefix-length 1)
+    )
 
-    (use-package company-box
-      :hook (company-mode . company-box-mode))
+  (use-package company-box
+    :when (not (eq my/use-lsp-frontend 'lsp-bridge))
+    :hook (company-mode . company-box-mode))
 #+end_src
 
 + Using =yasnippet= for template completion (templates are underway)
@@ -815,6 +817,7 @@ Not using anymore (too complicated), switched to dirvish.
 #+begin_src emacs-lisp
   ;;; Projectile
   (use-package projectile
+    :when (eq my/use-lsp-frontend 'lsp-mode)
     :hook
     (prog-mode . projectile-mode)
     :bind
@@ -829,9 +832,12 @@ Not using anymore (too complicated), switched to dirvish.
 
 #+begin_src emacs-lisp
   (defun my/start-lsp ()
-    "The start command of lsp frontent"
-    (when (eq my/use-lsp-frontend 'lsp-mode) (lsp-deferred)) 
+    "The start command of lsp frontend."
+    (when (eq my/use-lsp-frontend 'lsp-mode) (lsp-deferred))
     (when (eq my/use-lsp-frontend 'eglot) (eglot-ensure))
+    ;; Note that for lsp-bridge, the variable `lsp-bridge-default-mode-hooks'
+    ;; can autometically set the hooks.
+    ;;(when (eq my/use-lsp-frontend 'lsp-bridge) (lsp-bridge))
     )
 #+end_src
   
@@ -875,6 +881,33 @@ Not using anymore (too complicated), switched to dirvish.
 
 *** TODO lsp-bridge
 
+#+begin_src bash
+  # At emacs config directory
+  virtualenv .python-environments/lsp-bridge --name lsp-bridge
+  . .python-environments/lsp-bridge/bin/activate # or use source depending on the shell
+  pip3 install epc orjson sexpdata six setuptools paramiko rapidfuzz watchdog packaging # Install python dependencies
+#+end_src
+
+#+begin_src elisp
+  (when (eq my/use-lsp-frontend 'lsp-bridge)
+    (progn
+      (add-to-list 'load-path (my/expand-config-dir "deps/lsp-bridge"))
+      (require 'yasnippet)
+      (yas-global-mode 1)
+      
+      (require 'lsp-bridge)
+
+      (setq
+       lsp-bridge-python-command
+       (my/expand-config-dir ".python-environments/lsp-bridge/bin/python3")
+       lsp-bridge-inlay-hint t
+       lsp-bridge-enable-hover-diagnostic t
+            )
+      
+      (global-lsp-bridge-mode)
+
+      ))
+#+end_src
 ** Dired
 *** Simple Config
 

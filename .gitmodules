@@ -4,3 +4,6 @@
 [submodule "deps/color-rg"]
 	path = deps/color-rg
 	url = https://github.com/manateelazycat/color-rg.git
+[submodule "deps/lsp-bridge"]
+	path = deps/lsp-bridge
+	url = https://github.com/manateelazycat/lsp-bridge.git
