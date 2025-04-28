@@ -1541,9 +1541,18 @@ TODO: Auto persp for each ssh session, [[https://gist.github.com/Bad-ptr/1aca1ec
   #+begin_src emacs-lisp
     (use-package git-gutter
       :init
-      (global-git-gutter-mode))
+      (global-git-gutter-mode)
+      :preface
+      (defun my/git-gutter/exclude-remote (orig-fun &rest args)
+        (when (not (and (buffer-file-name)
+                        (file-remote-p (buffer-file-name))))
+          (apply orig-fun args)
+          )
+        )
+      :config
+      (advice-add 'git-gutter--turn-on :around #'my/git-gutter/exclude-remote)
+      )
   #+end_src
-
 
 + =which-key= prompts key guidance, and is integrated into Emacs since 30.1.
   #+begin_src elisp
