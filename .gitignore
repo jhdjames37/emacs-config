@@ -35,3 +35,4 @@ session.*
 /auto/
 /dirvish/
 /settings.el
+/.org-id-locations

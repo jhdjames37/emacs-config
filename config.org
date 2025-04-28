@@ -884,9 +884,20 @@ Not using anymore (too complicated), switched to dirvish.
 
 #+begin_src bash
   # At emacs config directory
-  virtualenv .python-environments/lsp-bridge --name lsp-bridge
+  git submodule update --init # if not registered
+  virtualenv .python-environments/lsp-bridge --prompt lsp-bridge
   . .python-environments/lsp-bridge/bin/activate # or use source depending on the shell
   pip3 install epc orjson sexpdata six setuptools paramiko rapidfuzz watchdog packaging # Install python dependencies
+#+end_src
+
+For remote installation:
+
+#+begin_src bash
+git clone https://github.com/manateelazycat/lsp-bridge.git
+cd lsp-bridge/
+virtualenv venv
+. ./venv/bin/activate
+pip3 install epc orjson sexpdata six setuptools paramiko rapidfuzz watchdog packaging
 #+end_src
 
 #+begin_src elisp
@@ -897,7 +908,7 @@ Not using anymore (too complicated), switched to dirvish.
       (yas-global-mode 1)
       
       (require 'lsp-bridge)
-      (global-lsp-bridge-mode)
+
       (setq
        lsp-bridge-python-command
        (my/expand-config-dir ".python-environments/lsp-bridge/bin/python3")
@@ -907,7 +918,8 @@ Not using anymore (too complicated), switched to dirvish.
        lsp-bridge-remote-python-command "~/lsp-bridge/venv/bin/python3"
        lsp-bridge-remote-python-file "~/lsp-bridge/lsp_bridge.py"
        lsp-bridge-remote-log "~/lsp-bridge/lbr_log.txt"
-       )      
+       )
+      (global-lsp-bridge-mode)
       ))
 #+end_src
 ** Dired
@@ -1506,7 +1518,7 @@ TODO: Auto persp for each ssh session, [[https://gist.github.com/Bad-ptr/1aca1ec
   #+end_src
 
 + =keychain-environment= (ideally) stores passpharse of SSH/GPG keys.
-:external: =keychain=
+  :external: =keychain=
   #+begin_src elisp
     (use-package keychain-environment
       :config
