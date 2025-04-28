@@ -7,3 +7,6 @@
 [submodule "deps/lsp-bridge"]
 	path = deps/lsp-bridge
 	url = https://github.com/manateelazycat/lsp-bridge.git
+[submodule "deps/flymake-bridge"]
+	path = deps/flymake-bridge
+	url = https://github.com/eki3z/flymake-bridge.git

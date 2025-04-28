@@ -704,11 +704,11 @@ More complicated and prettier theme settings.
   
 #+begin_src elisp
   (use-package flycheck
-    :when (not (eq my/use-lsp-frontend 'eglot))
+    :when (not (member my/use-lsp-frontend '(eglot lsp-bridge)))
     :hook (prog-mode . flycheck-mode))
   
   (use-package flymake
-    :when (eq my/use-lsp-frontend 'eglot)
+    :when (member my/use-lsp-frontend '(eglot lsp-bridge))
     :hook (prog-mode . flymake-mode)
     )
 #+end_src
@@ -893,14 +893,17 @@ Not using anymore (too complicated), switched to dirvish.
 For remote installation:
 
 #+begin_src bash
-git clone https://github.com/manateelazycat/lsp-bridge.git
-cd lsp-bridge/
-virtualenv venv
-. ./venv/bin/activate
-pip3 install epc orjson sexpdata six setuptools paramiko rapidfuzz watchdog packaging
+  git clone https://github.com/manateelazycat/lsp-bridge.git
+  cd lsp-bridge/
+  virtualenv venv
+  . ./venv/bin/activate
+  pip3 install epc orjson sexpdata six setuptools paramiko rapidfuzz watchdog packaging
 #+end_src
 
 #+begin_src elisp
+  ;; Check config correctness
+
+  ;; Do not `use-package' for some issues.
   (when (eq my/use-lsp-frontend 'lsp-bridge)
     (progn
       (add-to-list 'load-path (my/expand-config-dir "deps/lsp-bridge"))
@@ -912,15 +915,47 @@ pip3 install epc orjson sexpdata six setuptools paramiko rapidfuzz watchdog pack
       (setq
        lsp-bridge-python-command
        (my/expand-config-dir ".python-environments/lsp-bridge/bin/python3")
-       lsp-bridge-inlay-hint t
+       lsp-bridge-enable-inlay-hint t
        lsp-bridge-enable-hover-diagnostic t
        lsp-bridge-remote-start-automatically t
        lsp-bridge-remote-python-command "~/lsp-bridge/venv/bin/python3"
        lsp-bridge-remote-python-file "~/lsp-bridge/lsp_bridge.py"
-       lsp-bridge-remote-log "~/lsp-bridge/lbr_log.txt"
-       )
+       lsp-bridge-remote-log "~/lsp-bridge/lbr_log.txt")
       (global-lsp-bridge-mode)
-      ))
+      (add-hook 'lsp-bridge-mode-hook 'lsp-bridge-semantic-tokens-mode)
+      )
+    )
+
+  ;; (use-package lsp-bridge
+  ;;   ;;:when (and (file-exists-p (my/expand-config-dir "deps/lsp-bridge"))
+  ;;   ;;     (eq my/use-lsp-frontend 'lsp-bridge))
+  ;;   :load-path "deps/lsp-bridge"
+  ;;   :custom
+  ;;   (lsp-bridge-python-command
+  ;;    (my/expand-config-dir ".python-environments/lsp-bridge/bin/python3"))
+  ;;   (lsp-bridge-enable-inlay-hint t)
+  ;;   (lsp-bridge-enable-hover-diagnostic t)
+  ;;   (lsp-bridge-remote-start-automatically t)
+  ;;   (lsp-bridge-remote-python-command "~/lsp-bridge/venv/bin/python3")
+  ;;   (lsp-bridge-remote-python-file "~/lsp-bridge/lsp_bridge.py")
+  ;;   (lsp-bridge-remote-log "~/lsp-bridge/lbr_log.txt")
+  ;;   :hook
+    
+  ;;   :config
+  ;;   (message "A")
+  ;;   (yas-global-mode 1)
+  ;;   (global-lsp-bridge-mode)
+  ;;   )
+
+  ;; Use this to show modeline
+  (use-package flymake-bridge
+    :when (and (file-exists-p (my/expand-config-dir "deps/flymake-bridge"))
+               (eq my/use-lsp-frontend 'lsp-bridge))
+    :load-path "deps/flymake-bridge"
+    :hook
+    (lsp-bridge-mode-hook . flymake-bridge-setup)
+    )
+
 #+end_src
 ** Dired
 *** Simple Config
