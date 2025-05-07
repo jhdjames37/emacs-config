@@ -168,8 +168,11 @@ These are native configuration of emacs. A minimal config without installing oth
   ;; scroll smoothly
   (pixel-scroll-mode)
   ;; transparent style
-  (set-frame-parameter (selected-frame) 'alpha (list 90 90))
-  (add-to-list 'default-frame-alist (cons 'alpha (list 90 90)))
+  ;;(set-frame-parameter (selected-frame) 'alpha (list 100 90))
+  ;;(add-to-list 'default-frame-alist (cons 'alpha (list 90 90)))
+  ;; Use new transparent control, which works better on wayland+PGTK.
+  (set-frame-parameter nil 'alpha-background 90)
+  (add-to-list 'default-frame-alist '(alpha-background . 90))
 
   ;; from orbitingflea
   ;; set some basic keybinding. 
