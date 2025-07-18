@@ -36,3 +36,4 @@ session.*
 /dirvish/
 /settings.el
 /.org-id-locations
+/lsp-bridge/

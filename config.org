@@ -914,12 +914,14 @@ For remote installation:
       (yas-global-mode 1)
       
       (require 'lsp-bridge)
-
+      ;;(setq lsp-bridge-log-level 'debug)
       (setq
        lsp-bridge-python-command
        (my/expand-config-dir ".python-environments/lsp-bridge/bin/python3")
        lsp-bridge-enable-inlay-hint t
        lsp-bridge-enable-hover-diagnostic t
+       lsp-bridge-enable-with-tramp t
+       lsp-bridge-remote-heartbeat-interval (* 15 60)
        lsp-bridge-remote-start-automatically t
        lsp-bridge-remote-python-command "~/lsp-bridge/venv/bin/python3"
        lsp-bridge-remote-python-file "~/lsp-bridge/lsp_bridge.py"
@@ -943,7 +945,7 @@ For remote installation:
   ;;   (lsp-bridge-remote-python-file "~/lsp-bridge/lsp_bridge.py")
   ;;   (lsp-bridge-remote-log "~/lsp-bridge/lbr_log.txt")
   ;;   :hook
-    
+
   ;;   :config
   ;;   (message "A")
   ;;   (yas-global-mode 1)
