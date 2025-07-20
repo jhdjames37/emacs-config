@@ -1326,12 +1326,15 @@ Better pdf-preview with =pdf-tool= and =pdf-view=.
   (use-package pdf-view
     :ensure nil
     :after pdf-tools
-    :hook (pdf-view-mode . (lambda () (display-line-numbers-mode -1)))    
+    :hook (pdf-view-mode . (lambda () (display-line-numbers-mode -1)))
     :bind (:map pdf-view-mode-map
                 ("C-s" . isearch-forward)
                 ("d" . pdf-annot-delete)
                 ("h" . pdf-annot-add-highlight-markup-annotation)
-                ("t" . pdf-annot-add-text-annotation))
+                ("t" . pdf-annot-add-text-annotation)
+                ("j" . pdf-view-next-line-or-next-page)
+                ("k" . pdf-view-previous-line-or-previous-page)
+                )
     :custom
     (pdf-view-display-size 'fit-page)
     (pdf-view-resize-factor 1.1)
@@ -1611,6 +1614,10 @@ TODO: Auto persp for each ssh session, [[https://gist.github.com/Bad-ptr/1aca1ec
              :map isearch-mode-map
              ("C-c r" . visual-replace-from-isearch)
              ))
+  #+end_src
++ =pacfiles-mode=
+  #+begin_src emacs-lisp
+    (use-package pacfiles-mode)
   #+end_src
 * Languages
 ** Treesitter
