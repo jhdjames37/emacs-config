@@ -4,6 +4,10 @@
 #+PROPERTY: LOGGING nil
 #+PROPERTY: header-args    :results silent
 
+* Preface
+#+begin_src emacs-lisp
+  ;;; -*- lexical-binding: t -*-
+#+end_src
 * Custom Variables
 
 These are custom varibles, which may vary in different platforms
@@ -1426,8 +1430,6 @@ TODO: Auto persp for each ssh session, [[https://gist.github.com/Bad-ptr/1aca1ec
     (persp-mode 1)
     (persp-switch "workspace")
     :config
-
-
     (with-eval-after-load 'consult
       (defun my/consult-switch-to-buffer ()
         "`consult-buffer' with buffers provided by persp."
@@ -1492,7 +1494,57 @@ TODO: Auto persp for each ssh session, [[https://gist.github.com/Bad-ptr/1aca1ec
               ;; there is also `persp-add-buffer-on-after-change-major-mode-filter-functions'
               #'(lambda (b) (string-prefix-p "*" (buffer-name b))))
 
+    ;; Project-like support
+    (defun open-project ()
+      "Opens a project with persp-mode support: automatically creates and binds the buffer in the project into the perspective"
+      (interactive)
+      (require 'project)
+      
+      (let* ((current-project-root (when-let ((proj (project-current)))
+                                     (project-root proj)))
+             (project-dir (read-directory-name
+                           "Project directory: "
+                           current-project-root
+                           nil
+                           (and current-project-root t)))
+             (project-name (if (string-match tramp-file-name-regexp project-dir)
+                               ;; TRAMP 路径处理
+                               (let* ((vec (tramp-dissect-file-name project-dir))
+                                      (server (tramp-file-name-host vec))
+                                      (path (tramp-file-name-localname vec)))
+                                 (concat server ":" (file-name-nondirectory
+                                                     (directory-file-name path))))
+                             ;; 本地路径处理
+                             (file-name-nondirectory
+                              (directory-file-name project-dir))))
+             )
+        
+        (unless (file-directory-p project-dir)
+          (error "Not a directory: %s" project-dir))
+        
+        (message "Opening project '%s' at: %s" project-name project-dir)
+
+        (persp-switch project-name)
+        (let ((captured-dir project-dir))
+          (persp-def-auto-persp project-name
+                                :predicate
+                                #'(lambda (buffer &optional _state)
+                                    (let ((name (buffer-file-name buffer)))
+                                      (and (stringp name)
+                                           (string-prefix-p
+                                            (file-name-as-directory (expand-file-name captured-dir))
+                                            (expand-file-name name))
+                                           (or state t))))
+                                :switch 'frame
+                                :hooks '(find-file-hook)
+                                )
+          )
+        (find-file project-dir)
+
+        ))
+    (global-set-key (kbd "C-c p +") 'open-project)
     )
+
 #+end_src
 ** Search
 
