@@ -666,7 +666,7 @@ More complicated and prettier theme settings.
     )
   ;; iedit-mode
   (use-package iedit
-    :bind (("C-:" . iedit-mode)))
+    :bind (("C-\"" . iedit-mode)))
 
 #+end_src
 
