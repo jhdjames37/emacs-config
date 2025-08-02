@@ -373,7 +373,7 @@ More complicated and prettier theme settings.
     :ensure t
     :init (doom-modeline-mode 1)
     :custom
-    (doom-modeline-icon (display-graphic-p))
+    (doom-modeline-icon t)
     (doom-modeline-minor-modes t)
     )
 #+end_src
