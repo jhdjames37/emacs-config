@@ -914,7 +914,7 @@ For remote installation:
       (yas-global-mode 1)
       
       (require 'lsp-bridge)
-      (setq lsp-bridge-log-level 'debug)
+      ;;(setq lsp-bridge-log-level 'debug)
       (setq
        lsp-bridge-python-command
        (my/expand-config-dir ".python-environments/lsp-bridge/bin/python3")
@@ -926,6 +926,7 @@ For remote installation:
        lsp-bridge-remote-python-command "~/lsp-bridge/venv/bin/python3"
        lsp-bridge-remote-python-file "~/lsp-bridge/lsp_bridge.py"
        lsp-bridge-remote-log "~/lsp-bridge/lbr_log.txt")
+      (setq lsp-bridge-python-lsp-server "jedi")
       (global-lsp-bridge-mode)
       (add-hook 'lsp-bridge-mode-hook 'lsp-bridge-semantic-tokens-mode)
       )
@@ -1748,6 +1749,9 @@ TODO: Note that no virtual environment support currently
   (use-package python-mode
     :hook
     ((python-mode python-ts-mode) . my/start-lsp)
+    :config
+    (when (eq my/use-lsp-frontend 'lsp-bridge)
+      (setq lsp-bridge-python-lsp-server "jedi"))
     )
 
   ;;(use-package python-ts-mode
