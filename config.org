@@ -914,7 +914,7 @@ For remote installation:
       (yas-global-mode 1)
       
       (require 'lsp-bridge)
-      ;;(setq lsp-bridge-log-level 'debug)
+      (setq lsp-bridge-log-level 'debug)
       (setq
        lsp-bridge-python-command
        (my/expand-config-dir ".python-environments/lsp-bridge/bin/python3")
@@ -1155,7 +1155,7 @@ This is a simple config for dired. It is enough for brief file navigation, but m
 As =Eglot= only supports FlyMake, there needs some selection.
 
 #+begin_src elisp
-  (if (eq my/use-lsp-frontend 'eglot)
+  (if (member my/use-lsp-frontend '(eglot lsp-bridge))
       ;; Use Flymake
       (pretty-hydra-define hydra-flycheck
         (:hint nil :color teal :quit-key "q" :title (with-faicon "plane" "Flymake" 1 -0.05))
@@ -1813,10 +1813,22 @@ As a new language, its environment can be setup without much effort. (Although t
     ;;; NOTE: install rust-analyzer through rustup.
   (use-package rust-mode
     :when (member 'rust my/enabled-lang)
-    :hook (rust-mode . my/start-lsp)
+    :hook ((rust-mode rust-ts-mode) . my/start-lsp)
     :init
     (when (eq my/use-lsp-frontend 'lsp-mode)
       (add-to-list 'lsp-enabled-clients 'rust-analyzer))
+    
+    ;; rust-ts-mode provides a flymake backend (using clippy), but it's
+    ;; not intelligent enough to identify single file or project (as of
+    ;; Aug. 2025). Temporarily disable.
+    (when (eq my/use-lsp-frontend 'lsp-bridge)
+      (defun my-remove-rust-ts-flymake (&rest _)
+        "Remove `rust-ts-flymake` from `flymake-diagnostic-functions`."
+        (remove-hook 'flymake-diagnostic-functions 'rust-ts-flymake 'local))
+      
+      ;; 在 `rust-ts-mode` 执行后立即移除 hook
+      (advice-add 'rust-ts-mode :after #'my-remove-rust-ts-flymake)
+      )
     )
 
   (use-package cargo)
