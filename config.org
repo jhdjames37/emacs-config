@@ -1426,6 +1426,7 @@ TODO: Auto persp for each ssh session, [[https://gist.github.com/Bad-ptr/1aca1ec
     (wg-morph-on nil)
     (persp-autokill-buffer-on-remove 'kill-weak)
     (persp-auto-resume-time -1)
+    :pin melpa-stable  ;; current melpa release have compatible issue.
     :init
     (persp-mode 1)
     (persp-switch "workspace")
