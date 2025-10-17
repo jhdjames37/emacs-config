@@ -37,3 +37,4 @@ session.*
 /settings.el
 /.org-id-locations
 /lsp-bridge/
+/.aider*

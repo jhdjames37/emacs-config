@@ -1377,7 +1377,21 @@ Also some Chat-based AI assistant. *Current using local Ollama instance*.
     :bind ("C-c e" . ellama-transient-main-menu)
     )
 #+end_src
+*** Aidermacs
 
+#+begin_src elisp
+  (use-package aidermacs
+    :pin melpa-stable 
+    :when (member 'aidermacs my/enabled-feat)
+    :bind (("C-c a" . aidermacs-transient-menu))
+    :custom
+    (aidermacs-default-model "openai/DeepSeek-V3.2-Exp")
+    (aidermacs-extra-args `("--model-settings-file"
+                            ,(my/expand-config-dir "aider/model.settings.yml")
+                            "--model-metadata-file"
+                            ,(my/expand-config-dir "aider/model.metadata.json")))
+    )
+#+end_src
 ** workspace
 
 Workspace is to make =switch-buffer= menu cleaner when 
