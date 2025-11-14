@@ -261,7 +261,11 @@ Switch shell to zsh use =IN_EMACS= environment variable to recognize and to sele
       ;;(setq shell-file-name "/bin/zsh")
       ))
 #+end_src
+** Ediff
 
+#+begin_src emacs-lisp
+  (setq ediff-window-setup-function 'ediff-setup-windows-plain)
+#+end_src
 ** Terminal Intergration
 
 Sometimes a terminal emacs is also used. These configs enable mouse support (click and scroll) in supported terminals.
@@ -1385,12 +1389,50 @@ Also some Chat-based AI assistant. *Current using local Ollama instance*.
     :when (member 'aidermacs my/enabled-feat)
     :bind (("C-c a" . aidermacs-transient-menu))
     :custom
-    (aidermacs-default-model "openai/DeepSeek-V3.2-Exp")
+    (aidermacs-default-model my/use-model)
     (aidermacs-extra-args `("--model-settings-file"
                             ,(my/expand-config-dir "aider/model.settings.yml")
                             "--model-metadata-file"
                             ,(my/expand-config-dir "aider/model.metadata.json")))
     )
+
+  ;; From https://github.com/MatthewZMD/aidermacs/issues/162
+  (defun diff-buffers-to-second-with-smerge (buffer1 buffer2)
+    "Run diff on contents of BUFFER1 and BUFFER2, put result in BUFFER2, and enable smerge-mode.
+          The diff output will be in unified format which is compatible with smerge-mode."
+    (interactive (list (read-buffer "Base buffer: ")
+                       (read-buffer "Changes buffer: ")))
+    (let ((content1 (with-current-buffer buffer1
+                      (buffer-string)))
+          (content2 (with-current-buffer buffer2
+                      (buffer-string))))
+      ;; Write contents to temp files for diff
+      (let ((a (make-temp-file "diff-buffer1-"))
+            (b (make-temp-file "diff-buffer2-"))
+            (out (make-temp-file "diff-buffer-out-")))
+        (unwind-protect
+            (progn
+              (with-temp-file a
+                (insert content1))
+              (with-temp-file b
+                (insert content2))
+              ;; Run diff with unified format and get output
+              (let ((diff-output (shell-command-to-string (format "git merge-file -L %s -L B -L %s -p %s %s %s && cat %s" a b a out b out))))
+                ;; Put diff output in second buffer
+                (with-current-buffer buffer2
+                  (erase-buffer)
+                  (insert diff-output)
+                  (smerge-start-session)
+                  (message "Diff output inserted and smerge-mode enabled in buffer %S" 
+                           buffer2))
+                (switch-to-buffer-other-window buffer2)))
+          ;; Cleanup temp files
+          (delete-file a)
+          (delete-file b)))))
+  ;;(advice-add 'aidermacs--show-ediff-for-file
+  ;;            :around (defun user/aidermacs-merge-override (oldfun &rest r)
+  ;;                      (cl-letf (((symbol-function 'ediff-buffers) #'diff-buffers-to-second-with-smerge))
+  ;;                        (apply oldfun r))))
 #+end_src
 ** workspace
 
