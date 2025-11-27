@@ -285,8 +285,15 @@ Sometimes a terminal emacs is also used. These configs enable mouse support (cli
     )
 #+end_src
 
-** COMMENT Remote
+** Remote
+#+begin_src emacs-lisp
+  (require 'tramp)
+  (add-to-list 'tramp-remote-path 'tramp-own-remote-path)
 
+  ;;(add-to-list 'tramp-remote-path "~/.local/bin")
+
+#+end_src
+*** COMMENT Dirvish suggested
 Config to accelerate Dirvish
 
 #+begin_src elisp
@@ -305,6 +312,7 @@ Config to accelerate Dirvish
   (setq tramp-chunksize 2000)
   (setq tramp-ssh-controlmaster-options nil))
   #+end_src
+  
 * Plugins
 
 We are using external packages.
@@ -1383,6 +1391,8 @@ Also some Chat-based AI assistant. *Current using local Ollama instance*.
 #+end_src
 *** Aidermacs
 
+Note aider can be installed according to the [[https://aider.chat/docs/install.html][instruction]] (Both locally and remotely.)
+
 #+begin_src elisp
   (use-package aidermacs
     :pin melpa-stable 
@@ -1390,10 +1400,8 @@ Also some Chat-based AI assistant. *Current using local Ollama instance*.
     :bind (("C-c a" . aidermacs-transient-menu))
     :custom
     (aidermacs-default-model my/use-model)
-    (aidermacs-extra-args `("--model-settings-file"
-                            ,(my/expand-config-dir "aider/model.settings.yml")
-                            "--model-metadata-file"
-                            ,(my/expand-config-dir "aider/model.metadata.json")))
+    (aidermacs-extra-args `("--config"
+                            "~/.config/aider/aider.conf.yml"))
     )
 
   ;; From https://github.com/MatthewZMD/aidermacs/issues/162
