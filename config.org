@@ -172,7 +172,13 @@ These are native configuration of emacs. A minimal config without installing oth
     )
   (tool-bar-mode -1)
   (menu-bar-mode -1)
-  (if (display-graphic-p) (scroll-bar-mode -1)) ;; Vanilla Scroll-bar is not pretty TODO: scroll-bar replacement
+  (add-to-list 'after-make-frame-functions
+               (lambda (new-frame)
+                 (select-frame new-frame)
+                 ;; Vanilla Scroll-bar is not pretty TODO: scroll-bar replacement
+                 (when (display-graphic-p)
+                   (scroll-bar-mode -1)                         
+                 )))
   (global-hl-line-mode)
   ;; delete selection instead of removing only one character
   (delete-selection-mode 1)
