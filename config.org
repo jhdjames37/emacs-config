@@ -29,9 +29,9 @@ TODO:
      "Which doom-theme to use. See https://github.com/doomemacs/themes?tab=readme-ov-file#theme-list")
 
    (defvar my/enabled-lang
-     '(cpp cuda python js rust latex org markdown typst yaml dotenv dockerfile caddyfile bison)
+     '(cpp cuda python python-jupyter js rust latex org markdown typst yaml dotenv dockerfile caddyfile bison)
      "Language extensions enabled.
-       available: (cpp cuda python js rust latex org markdown typst yaml dotenv dockerfile caddyfile bison)")
+       available: (cpp cuda python python-jupyter js rust latex org markdown typst yaml dotenv dockerfile caddyfile bison)")
 
    (defvar my/enabled-feat
      '()
@@ -1909,7 +1909,7 @@ TODO: Note that no virtual environment support currently
   
   (use-package jupyter
     :when (and (member 'python my/enabled-lang)
-               (member 'python-jupyter my/enabled-lange)
+               (member 'python-jupyter my/enabled-lang)
                )
     )
 #+end_src
