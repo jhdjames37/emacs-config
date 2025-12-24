@@ -19,34 +19,37 @@ TODO:
   This has to ensure that they are not used before =custom.el= is loaded
 
 #+begin_src emacs-lisp
-  (defvar my/use-zsh t
-    "Whether to use zsh."
-    )
-  (defvar my/use-builtin-theme nil
-    "Use built-in background instead of doom-themes.")
+   (defvar my/use-zsh t
+     "Whether to use zsh."
+     )
+   (defvar my/use-builtin-theme nil
+     "Use built-in background instead of doom-themes.")
 
-  (defvar my/enabled-lang
-    '(cpp cuda python js rust latex org markdown typst yaml dotenv dockerfile caddyfile bison)
-    "Language extensions enabled.
-      available: (cpp cuda python js rust latex org markdown typst yaml dotenv dockerfile caddyfile bison)")
+   (defvar my/doom-theme 'doom-fairy-floss
+     "Which doom-theme to use. See https://github.com/doomemacs/themes?tab=readme-ov-file#theme-list")
 
-  (defvar my/enabled-feat
-    '()
-    "Extended feature which requires external support
-     available: (ellama)")
+   (defvar my/enabled-lang
+     '(cpp cuda python js rust latex org markdown typst yaml dotenv dockerfile caddyfile bison)
+     "Language extensions enabled.
+       available: (cpp cuda python js rust latex org markdown typst yaml dotenv dockerfile caddyfile bison)")
 
-  (defvar my/minibuffer-backend 'vertico
-    "Backend for completion of minibuffer
-    available: vertico helm")
+   (defvar my/enabled-feat
+     '()
+     "Extended feature which requires external support, or breaks user experiences
+      available: (ellama aidermacs pdf workspace)")
 
-  (defvar my/use-lsp-frontend 'lsp-mode
-    "LSP frontend")
+   (defvar my/minibuffer-backend 'vertico
+     "Backend for completion of minibuffer
+     available: vertico helm")
 
-  (defvar my/font-scale 1.4
-    "Chinese font scale")
+   (defvar my/use-lsp-frontend 'lsp-mode
+     "LSP frontend")
 
-  (defvar my/org-agenda-location "~/Documents/notes/agenda.org"
-    "File for org-agenda")
+   (defvar my/font-scale 1.4
+     "Chinese font scale")
+
+   (defvar my/org-agenda-location "~/Documents/notes/agenda.org"
+     "File for org-agenda")
 #+end_src
 
 Loading and auxilliary functions.
@@ -77,6 +80,10 @@ I use git submodules instead of packages like *straight* so that some of them ca
           ("melpa-stable" . "https://mirrors.tuna.tsinghua.edu.cn/elpa/stable-melpa/")
           ("melpa" . "https://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
           ))
+  (setq package-archive-priorities '(("melpa-stable" . 10)
+                                     ("gnu" . 5)
+                                     ("non-gnu" . 4)
+                                     ("melpa" . 0)))
 #+end_src
 
 ** use-package
@@ -366,11 +373,11 @@ More complicated and prettier theme settings.
     :unless my/use-builtin-theme
     :config
     ;; SEE: https://github.com/doomemacs/themes/tree/screenshots for more choices
-    (load-theme 'doom-fairy-floss t)
+    (load-theme my/doom-theme t)
     (add-hook 'after-make-frame-functions
               (lambda (frame)
                 (select-frame frame)
-                (load-theme 'doom-fairy-floss t)))
+                (load-theme my/doom-theme t)))
     (doom-themes-org-config)
     (setq doom-themes-treemacs-theme "doom-colors") ; use "doom-colors" for less minimal icon theme
     (doom-themes-treemacs-config)
@@ -1336,11 +1343,13 @@ Better pdf-preview with =pdf-tool= and =pdf-view=.
 
 #+begin_src emacs-lisp
   (use-package pdf-tools
+    :when (member 'pdf my-enabled-feat)
     :magic ("%PDF" . pdf-view-mode)
     :init (pdf-tools-install :no-query)
     )
 
   (use-package pdf-view
+    :when (member 'pdf my-enabled-feat)
     :ensure nil
     :after pdf-tools
     :hook (pdf-view-mode . (lambda () (display-line-numbers-mode -1)))
@@ -1399,7 +1408,7 @@ Note aider can be installed according to the [[https://aider.chat/docs/install.h
     :when (member 'aidermacs my/enabled-feat)
     :bind (("C-c a" . aidermacs-transient-menu))
     :custom
-    (aidermacs-default-model my/use-model)
+    ;;(aidermacs-default-model my/use-model) ;; defined in config.
     (aidermacs-extra-args `("--config"
                             "~/.config/aider/aider.conf.yml"))
     )
@@ -1482,10 +1491,11 @@ Compared to =perspective.el=, =Presp-mode= allows different workspace view for e
 [[https://gist.github.com/Bad-ptr/1aca1ec54c3bdb2ee80996eb2b68ad2d][Here]] provides usage examples to interact with other packages. However, some of them do not compile.
 For example, it uses =delete*= in common lisp (which is =cl-delete= in elisp).
 
-TODO: Auto persp for each ssh session, [[https://gist.github.com/Bad-ptr/1aca1ec54c3bdb2ee80996eb2b68ad2d#file-persp-projectile-auto-persp-el][Reference.]]
+TODO: Auto persp for each ssh session, [[https://gist.github.com/Bad-ptr/1aca1ec54c3bdb2ee80996eb2b68ad2d#file-persp-projectile-auto-persp-el][Reference.]] Now Implements a =open-project= command for creating a workspace for a directory.
 
 #+begin_src emacs-lisp
   (use-package persp-mode
+    :when (member 'workspace)
     :custom
     (wg-morph-on nil)
     (persp-autokill-buffer-on-remove 'kill-weak)
@@ -1864,6 +1874,7 @@ TODO: Note that no virtual environment support currently
 #+begin_src emacs-lisp
 
   (use-package python-mode
+    :when (member 'python my/enabled-lang)
     :hook
     ((python-mode python-ts-mode) . my/start-lsp)
     :config
@@ -1893,8 +1904,14 @@ TODO: Note that no virtual environment support currently
       (add-to-list 'lsp-enabled-clients 'jedi-tramp)
       ))
   (use-package company-jedi
+    :when (member 'python my/enabled-lang)
     :after lsp-jedi)
-  (use-package jupyter)
+  
+  (use-package jupyter
+    :when (and (member 'python my/enabled-lang)
+               (member 'python-jupyter my/enabled-lange)
+               )
+    )
 #+end_src
 
 ** TODO Javascript
