@@ -1749,10 +1749,21 @@ TODO: Auto persp for each ssh session, [[https://gist.github.com/Bad-ptr/1aca1ec
              ("C-c r" . visual-replace-from-isearch)
              ))
   #+end_src
+
++ =clipetty= allows integration for TTY-based emacs with global clipboard.
+  It already checks whether in a TTY env, so no outside check is needed.
+
+  #+begin_src emacs-lisp
+    (use-package clipetty
+      :ensure t
+      :hook (after-init . global-clipetty-mode))
+  #+end_src
+
 + =pacfiles-mode=
   #+begin_src emacs-lisp
     (use-package pacfiles-mode)
   #+end_src
+
 * Languages
 ** Treesitter
 Some helper functions to enable treesitter in certain languages.
