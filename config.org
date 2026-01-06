@@ -376,6 +376,7 @@ More complicated and prettier theme settings.
   
 #+begin_src elisp
   (use-package doom-themes
+    :pin melpa ;; TODO: check upstream dependency.
     :unless my/use-builtin-theme
     :config
     ;; SEE: https://github.com/doomemacs/themes/tree/screenshots for more choices
@@ -1734,6 +1735,7 @@ TODO: Auto persp for each ssh session, [[https://gist.github.com/Bad-ptr/1aca1ec
 + =atomic-chrome= (and its browser plugin) theoretically can use Emacs as editor in browsers (but losing loads of useful features).
   #+begin_src elisp
     (use-package atomic-chrome
+      :when (member 'atomic-chrome my/enabled-feat)
       :init
       (atomic-chrome-start-server))
   #+end_src
@@ -2165,8 +2167,7 @@ However, Its config is still chaotic and contains much config that I'm actually 
                    org-habit
                    org-mouse
                    org-protocol
-                   org-tempo))
-    
+                   org-tempo))    
     (org-refile-allow-creating-parent-nodes 'confirm)
     (org-refile-targets '((org-agenda-files :maxlevel . 1)
                           ))
