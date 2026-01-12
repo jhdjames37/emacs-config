@@ -1878,6 +1878,7 @@ Note that C++ tree-sitter parsers still suffer from some bugs (especially regard
     )
 
   (use-package cuda-mode
+    :pin melpa
     :when (member 'cuda my/enabled-lang)
     :hook
     (cuda-mode-hook . my-c-style))
