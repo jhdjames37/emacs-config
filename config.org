@@ -1648,6 +1648,142 @@ TODO: Auto persp for each ssh session, [[https://gist.github.com/Bad-ptr/1aca1ec
     :bind
     (("C-<f6>" . color-rg-search-symbol-in-project)))
 #+end_src
+** Terminal
+
+In some scenarios, I use =eat= as a in-emacs terminal.
+
+However, I need to figure out how to locate them efficiently when there is a lot of buffers.
+
+  #+begin_src elisp
+    ;; Terminal Replacement
+    (use-package eat
+      :bind
+      ("<f11>" . eat)
+      :config
+      ;; Anti-flicker for TUI application.
+
+      ;; https://codeberg.org/akib/emacs-eat/issues/110
+      (setopt eat-very-visible-cursor-type '(t nil nil))
+
+
+      ;; Here is the mitigation for vterm
+      ;; Ref:   https://github.com/martinbaillie/vterm-anti-flicker-filter/
+      ;;    and https://github.com/yuya373/claude-code-emacs.
+      ;; However, this doesn't work for eat
+      
+      (defvar-local my/anti-flicker--output-buffer nil
+        "Buffer for accumulating output during potential flickering sequences.")
+
+      (defvar-local my/anti-flicker--output-timer nil
+        "Timer for processing buffered output.")
+
+      (defvar-local my/anti-flicker--original-filter nil
+        "Original process filter function before anti-flicker was enabled.")
+
+      (defun my/anti-flicker--flush-buffer (buffer)
+        "Flush buffered output in BUFFER to the process."
+        (when (buffer-live-p buffer)
+          (with-current-buffer buffer
+            (when my/anti-flicker--output-buffer
+              (let ((data my/anti-flicker--output-buffer)
+                    (proc (get-buffer-process buffer)))
+                (setq my/anti-flicker--output-buffer nil
+                      my/anti-flicker--output-timer nil)
+                (when (and proc (process-live-p proc))
+                  (funcall my/anti-flicker--original-filter proc data)))))))
+
+      (defun my/anti-flicker--filter (process input)
+        "Filter PROCESS INPUT to reduce flickering by buffering rapid redraws.
+
+    Detects when INPUT contains patterns typical of terminal redrawing:
+    - Multiple escape sequences (3 or more)
+    - Line clearing sequences (ESC[K)
+    - Cursor positioning (ESC[n;mH)
+    - Cursor movement (ESC[nA/B/C/D)
+
+    When these patterns are detected, output is buffered for 16ms
+    and then processed in a single batch to prevent flickering."
+        (with-current-buffer (process-buffer process)
+          ;; Credit for these patterns: https://github.com/yuya373/claude-code-emacs.
+          ;; Check if this looks like multi-line input box redraw
+          ;; Common patterns when redrawing multi-line input:
+          ;; - ESC[K (clear to end of line)
+          ;; - ESC[<n>;<m>H (cursor positioning)
+          ;; - ESC[<n>A/B/C/D (cursor movement)
+          ;; - Multiple of these in sequence
+          (let ((has-clear-line (string-match-p "\033\\[K" input))
+                (has-cursor-pos (string-match-p "\033\\[[0-9]+;[0-9]+H" input))
+                (has-cursor-move (string-match-p "\033\\[[0-9]*[ABCD]" input))
+                (escape-count (cl-count ?\033 input)))
+            ;; If we see multiple escape sequences that look like redrawing,
+            ;; or we're already buffering, add to buffer
+            (if (or (and (>= escape-count 3)
+                         (or has-clear-line has-cursor-pos has-cursor-move))
+                    my/anti-flicker--output-buffer)
+                (message "!!!")
+                (progn
+                  ;; Buffer this output
+                  (setq my/anti-flicker--output-buffer (concat my/anti-flicker--output-buffer input))
+                  ;; Reset timer
+                  (when my/anti-flicker--output-timer
+                    (cancel-timer my/anti-flicker--output-timer))
+                  (setq my/anti-flicker--output-timer
+                        (run-at-time 0.016 nil #'my/anti-flicker--flush-buffer (current-buffer))))
+              ;; Normal output, process immediately
+              (funcall my/anti-flicker--original-filter process input)))))
+
+      (defun my/anti-flicker-filter-enable ()
+        "Enable anti-flicker filter for the current buffer.
+
+    Installs a process filter that detects and buffers rapid terminal
+    redraw sequences to prevent flickering.  The original filter is
+    preserved and can be restored with `my/anti-flicker-filter-disable'.
+
+    This function is automatically called for new buffers when
+    the package is loaded."
+        (interactive)
+        (message "A")
+        (when (derived-mode-p 'eat-mode) ;; NOTE: May remove it?
+          (message "B")
+          (when-let ((proc (get-buffer-process (current-buffer))))
+            (unless my/anti-flicker--original-filter
+              (setq my/anti-flicker--original-filter (process-filter proc)))
+            (message "C")
+            (set-process-filter proc #'my/anti-flicker--filter)
+            (add-hook 'kill-buffer-hook
+                      (lambda ()
+                        (when my/anti-flicker--output-timer
+                          (cancel-timer my/anti-flicker--output-timer))) nil t))))
+
+      (defun my/anti-flicker-filter-disable ()
+        "Disable anti-flicker filter for the current buffer.
+
+    Restores the original process filter and flushes any
+    buffered output immediately.  Cancels any pending timer."
+        (interactive)
+        (when (derived-mode-p 'eat-mode)
+          (when-let ((proc (get-buffer-process (current-buffer))))
+            (when my/anti-flicker--output-timer
+              (cancel-timer my/anti-flicker--output-timer)
+              (setq my/anti-flicker--output-timer nil))
+            (when my/anti-flicker--output-buffer
+              (funcall my/anti-flicker--original-filter--filter proc my/anti-flicker--output-buffer)
+              (setq my/anti-flicker--output-buffer nil))
+            (set-process-filter proc (or my/anti-flicker--original-filter #'eat--filter))
+            (setq my/anti-flicker--original-filter nil))))
+
+      (defun my/anti-flicker-filter-toggle ()
+        "Toggle anti-flicker filter for the current buffer.
+
+    If the filter is currently enabled, disable it.  If disabled, enable it."
+        (interactive)
+        (if my/anti-flicker--original-filter
+            (my/anti-flicker-filter-disable)
+          (my/anti-flicker-filter-enable)))
+
+      ;;(add-hook 'eat-mode-hook #'my/anti-flicker-filter-enable)
+      )
+  #+end_src
 
 ** Miscs
 
@@ -1712,13 +1848,6 @@ TODO: Auto persp for each ssh session, [[https://gist.github.com/Bad-ptr/1aca1ec
       (keychain-refresh-environment))
   #+end_src
 
-+ Actually, I use external terminal typically.
-  #+begin_src elisp
-    ;; Terminal Replacement
-    (use-package eat
-      :bind
-      ("<f11>" . eat))
-  #+end_src
 
 + icon support
   #+begin_src elisp
