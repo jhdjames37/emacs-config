@@ -1384,6 +1384,9 @@ With the current trend of AI+editor, AI tools in Emacs are also evolving rapidly
 
 For example, packages like =aider=, =aidermacs= and =Emigo= are trying to support Cursor-style AI-guided programming in Emacs. I'm still monitoring their progress.
 
+As agent coding tools such as =Claude Code= and =Opencode= provides more advanced functions for AI programming,
+I currently (2026.03) use them
+
 *** Copilot
 
 GitHub Copilot is the very first generation of practical AI-programming tool.
@@ -1457,6 +1460,16 @@ Note aider can be installed according to the [[https://aider.chat/docs/install.h
   ;;            :around (defun user/aidermacs-merge-override (oldfun &rest r)
   ;;                      (cl-letf (((symbol-function 'ediff-buffers) #'diff-buffers-to-second-with-smerge))
   ;;                        (apply oldfun r))))
+#+end_src
+*** Claude code
+#+begin_src emacs-lisp
+  (use-package claude-code-ide
+  :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
+  :bind ("C-c C-'" . claude-code-ide-menu) ; Set your favorite keybinding
+  :config
+  ;;(setq claude-code-ide-window-width 50)
+  (setq claude-code-ide-terminal-backend 'eat)
+  (claude-code-ide-emacs-tools-setup))
 #+end_src
 ** workspace
 
