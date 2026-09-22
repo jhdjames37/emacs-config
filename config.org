@@ -325,8 +325,13 @@ Config to accelerate Dirvish
    'remote-direct-async-process)
   ;; Tips to speed up connections
   (setq tramp-verbose 0)
-  (setq tramp-chunksize 2000)
-  (setq tramp-ssh-controlmaster-options nil))
+  ;; NOTE: `tramp-chunksize' is a legacy workaround (default nil); the Tramp
+  ;; manual recommends leaving it unset unless transfers actually fail.
+  ;; (setq tramp-chunksize 2000)
+  ;; Emacs 30.1 renamed the ControlMaster knob:
+  ;;   `tramp-use-ssh-controlmaster-options' -> `tramp-use-connection-share'
+  ;; (`tramp-ssh-controlmaster-options' is now only the internal option string.)
+  (setq tramp-use-connection-share nil))
   #+end_src
   
 * Plugins
@@ -1196,7 +1201,7 @@ As =Eglot= only supports FlyMake, there needs some selection.
         ("Errors"
          (("<" flymake-goto-prev-error "previous" :color pink)
           (">" flymake-goto-next-error "next" :color pink)
-          ("f" flymake-show-diagnostics "check")
+          ("f" flymake-show-buffer-diagnostics "check")
           ("l" flymake-show-buffer-diagnostics "list"))
          )
         )
@@ -1480,7 +1485,7 @@ Note aider can be installed according to the [[https://aider.chat/docs/install.h
 I heard that different models are suit for different agents.
 Therefore, it's better setup a unified management interface.
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package ai-code
     :config
     (ai-code-set-backend my/ai-agent-backend)
@@ -1493,6 +1498,9 @@ Therefore, it's better setup a unified management interface.
     ;; Optional: Set up Magit integration for AI commands in Magit popups
     (with-eval-after-load 'magit
       (ai-code-magit-setup-transients)))
+#+end_src
+
+#+begin_src emacs-lisp
   (use-package agent-shell
     :config
     (add-to-list 'exec-path "/home/jhdjames37/.local/share/npm/bin"))
@@ -1621,7 +1629,7 @@ TODO: Auto persp for each ssh session, [[https://gist.github.com/Bad-ptr/1aca1ec
       (interactive)
       (require 'project)
       
-      (let* ((current-project-root (when-let ((proj (project-current)))
+      (let* ((current-project-root (when-let* ((proj (project-current)))
                                      (project-root proj)))
              (project-dir (read-directory-name
                            "Project directory: "
@@ -1654,8 +1662,7 @@ TODO: Auto persp for each ssh session, [[https://gist.github.com/Bad-ptr/1aca1ec
                                       (and (stringp name)
                                            (string-prefix-p
                                             (file-name-as-directory (expand-file-name captured-dir))
-                                            (expand-file-name name))
-                                           (or state t))))
+                                            (expand-file-name name)))))
                                 :switch 'frame
                                 :hooks '(find-file-hook)
                                 )
@@ -1784,7 +1791,7 @@ However, I need to figure out how to locate them efficiently when there is a lot
         (message "A")
         (when (derived-mode-p 'eat-mode) ;; NOTE: May remove it?
           (message "B")
-          (when-let ((proc (get-buffer-process (current-buffer))))
+          (when-let* ((proc (get-buffer-process (current-buffer))))
             (unless my/anti-flicker--original-filter
               (setq my/anti-flicker--original-filter (process-filter proc)))
             (message "C")
@@ -1801,7 +1808,7 @@ However, I need to figure out how to locate them efficiently when there is a lot
     buffered output immediately.  Cancels any pending timer."
         (interactive)
         (when (derived-mode-p 'eat-mode)
-          (when-let ((proc (get-buffer-process (current-buffer))))
+          (when-let* ((proc (get-buffer-process (current-buffer))))
             (when my/anti-flicker--output-timer
               (cancel-timer my/anti-flicker--output-timer)
               (setq my/anti-flicker--output-timer nil))
@@ -1996,32 +2003,38 @@ Note that C++ tree-sitter parsers still suffer from some bugs (especially regard
     :preface
     ;; Ref: https://emacs.stackexchange.com/questions/77232/c-c-with-tree-sitter-how-to-change-indent
     (defun my-indent-style ()
-      "Override the built-in BSD indentation style with some additional rules"
-      `(;; Here are your custom rules
-        ((node-is ")") parent-bol 0)
-        ((match nil "argument_list" nil 1 1) parent-bol c-ts-mode-indent-offset)
-        ((parent-is "argument_list") (nth-sibling 1) 0)
-        ((match nil "parameter_list" nil 1 1) parent-bol c-ts-mode-indent-offset)
-        ((parent-is "parameter_list") (nth-sibling 1) 0)
-        ((lambda (node parent bol &rest _)
-           (and (string-match-p "compound_statement" (treesit-node-type parent))
-                ;; from treesit.el, finding prev-sibling + parent-is
-                (string-match-p "preproc"
-                                (or (treesit-node-type
-                                     (or (treesit-node-prev-sibling node t)
-                                         ;; If node is nil (indenting empty
-                                         ;; line), we still try to guess the
-                                         ;; previous sibling.
-                                         (treesit-node-prev-sibling
-                                          (treesit-node-first-child-for-pos
-                                           parent bol)
-                                          t)))
-                                    "")
-                                )
-                ))
-         standalone-parent c-ts-mode-indent-offset)
-        ;; Append here the indent style you want as base
-        ,@(alist-get 'gnu (c-ts-mode--indent-styles 'cpp))))
+      "Extra GNU-based indent rules for C/C++ ts modes.
+
+Emacs 31: the value of `c-ts-mode-indent-style' may be a function, but
+its return value is used as `treesit-simple-indent-rules' verbatim, so
+it must be a language-keyed alist (the shape returned by
+`c-ts-mode--simple-indent-rules'), not a flat rule list."
+      (let ((extra
+             `(((node-is ")") parent-bol 0)
+               ((match nil "argument_list" nil 1 1) parent-bol c-ts-indent-offset)
+               ((parent-is "argument_list") (nth-sibling 1) 0)
+               ((match nil "parameter_list" nil 1 1) parent-bol c-ts-indent-offset)
+               ((parent-is "parameter_list") (nth-sibling 1) 0)
+               ((lambda (node parent bol &rest _)
+                  (and (string-match-p "compound_statement" (treesit-node-type parent))
+                       ;; from treesit.el, finding prev-sibling + parent-is
+                       (string-match-p
+                        "preproc"
+                        (or (treesit-node-type
+                             (or (treesit-node-prev-sibling node t)
+                                 ;; If node is nil (indenting empty line), we
+                                 ;; still try to guess the previous sibling.
+                                 (treesit-node-prev-sibling
+                                  (treesit-node-first-child-for-pos
+                                   parent bol)
+                                  t)))
+                            ""))))
+                standalone-parent c-ts-indent-offset))))
+        ;; Append the base style (GNU) after the custom rules.
+        ;; NOTE: Emacs 31 removed `c-ts-mode--indent-styles'; this is the
+        ;; function `c-ts-mode' itself calls for symbol styles.
+        `((c ,@extra ,@(alist-get 'c (c-ts-mode--simple-indent-rules 'c 'gnu)))
+          (cpp ,@extra ,@(alist-get 'cpp (c-ts-mode--simple-indent-rules 'cpp 'gnu))))))
     :custom
     (c-ts-mode-indent-style #'my-indent-style)
     :init
@@ -2478,7 +2491,7 @@ However, Its config is still chaotic and contains much config that I'm actually 
     (org-agenda-time-grid '((daily today require-timed)))
     (org-agenda-use-tag-inheritance t)
     (org-columns-default-format "%14SCHEDULED %1PRIORITY %TODO %50ITEM %TAGS")
-    (org-default-notes-file 'my/org-agenda-location)
+    (org-default-notes-file my/org-agenda-location)
     ;;(org-directory "~/Documents/agenda")
     (org-enforce-todo-dependencies t)
     (org-habit-completed-glyph ?✓)

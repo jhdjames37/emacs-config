@@ -1,3 +1,4 @@
+;;; -*- lexical-binding: t -*-
 ;;; settings.el --- Summary
 ;;; Commentary:
 
