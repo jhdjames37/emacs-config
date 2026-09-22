@@ -19,37 +19,40 @@ TODO:
   This has to ensure that they are not used before =custom.el= is loaded
 
 #+begin_src emacs-lisp
-   (defvar my/use-zsh t
-     "Whether to use zsh."
-     )
-   (defvar my/use-builtin-theme nil
-     "Use built-in background instead of doom-themes.")
+  (defvar my/use-zsh t
+    "Whether to use zsh."
+    )
+  (defvar my/use-builtin-theme nil
+    "Use built-in background instead of doom-themes.")
 
-   (defvar my/doom-theme 'doom-fairy-floss
-     "Which doom-theme to use. See https://github.com/doomemacs/themes?tab=readme-ov-file#theme-list")
+  (defvar my/doom-theme 'doom-fairy-floss
+    "Which doom-theme to use. See https://github.com/doomemacs/themes?tab=readme-ov-file#theme-list")
 
-   (defvar my/enabled-lang
-     '(cpp cuda python python-jupyter js rust latex org markdown typst yaml dotenv dockerfile caddyfile bison)
-     "Language extensions enabled.
-       available: (cpp cuda python python-jupyter js rust latex org markdown typst yaml dotenv dockerfile caddyfile bison)")
+  (defvar my/enabled-lang
+    '(cpp cuda python python-jupyter js rust latex org markdown typst yaml dotenv dockerfile caddyfile bison)
+    "Language extensions enabled.
+      available: (cpp cuda python python-jupyter js rust latex org markdown typst yaml dotenv dockerfile caddyfile bison)")
 
-   (defvar my/enabled-feat
-     '()
-     "Extended feature which requires external support, or breaks user experiences
-      available: (ellama aidermacs pdf workspace)")
+  (defvar my/enabled-feat
+    '()
+    "Extended feature which requires external support, or breaks user experiences
+     available: (ellama aidermacs pdf workspace)")
 
-   (defvar my/minibuffer-backend 'vertico
-     "Backend for completion of minibuffer
-     available: vertico helm")
+  (defvar my/minibuffer-backend 'vertico
+    "Backend for completion of minibuffer
+    available: vertico helm")
 
-   (defvar my/use-lsp-frontend 'lsp-mode
-     "LSP frontend")
+  (defvar my/use-lsp-frontend 'lsp-mode
+    "LSP frontend")
 
-   (defvar my/font-scale 1.4
-     "Chinese font scale")
+  (defvar my/font-scale 1.4
+    "Chinese font scale")
 
-   (defvar my/org-agenda-location "~/Documents/notes/agenda.org"
-     "File for org-agenda")
+  (defvar my/org-agenda-location "~/Documents/notes/agenda.org"
+    "File for org-agenda")
+
+  (defvar my/ai-agent-backend 'opencode
+    "Backend for AI-agents")
 #+end_src
 
 Loading and auxilliary functions.
@@ -1468,8 +1471,31 @@ Note aider can be installed according to the [[https://aider.chat/docs/install.h
   :bind ("C-c C-'" . claude-code-ide-menu) ; Set your favorite keybinding
   :config
   ;;(setq claude-code-ide-window-width 50)
+  (setq claude-code-ide-focus-claude-after-ediff nil)
   (setq claude-code-ide-terminal-backend 'eat)
   (claude-code-ide-emacs-tools-setup))
+#+end_src
+*** AI Code Interface
+
+I heard that different models are suit for different agents.
+Therefore, it's better setup a unified management interface.
+
+#+begin_src emacs-lisp
+  (use-package ai-code
+    :config
+    (ai-code-set-backend my/ai-agent-backend)
+    ;;(global-set-key (kbd "C-c a") #'ai-code-menu)  
+    (setq ai-code-backends-infra-terminal-backend 'eat) ;; 
+    ;; Optional: Enable @ file completion in comments and AI sessions
+    (ai-code-prompt-filepath-completion-mode 1)
+    (global-auto-revert-mode 1)
+    (setq auto-revert-interval 1) ;; set to 1 second for faster update
+    ;; Optional: Set up Magit integration for AI commands in Magit popups
+    (with-eval-after-load 'magit
+      (ai-code-magit-setup-transients)))
+  (use-package agent-shell
+    :config
+    (add-to-list 'exec-path "/home/jhdjames37/.local/share/npm/bin"))
 #+end_src
 ** workspace
 
