@@ -8,6 +8,20 @@
 #+begin_src emacs-lisp
   ;;; -*- lexical-binding: t -*-
 #+end_src
+
+This config is written for Emacs >= 31.  Loading it on an *older* Emacs is
+an error, because the APIs it uses do not exist there yet; loading it on a
+*newer* one is allowed but prints a note, so that the version-gated code
+below gets reviewed instead of silently rotting.
+
+#+begin_src emacs-lisp
+  (cond
+   ((< emacs-major-version 31)
+    (error "This config requires Emacs 31.x, but this is %s" emacs-version))
+   ((> emacs-major-version 31)
+    (message "NOTE: this config was written against Emacs 31.x (running %s); review etc/NEWS and update config.org"
+             emacs-version)))
+#+end_src
 * Custom Variables
 
 These are custom varibles, which may vary in different platforms
@@ -147,18 +161,18 @@ These are native configuration of emacs. A minimal config without installing oth
 
   ;; New feature for matching parenthses outside of the screen
   ;; Ref: https://emacs-china.org/t/emacs-30/29017/14
-  (when (version<= "30.1" emacs-version)
-    (defun childframe-workable-p ()
-      "Whether childframe is workable."
-      (and (>= emacs-major-version 26)
-           (not noninteractive)
-           (not emacs-basic-display)
-           (or (display-graphic-p)
-               (featurep 'tty-child-frames))
-           (eq (frame-parameter (selected-frame) 'minibuffer) 't)))
-    (setq blink-matching-paren-highlight-offscreen t
-          show-paren-context-when-offscreen
-          (if (childframe-workable-p) 'child-frame 'overlay)))
+  ;; NOTE: child frames are supported on TTY frames since Emacs 31, so this is
+  ;; no longer guarded by a version check.
+  (defun childframe-workable-p ()
+    "Whether childframe is workable."
+    (and (not noninteractive)
+         (not emacs-basic-display)
+         (or (display-graphic-p)
+             (featurep 'tty-child-frames))
+         (eq (frame-parameter (selected-frame) 'minibuffer) 't)))
+  (setq blink-matching-paren-highlight-offscreen t
+        show-paren-context-when-offscreen
+        (if (childframe-workable-p) 'child-frame 'overlay))
 
   ;; common modes
   (column-number-mode t) ; Show column number in the modebar
@@ -185,6 +199,11 @@ These are native configuration of emacs. A minimal config without installing oth
   (global-hl-line-mode)
   ;; delete selection instead of removing only one character
   (delete-selection-mode 1)
+  ;; Keep buffers in sync with on-disk changes (AI agents, git, build tools).
+  ;; NOTE: `vc-auto-revert-mode' only reacts to VCS operations, so it does NOT
+  ;; catch edits made by an external agent; hence the global mode here.
+  (global-auto-revert-mode 1)
+  (setopt auto-revert-interval 1)
   ;; scroll (un-)smoothly
   ;;(pixel-scroll-mode)
   ;; transparent style
@@ -293,12 +312,11 @@ Sometimes a terminal emacs is also used. These configs enable mouse support (cli
   
 #+begin_src emacs-lisp
   ;; Terminal mouse integration
-  ;; TODO: add checks
-  (unless (display-graphic-p)
-    (xterm-mouse-mode 1)
-    (global-set-key (kbd "<mouse-4>") 'scroll-down-line)
-    (global-set-key (kbd "<mouse-5>") 'scroll-up-line)
-    )
+  ;; NOTE: Emacs 31 turns `xterm-mouse-mode' on by default in compatible
+  ;; terminals, and since Emacs 30 the wheel events are
+  ;; `wheel-up/down/left/right' (not `<mouse-4>/<mouse-5>'), so nothing is
+  ;; needed here.  If mouse input ever breaks (e.g. behind tmux), evaluate
+  ;; (xterm-mouse-mode 1) manually.
 #+end_src
 
 ** Remote
@@ -751,6 +769,9 @@ More complicated and prettier theme settings.
   (use-package flymake
     :when (member my/use-lsp-frontend '(eglot lsp-bridge))
     :hook (prog-mode . flymake-mode)
+    :custom
+    ;; nil / short / t / fancy (Emacs 31 lays 'fancy' out below the line)
+    (flymake-show-diagnostics-at-end-of-line 'short)
     )
 #+end_src
 
@@ -837,7 +858,8 @@ Not using anymore (too complicated), switched to dirvish.
     (recentf-max-menu-items 15)
     (recentf-max-saved-items 200)
     ;; Save recent files every 5 minutes to manage abnormal output.
-    :config (run-at-time nil (* 5 60) 'recentf-save-list))
+    ;; Emacs 31: no manual timer needed any more.
+    (recentf-autosave-interval (* 5 60)))
 #+end_src
 
 + Using =keyfreq= to record keybinding usages.
@@ -888,10 +910,15 @@ Not using anymore (too complicated), switched to dirvish.
   (use-package eglot
     :when (eq my/use-lsp-frontend 'eglot)
     :config
+    ;; NOTE: since Eglot 1.18, `eglot-managed-mode-hook' also runs when Eglot
+    ;; is turned OFF, so only touch `company-backends' while actually managed.
+    ;; (`eglot-inlay-hints-mode' is built in and off by default -- add it to
+    ;; this hook if you want inlay hints.)
     (add-hook 'eglot-managed-mode-hook
               (lambda ()
-                (add-to-list 'company-backends
-                             '(company-capf :with company-yasnippet))))
+                (when (eglot-current-server)
+                  (add-to-list 'company-backends
+                               '(company-capf :with company-yasnippet)))))
     )
 #+end_src
 
@@ -1201,7 +1228,7 @@ As =Eglot= only supports FlyMake, there needs some selection.
         ("Errors"
          (("<" flymake-goto-prev-error "previous" :color pink)
           (">" flymake-goto-next-error "next" :color pink)
-          ("f" flymake-show-buffer-diagnostics "check")
+          ("f" flymake-start "check")
           ("l" flymake-show-buffer-diagnostics "list"))
          )
         )
@@ -1840,7 +1867,7 @@ However, I need to figure out how to locate them efficiently when there is a lot
       (global-hl-todo-mode))
   #+end_src
 
-+ =hideshow= enables code folding.
++ =hideshow= enables code folding. Emacs 31 adds =hs-cycle= / =hs-toggle-all= / =hs-display-lines-hidden= / =hs-show-indicators=, and tree-sitter modes now support =hs-minor-mode= properly.
   
   #+begin_src elisp  
   (use-package hideshow
@@ -1848,7 +1875,8 @@ However, I need to figure out how to locate them efficiently when there is a lot
     (defun enable-hs ()    
       "Enable hs-minor mode and key binding."
       (hs-minor-mode)
-      (global-set-key [f9] 'hs-toggle-hiding)
+      ;; Emacs 31: `hs-cycle' cycles hide-parent / hide-children / show-all.
+      (global-set-key [f9] 'hs-cycle)
       )
     :hook
     (prog-mode . enable-hs))
@@ -1927,14 +1955,8 @@ However, I need to figure out how to locate them efficiently when there is a lot
              ))
   #+end_src
 
-+ =clipetty= allows integration for TTY-based emacs with global clipboard.
-  It already checks whether in a TTY env, so no outside check is needed.
-
-  #+begin_src emacs-lisp
-    (use-package clipetty
-      :ensure t
-      :hook (after-init . global-clipetty-mode))
-  #+end_src
++ NOTE: =clipetty= has been removed.  Emacs 31 handles the OS clipboard on
+  TTY frames itself (OSC 52 in =xterm.el=) on modern terminals.
 
 + =pacfiles-mode=
   #+begin_src emacs-lisp
@@ -1945,23 +1967,75 @@ However, I need to figure out how to locate them efficiently when there is a lot
 ** Treesitter
 Some helper functions to enable treesitter in certain languages.
 
-*All treesitter library should be prepared in advance.* You can install language grammars following the guidelines [[https://www.masteringemacs.org/article/how-to-get-started-tree-sitter][here]].
+*All tree-sitter grammar libraries must be prepared in advance.*
+
+*** Where grammars are loaded from
+
+Emacs looks for =libtree-sitter-LANG.so= (Linux; =.dylib= on macOS, =.dll=
+on Windows) in this order:
+
+1. the directories listed in =treesit-extra-load-path= (nil by default),
+2. the =tree-sitter/= subdirectory of =user-emacs-directory=,
+3. the system default locations for dynamic libraries.
+
+*** How to update a grammar
+
+*Manual (current setup)*: download the prebuilt shared library and drop it
+into =~/.emacs.d/tree-sitter/=, overwriting the old file.  Restart Emacs
+for it to take effect.
+
+*Let Emacs build it*: =M-x treesit-install-language-grammar RET LANG RET=.
+It asks for the install directory (default =~/.emacs.d/tree-sitter/=) and
+needs Git plus a C (sometimes C++) compiler on =PATH=.
+
+The recipes in =treesit-language-source-alist= are registered by the ts-mode
+libraries themselves: =c-ts-mode= (c, cpp, doxygen), =python= and
+=rust-ts-mode= each add theirs *with a pinned commit*, because their
+font-lock/indent queries are written against that exact grammar version.
+So do **not** add an unpinned recipe for those languages: =alist-get= takes
+the first match, so an earlier unpinned entry would win and
+=treesit-install-language-grammar= would build a grammar the queries were
+never tested against.  Only add a recipe for a language that no mode
+registers:
 
 #+begin_src emacs-lisp
-  (when (and (version<= "29.1" emacs-version)
-             (treesit-available-p))
-    ;; This macro hopefully works for most built-in languages ts mode.
-    (defmacro my/enable-treesitter (lang)
-      `(when (treesit-language-available-p ',lang)
-         (add-to-list 'major-mode-remap-alist
-                      '(,(intern (concat (symbol-name lang) "-mode")) .
-                        ,(intern (concat (symbol-name lang) "-ts-mode"))
-                        )
-                      )
-         )
-      )
-    (my/enable-treesitter python)
-    (my/enable-treesitter rust))
+  ;; Example: `typst-ts-mode' (in deps/) does not register a recipe.
+  ;; c / cpp / doxygen / python / rust already come from the core modes
+  ;; above, with pinned commits -- leave those alone.
+  ;; (add-to-list 'treesit-language-source-alist
+  ;;              '(typst "https://github.com/uben0/tree-sitter-typst"))
+
+  ;; Optional: let Emacs build a missing grammar on demand instead of
+  ;; silently falling back to the non-ts mode.
+  ;; (setopt treesit-auto-install-grammar 'ask)
+#+end_src
+
+Pin a version with the =:commit= or =:revision= keyword (which is exactly
+what the core modes above do).
+
+*** Checking what is installed
+
+#+begin_src emacs-lisp
+  (treesit-language-available-p 'cpp)    ; => t / nil
+  (treesit-language-available-p 'cpp t)  ; => (nil . ERROR-DATA) when it fails
+#+end_src
+
+A grammar that refuses to load is usually an ABI mismatch: the shared
+library must be built against a tree-sitter version compatible with the one
+Emacs was built with.  The =DETAIL= argument above prints the loader error.
+
+See also [[https://www.masteringemacs.org/article/how-to-get-started-tree-sitter][How to Get Started with Tree-Sitter]].
+
+#+begin_src emacs-lisp
+  ;; Emacs 31 turns on the ts-modes listed here for the corresponding
+  ;; languages.  Every ts-mode registers itself in
+  ;; `treesit-major-mode-remap-alist' (via loaddefs), so the old hand-written
+  ;; `my/enable-treesitter' macro and the manual `major-mode-remap-alist'
+  ;; entries for C/C++ are gone.
+  ;; NOTE: this is a user option with a `:set' function, so `setopt' (not
+  ;; `setq') is required here.
+  (setopt treesit-enabled-modes
+          '(c-ts-mode c++-ts-mode python-ts-mode rust-ts-mode))
 #+end_src
 
 ** C/C++
@@ -1995,9 +2069,7 @@ Note that C++ tree-sitter parsers still suffer from some bugs (especially regard
 
   ;; Treesitter of C/C++ should be set independantly
   (use-package c-ts-mode
-    :if (and (version<= "29.1" emacs-version)
-             (treesit-available-p)
-             (treesit-language-available-p 'cpp)
+    :if (and (treesit-language-available-p 'cpp)
              (treesit-language-available-p 'c))
 
     :preface
@@ -2037,10 +2109,8 @@ it must be a language-keyed alist (the shape returned by
           (cpp ,@extra ,@(alist-get 'cpp (c-ts-mode--simple-indent-rules 'cpp 'gnu))))))
     :custom
     (c-ts-mode-indent-style #'my-indent-style)
-    :init
-
-    (add-to-list 'major-mode-remap-alist '(c++-mode . c++-ts-mode))
-    (add-to-list 'major-mode-remap-alist '(c-mode . c-ts-mode))
+    ;; NOTE: the c-mode/c++-mode -> *-ts-mode remapping now comes from
+    ;; `treesit-enabled-modes' (see the Treesitter section above).
     )
 
   ;; NOTE: Install ccls through your package manager / compile yourself.
@@ -2204,18 +2274,37 @@ TODO: Also, I want to support editing Overleaf files locally in Emacs without Pr
 *Using =texlab= as lsp server*.
 
 #+begin_src emacs-lisp
+  ;; eglot: pin texlab for every TeX mode.  Emacs 31's built-in entry for
+  ;; these modes is ("digestif" "texlab") and both are installed here;
+  ;; `eglot-ensure' is non-interactive, so it silently takes the first
+  ;; available program -- without pinning, that would be `digestif'.
+  ;; (AUCTeX's `LaTeX-mode'/`latex-mode' are no longer derived from
+  ;; `tex-mode', hence the explicit mode list.)
+  (when (eq my/use-lsp-frontend 'eglot)
+    (add-to-list 'eglot-server-programs
+                 '((tex-mode latex-mode LaTeX-mode plain-tex-mode
+                    context-mode texinfo-mode bibtex-mode)
+                   . ("texlab"))))
+
+  ;; Start the LSP frontend for TeX buffers.  This lives outside the
+  ;; `use-package tex' form below on purpose: that one is `:after yasnippet',
+  ;; so its hooks are only installed once yasnippet happens to be loaded.
+  (when (member 'latex my/enabled-lang)
+    (add-hook 'tex-mode-hook #'my/start-lsp)
+    (add-hook 'latex-mode-hook #'my/start-lsp)
+    (add-hook 'LaTeX-mode-hook #'my/start-lsp))
+
+  ;; `lsp-latex' is an lsp-mode client: it requires lsp-mode (and `consult'),
+  ;; and its `lsp-latex-*' options below (forward search, build args) only
+  ;; apply there.  Under eglot it would just drag lsp-mode in for nothing, so
+  ;; gate it.  (The TeX hook that starts the LSP frontend now lives in the
+  ;; `tex' block above.)
   (use-package lsp-latex
-    :when (member 'latex my/enabled-lang)
+    :when (and (member 'latex my/enabled-lang)
+               (eq my/use-lsp-frontend 'lsp-mode))
     ;;:after lsp
-    :hook
-    ((tex-mode latex-mode LaTeX-mode) . my/start-lsp)
     :init
-    (when (eq my/use-lsp-frontend 'lsp-mode)
-      (add-to-list 'lsp-enabled-clients 'texlab))
-    (when (eq my/use-lsp-frontend 'eglot)
-      (add-to-list 'eglot-server-programs
-                   '((tex-mode context-mode texinfo-mode bibtex-mode) .
-                     ("texlab"))))
+    (add-to-list 'lsp-enabled-clients 'texlab)
     :custom
     (lsp-latex-forward-search-executable "okular")
     (lsp-latex-forward-search-args '("--unique" "file:%p#src:%l%f"))
@@ -2260,9 +2349,7 @@ I never really had a chance to use typst. So I just installed its major mode.
 
 #+begin_src emacs-lisp
   (use-package typst-ts-mode
-    :when (and (version<= "29.1" emacs-version)
-               (treesit-available-p)
-               (file-exists-p (my/expand-config-dir "deps/typst-ts-mode/typst-ts-mode.el")))
+    :when (file-exists-p (my/expand-config-dir "deps/typst-ts-mode/typst-ts-mode.el"))
     :load-path "deps/typst-ts-mode")
 #+end_src
 
