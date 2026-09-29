@@ -108,11 +108,7 @@ I use git submodules instead of packages like *straight* so that some of them ca
 Including =use-package=. All packages are set to be installed by default.
 
 #+begin_src emacs-lisp
-  ;; In Emacs 30, `use-package` has integrated into built-in package.
-  (unless (package-installed-p 'use-package)
-    (package-refresh-contents)
-    (package-install 'use-package))
-
+  ;; `use-package' is built into Emacs since 30, so there is nothing to install.
   (use-package use-package-ensure-system-package)
   (use-package delight :ensure t)
 
@@ -159,10 +155,14 @@ These are native configuration of emacs. A minimal config without installing oth
    ring-bell-function 'ignore ; See https://emacs-china.org/t/topic/4972
    )
 
+  ;; Align wrapped continuation lines with the text rather than the window
+  ;; edge; helps a lot with CJK/Latin mixed text.
+  (add-hook 'text-mode-hook #'visual-wrap-prefix-mode)
+
   ;; New feature for matching parenthses outside of the screen
   ;; Ref: https://emacs-china.org/t/emacs-30/29017/14
-  ;; NOTE: child frames are supported on TTY frames since Emacs 31, so this is
-  ;; no longer guarded by a version check.
+  ;; Child frames work on both GUI and TTY frames, hence the `tty-child-frames'
+  ;; check.
   (defun childframe-workable-p ()
     "Whether childframe is workable."
     (and (not noninteractive)
@@ -767,6 +767,7 @@ More complicated and prettier theme settings.
     :hook (prog-mode . flycheck-mode))
   
   (use-package flymake
+    :ensure nil                          ; built in
     :when (member my/use-lsp-frontend '(eglot lsp-bridge))
     :hook (prog-mode . flymake-mode)
     :custom
@@ -779,6 +780,7 @@ More complicated and prettier theme settings.
   
 #+begin_src elisp
   (use-package editorconfig
+    :ensure nil                          ; built in since Emacs 30
     :hook (prog-mode . editorconfig-mode)
     )
 #+end_src
@@ -841,6 +843,7 @@ Not using anymore (too complicated), switched to dirvish.
 + Setting =resentf= to ignore specific paths.
 #+begin_src emacs-lisp
   (use-package recentf
+    :ensure nil                          ; built in
     :bind ("C-x C-r" . recentf-open-files)
     :init (recentf-mode)
     :custom
@@ -858,7 +861,6 @@ Not using anymore (too complicated), switched to dirvish.
     (recentf-max-menu-items 15)
     (recentf-max-saved-items 200)
     ;; Save recent files every 5 minutes to manage abnormal output.
-    ;; Emacs 31: no manual timer needed any more.
     (recentf-autosave-interval (* 5 60)))
 #+end_src
 
@@ -908,10 +910,11 @@ Not using anymore (too complicated), switched to dirvish.
 *** Eglot
 #+begin_src elisp
   (use-package eglot
+    :ensure nil                          ; built in since Emacs 29
     :when (eq my/use-lsp-frontend 'eglot)
     :config
-    ;; NOTE: since Eglot 1.18, `eglot-managed-mode-hook' also runs when Eglot
-    ;; is turned OFF, so only touch `company-backends' while actually managed.
+    ;; NOTE: `eglot-managed-mode-hook' also runs when Eglot is turned OFF, so
+    ;; only touch `company-backends' while actually managed.
     ;; (`eglot-inlay-hints-mode' is built in and off by default -- add it to
     ;; this hook if you want inlay hints.)
     (add-hook 'eglot-managed-mode-hook
@@ -1532,6 +1535,127 @@ Therefore, it's better setup a unified management interface.
     :config
     (add-to-list 'exec-path "/home/jhdjames37/.local/share/npm/bin"))
 #+end_src
+*** Pilish
+
+Emacs frontend for the =pi= coding agent: it opens as a right-hand column, hides
+completed thinking, stops the run on =C-g=, and trusts project-local inputs sparingly.
+
+#+begin_src emacs-lisp
+  (use-package pilish
+    :defer t
+    :init
+    (defcustom my/pilish-side-width 0.4
+      "Width of the pilish column: columns when an integer, frame fraction when a float."
+      :type '(choice (natnum :tag "Columns") (float :tag "Frame fraction"))
+      :group 'pilish)
+
+    (defun my/pilish--side-width ()
+      "Return the pilish column width in columns."
+      (if (floatp my/pilish-side-width)
+          (max window-min-width (round (* my/pilish-side-width (frame-width))))
+        (max window-min-width my/pilish-side-width)))
+
+    (defun my/pilish-start-or-toggle ()
+      "Start this project's Pi session, or toggle its windows."
+      (interactive)
+      (require 'pilish)
+      (if (pilish-project-buffers)
+          (pilish-toggle)
+        (pilish)))
+    (keymap-global-set "C-c t" #'my/pilish-start-or-toggle)
+    :custom (pilish-project-trust-policy 'default)
+            (pilish-thinking-display 'hidden)
+    :config
+    ;; Pilish reads dialog answers (the permission prompt included) inside its
+    ;; process filter, which only catches `error', so a `quit' escaping from
+    ;; C-g would leave pi waiting for an answer forever.  Answer, then stop.
+    (defun my/pilish-abort-on-dialog-quit (fn event)
+      "Cancel the pending extension dialog and stop pi when C-g quits it."
+      (let ((proc (bound-and-true-p pilish--process)))
+        (condition-case nil
+            (funcall fn event)
+          (quit
+           (if (and proc (process-live-p proc)
+                    (plist-get event :id)
+                    (member (plist-get event :method)
+                            '("confirm" "select" "input" "editor")))
+               (progn
+                 (pilish--send-extension-ui-response
+                  proc (list :type "extension_ui_response"
+                             :id (plist-get event :id)
+                             :cancelled t))
+                 (pilish-abort))
+             (message "Pi: %s cancelled" (plist-get event :method)))))))
+    (advice-add 'pilish--handle-extension-ui-request
+                :around #'my/pilish-abort-on-dialog-quit)
+
+    ;; The session gets its own full-height column at the right edge of the
+    ;; frame instead of replacing the current window; hiding deletes exactly
+    ;; those two windows again.  They are remembered by identity rather than
+    ;; tagged with a window parameter: a parameter can end up on an unrelated
+    ;; window, and hiding must never delete the user's own windows.
+    (defvar my/pilish--column-windows nil
+      "Windows that make up the current pilish column.")
+
+    (defun my/pilish--delete-column ()
+      "Delete the windows this session's column was built from."
+      (let ((deleted nil))
+        (dolist (win my/pilish--column-windows)
+          (when (and (window-live-p win) (window-deletable-p win))
+            (delete-window win)
+            (setq deleted t)))
+        (setq my/pilish--column-windows nil)
+        ;; Restoring a saved window state (tab bar, perspectives, winner)
+        ;; recreates windows, so fall back to the buffers the session owns.
+        (unless deleted
+          (dolist (buf (list (pilish--get-input-buffer) (pilish--get-chat-buffer)))
+            (when (buffer-live-p buf)
+              (dolist (win (get-buffer-window-list buf nil (selected-frame)))
+                (when (and (window-live-p win) (window-deletable-p win))
+                  (delete-window win))))))))
+
+    (defun my/pilish--display-buffers (chat-buf input-buf &optional chat-only)
+      "Show CHAT-BUF and INPUT-BUF in a right-hand column."
+      (let* ((frame (selected-frame))
+             (chat-win (car (get-buffer-window-list chat-buf nil frame)))
+             (input-win (and input-buf
+                             (car (get-buffer-window-list input-buf nil frame)))))
+        (unless chat-win
+          (my/pilish--delete-column)
+          (setq chat-win
+                (condition-case nil
+                    (split-window (frame-root-window frame)
+                                  (- (my/pilish--side-width)) 'right)
+                  (error (split-window (selected-window)
+                                       (- (my/pilish--side-width)) 'right))))
+          (set-window-buffer chat-win chat-buf)
+          (set-window-parameter chat-win 'no-delete-other-windows t)
+          (window-preserve-size chat-win t t)
+          (setq my/pilish--column-windows (list chat-win)))
+        (when (and (not chat-only) (not input-win)
+                   (pilish--window-can-split-for-input-p chat-win))
+          (setq input-win (split-window
+                           chat-win (- (pilish--input-height-for-window chat-win))
+                           'below))
+          (set-window-buffer input-win input-buf)
+          (set-window-dedicated-p input-win 'side)
+          (set-window-parameter input-win 'no-delete-other-windows t)
+          (window-preserve-size input-win t t)
+          (setq my/pilish--column-windows
+                (cons input-win my/pilish--column-windows)))
+        (when (window-live-p chat-win)
+          (with-selected-window chat-win (goto-char (point-max))))
+        (select-window (if (and (not chat-only) (window-live-p input-win))
+                           input-win chat-win))))
+
+    (defun my/pilish--hide-session-windows ()
+      "Delete the session column, giving its space back to the other windows."
+      (my/pilish--delete-column))
+
+    (when (fboundp 'pilish--display-buffers)
+      (advice-add 'pilish--display-buffers :override #'my/pilish--display-buffers)
+      (advice-add 'pilish--hide-session-windows :override #'my/pilish--hide-session-windows)))
+#+end_src
 ** workspace
 
 Workspace is to make =switch-buffer= menu cleaner when 
@@ -1871,6 +1995,7 @@ However, I need to figure out how to locate them efficiently when there is a lot
   
   #+begin_src elisp  
   (use-package hideshow
+    :ensure nil                          ; built in
     :preface
     (defun enable-hs ()    
       "Enable hs-minor mode and key binding."
@@ -1911,6 +2036,7 @@ However, I need to figure out how to locate them efficiently when there is a lot
   #+begin_src elisp
     ;; Key binding help
     (use-package which-key
+      :ensure nil                        ; built in since Emacs 30
       :init (which-key-mode))
   #+end_src
 
@@ -2027,15 +2153,14 @@ Emacs was built with.  The =DETAIL= argument above prints the loader error.
 See also [[https://www.masteringemacs.org/article/how-to-get-started-tree-sitter][How to Get Started with Tree-Sitter]].
 
 #+begin_src emacs-lisp
-  ;; Emacs 31 turns on the ts-modes listed here for the corresponding
-  ;; languages.  Every ts-mode registers itself in
-  ;; `treesit-major-mode-remap-alist' (via loaddefs), so the old hand-written
-  ;; `my/enable-treesitter' macro and the manual `major-mode-remap-alist'
-  ;; entries for C/C++ are gone.
+  ;; Turn on these tree-sitter modes for their languages.  Every ts-mode
+  ;; registers itself in `treesit-major-mode-remap-alist' (via loaddefs), and
+  ;; this option copies the matching entries into `major-mode-remap-alist'.
   ;; NOTE: this is a user option with a `:set' function, so `setopt' (not
   ;; `setq') is required here.
   (setopt treesit-enabled-modes
-          '(c-ts-mode c++-ts-mode python-ts-mode rust-ts-mode))
+          '(c-ts-mode c++-ts-mode python-ts-mode rust-ts-mode
+            yaml-ts-mode dockerfile-ts-mode))
 #+end_src
 
 ** C/C++
@@ -2103,13 +2228,13 @@ it must be a language-keyed alist (the shape returned by
                             ""))))
                 standalone-parent c-ts-indent-offset))))
         ;; Append the base style (GNU) after the custom rules.
-        ;; NOTE: Emacs 31 removed `c-ts-mode--indent-styles'; this is the
-        ;; function `c-ts-mode' itself calls for symbol styles.
+        ;; `c-ts-mode--simple-indent-rules' returns the base rules for a style
+        ;; symbol, in the shape `treesit-simple-indent-rules' expects.
         `((c ,@extra ,@(alist-get 'c (c-ts-mode--simple-indent-rules 'c 'gnu)))
           (cpp ,@extra ,@(alist-get 'cpp (c-ts-mode--simple-indent-rules 'cpp 'gnu))))))
     :custom
     (c-ts-mode-indent-style #'my-indent-style)
-    ;; NOTE: the c-mode/c++-mode -> *-ts-mode remapping now comes from
+    ;; NOTE: c-mode/c++-mode are remapped to the ts modes through
     ;; `treesit-enabled-modes' (see the Treesitter section above).
     )
 
@@ -2357,12 +2482,13 @@ I never really had a chance to use typst. So I just installed its major mode.
 ** TODO Elisp
 ** YAML
 
-#+begin_src emacs-lisp
-  (use-package yaml-mode
-    :when (member 'yaml my/enabled-lang)
-    :config
-    (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode)))
-#+end_src
+Emacs' built-in =yaml-ts-mode= handles =.yml= and =.yaml=.  It is switched
+on by =yaml-ts-mode= in =treesit-enabled-modes= (Treesitter section above),
+which maps `yaml-mode' -> `yaml-ts-mode' in `major-mode-remap-alist', so the
+MELPA =yaml-mode= package is no longer needed -- and the remap also wins
+over the `auto-mode-alist' entry that the package registers.  (The built-in
+=yaml-ts-mode-maybe= falls back to =fundamental-mode= if the grammar is
+missing.)
 
 ** Other major-mode-only Languages
 
@@ -2376,10 +2502,11 @@ I seldom use these languages, so that only syntax highlighting is needed.
 
 + dockerfile
 
-#+begin_src emacs-lisp
-  (use-package dockerfile-mode
-    :when (member 'dockerfile my/enabled-lang))
-#+end_src
+  Emacs' built-in =dockerfile-ts-mode= handles =Dockerfile=, =Containerfile=
+  and =*.dockerfile=.  Like YAML it is switched on through
+  =treesit-enabled-modes= (which maps `dockerfile-mode' ->
+  `dockerfile-ts-mode'), so the MELPA =dockerfile-mode= package is no longer
+  needed.
 
 + caddyfile
 #+begin_src emacs-lisp
