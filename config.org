@@ -1537,12 +1537,17 @@ Therefore, it's better setup a unified management interface.
 #+end_src
 *** Pilish
 
-Emacs frontend for the =pi= coding agent: it opens as a right-hand column, hides
-completed thinking, stops the run on =C-g=, and trusts project-local inputs sparingly.
+Emacs frontend for the =pi= coding agent: a right-hand column, collapsed thinking,
+=C-g= stops the run, prompt completion, and project-local inputs only where trusted.
 
 #+begin_src emacs-lisp
   (use-package pilish
     :defer t
+    ;; The input buffer completes with pilish's own functions (slash commands,
+    ;; which only work as its first character, plus paths and @file references);
+    ;; company only supplies the popup, configured in `my/pilish-input-setup'.
+    :hook ((pilish-input-mode . company-mode)
+           (pilish-chat-mode . my/pilish-chat-setup))
     :init
     (defcustom my/pilish-side-width 0.4
       "Width of the pilish column: columns when an integer, frame fraction when a float."
@@ -1554,6 +1559,27 @@ completed thinking, stops the run on =C-g=, and trusts project-local inputs spar
       (if (floatp my/pilish-side-width)
           (max window-min-width (round (* my/pilish-side-width (frame-width))))
         (max window-min-width my/pilish-side-width)))
+
+    (defun my/pilish-input-setup ()
+      "Complete only pilish's own CAPFs, popping early and staying compact.
+`company-capf' alone drops the word-guessing backends (dabbrev, snippets)
+that are noise while composing a prompt."
+      (setq-local company-backends '(company-capf))
+      ;; The slash-command CAPF claims an empty region right after the slash.
+      (setq-local company-minimum-prefix-length 0)
+      ;; The input window is short; keep the popup from covering it.
+      (setq-local company-tooltip-limit 5))
+    ;; Depth 50: run after `company-mode' — that call loads company, and other
+    ;; configs may prepend to `company-backends' on the way.
+    (add-hook 'pilish-input-mode-hook #'my/pilish-input-setup 50)
+
+    (defun my/pilish-chat-setup ()
+      "Keep `visual-wrap-prefix-mode' out of the chat buffer.
+The chat hides markdown markup, but that mode measures the line prefix from
+the buffer text: a line starting with invisible markup (like `**') is padded
+by the width of that markup, so it looks indented, and the padding is
+re-applied on every redisplay."
+      (visual-wrap-prefix-mode -1))
 
     (defun my/pilish-start-or-toggle ()
       "Start this project's Pi session, or toggle its windows."
@@ -1654,7 +1680,28 @@ completed thinking, stops the run on =C-g=, and trusts project-local inputs spar
 
     (when (fboundp 'pilish--display-buffers)
       (advice-add 'pilish--display-buffers :override #'my/pilish--display-buffers)
-      (advice-add 'pilish--hide-session-windows :override #'my/pilish--hide-session-windows)))
+      (advice-add 'pilish--hide-session-windows :override #'my/pilish--hide-session-windows))
+
+    ;; Describe each slash command in the completion popup.  Commands pi reports
+    ;; carry a description of their own; the builtin ones have no such field, so
+    ;; the first line of their handler's docstring stands in.
+    (defun my/pilish-command-annotation (candidate)
+      "Return the description to show next to slash command CANDIDATE."
+      (or (when-let* ((cmd (seq-find (lambda (c) (equal (plist-get c :name) candidate))
+                                     pilish--commands)))
+            (or (plist-get cmd :description) (plist-get cmd :source)))
+          (when-let* ((handler (plist-get (cdr (assoc candidate pilish--builtin-commands))
+                                          :handler))
+                      ((fboundp handler)))
+            (car (split-string (or (documentation handler) "") "\n")))
+          ""))
+
+    (defun my/pilish-command-capf-annotate (result)
+      "Add the description callback to the slash-command CAPF RESULT."
+      (when result
+        (append result (list :annotation-function #'my/pilish-command-annotation))))
+
+    (advice-add 'pilish--command-capf :filter-return #'my/pilish-command-capf-annotate))
 #+end_src
 ** workspace
 
