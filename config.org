@@ -1133,7 +1133,7 @@ This is a simple config for dired. It is enough for brief file navigation, but m
           '(vc-state nerd-icons collapse file-size))
     (setq delete-by-moving-to-trash t)
     (setq dired-listing-switches
-          "-l --human-readable --group-directories-first --no-group")
+          "-l --human-readable --group-directories-first --no-group --time-style=iso")
 
     ;; Ref: https://emacs-china.org/t/dirvish-dired/20189/310
     (with-eval-after-load "persp-mode"
