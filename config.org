@@ -2128,8 +2128,19 @@ However, I need to figure out how to locate them efficiently when there is a lot
              ))
   #+end_src
 
-+ NOTE: =clipetty= has been removed.  Emacs 31 handles the OS clipboard on
-  TTY frames itself (OSC 52 in =xterm.el=) on modern terminals.
++ =clipetty= allows integration for TTY-based emacs with global clipboard.
+  It already checks whether in a TTY env, so no outside check is needed.
+
+  NOTE: Emacs 31's own OSC 52 support is gated on the terminal advertising
+  the capability.  konsole does not (DA1 = `[?62;1;4c` has no `52`,
+  DA2 = `[>1;115;0c` reports version 115 < 203), so `M-w` silently stops
+  reaching the OS clipboard.  clipetty skips the probing entirely.
+
+  #+begin_src emacs-lisp
+    (use-package clipetty
+      :ensure t
+      :hook (after-init . global-clipetty-mode))
+  #+end_src
 
 + =pacfiles-mode=
   #+begin_src emacs-lisp
