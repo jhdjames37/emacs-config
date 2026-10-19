@@ -59,8 +59,28 @@ TODO:
   (defvar my/use-lsp-frontend 'lsp-mode
     "LSP frontend")
 
-  (defvar my/font-scale 1.4
-    "Chinese font scale")
+  (defvar my/font-family "Noto Sans Mono"
+    "Latin monospace font family.")
+
+  (defvar my/font-width "SemiCondensed"
+    "Latin font width variant.
+Empty string for Normal; otherwise one of SemiCondensed, Condensed,
+ExtraCondensed.  Narrower variants make CJK glyphs smaller relative to
+Latin ones, because the 2:1 cell ratio pins CJK size to the advance.")
+
+  (defvar my/font-size 15
+    "Latin font size in points.")
+
+  (defvar my/font-cjk-family "Noto Sans Mono CJK SC"
+    "CJK font family.")
+
+  (defvar my/font-symbol-family "Adwaita Mono"
+    "Font for symbols like check marks and stars.
+Must be a monospace family whose symbol glyphs share the advance of its
+letters, so that one rescale keeps them in a single cell.")
+
+  (defvar my/font-emoji-family "Noto Color Emoji"
+    "Emoji font family.")
 
   (defvar my/org-agenda-location "~/Documents/notes/agenda.org"
     "File for org-agenda")
@@ -235,49 +255,103 @@ These are native configuration of emacs. A minimal config without installing oth
 ** Font Settings
 包含基础字体配置、CJK/Unicode 类字体配置。
 
-值得注意的是，中文字体需要进行 rescale 以确保大小和英文字体匹配，比例和显示设置有关。
+对齐的依据是「一个汉字 = 两个英文字符格」。拉丁字体的 advance 并非固定 0.5em
+（Noto Sans Mono 的宽度档 Normal/SemiCondensed/Condensed/ExtraCondensed
+分别是 0.600/0.563/0.530/0.500 em），所以中文字号不能写死，而要按当前实际格宽算：
+
+| 中文 fontset =:size=  | =2 × (frame-char-width)=                | 保证 2:1  |
+| 符号 fontset =:size=  | =round((frame-char-width) / 0.6)=       | 保证 1 格 |
+| emoji fontset =:size= | =round(2 × (frame-char-width) / 1.245)= | 保证 2 格 |
+
+整数 =:size= 的单位是像素，所以这些值直接就是像素数，**不需要** =face-font-rescale-alist=。
+而 =frame-char-width= 本身随 DPI 变化，比例因此与显示设置无关。
+
+各宽度档在 15pt 下的实测值：
+
+| 宽度档         | 格宽 | 中文 | 英行高 | 中行高 |
+|----------------+------+------+--------+--------|
+| Normal         |   12 |   24 |     28 |     35 |
+| SemiCondensed  |   11 |   22 |     28 |     33 |
+| Condensed      |   11 |   22 |     28 |     33 |
+| ExtraCondensed |   10 |   20 |     28 |     30 |
+
+行高由行内最高字形的垂直度量决定：中文字体 hhea = 1.448em，拉丁 = 1.362em，
+所以含中文的行必然更高（3~9px）。=line-spacing= 只叠加像素，抹不平这个差。
+需要统一行高时，在意的 buffer 里放 =line-prefix= 一个全角空格即可。
+
+符号走 =my/font-symbol-family=：=✓ ✔ ✗ ★= 在思源黑体里不是 0.5em，会占 1.4 格；
+=Adwaita Mono= 的符号与字母同为 0.6em，缩放后能精确落在一格。
+=→ ≤ ≠ •= 这类拉丁字体自带的符号仍由拉丁字体渲染（=use-default-font-for-symbols= 默认优先拉丁字体），
+这也是它们能保持一格的原因。
+
+emoji 的 advance 是 1.245em，且字号到像素的量化较粗，个别格宽下会差 1px。
+
+局限：拉丁字体把少数符号设计成 2 格宽（=⇐ ⇔ ∅ ⊕= 等），
+它们优先于 fontset 生效，仍会占两格。这是字体本身的度量，不是配置能改的。
+
+需要安装 =noto-fonts-extra= 与 =adwaita-fonts= 。
 
 测试：
 + 中文测试 test
 + Emoji test 😅 (Noto Color Emoji)
++ 符号 ✓ ✔ ✗ ★ ☆ → ≤ ≥ ≠ •
+  
+|12|34|56|78|12|34|56|78|12|34|56|78|12|34|56|78|12|34|56|78|12|34|56|78|12|34|56|78|12|34|56|78|12|34|56|78|12|34|56|78|12|34|56|78|
+|中|文|测|试|中|文|测|试|中|文|测|试|中|文|测|试|中|文|测|试|中|文|测|试|中|文|测|试|中|文|测|试|中|文|测|试|中|文|测|试|中|文|测|试|
+|😅|✓→|≤≥|≠•|
 
 可能存在的 Bug：
 + 部分 face 可能错误绑定 CJK 字体
   使用 ~C-u C-x =~ 查看当前字符的字体信息，并作针对性调整
 
 #+begin_src emacs-lisp
-  ;; fonts
-  (defun set-default-font ()
-    (set-face-attribute 'default nil :font "Noto Sans Mono 14")
-    (set-face-attribute 'help-key-binding nil :font "Noto Sans Mono 14")
-    (set-face-attribute 'fixed-pitch nil :font "Noto Sans Mono 14")
-    )
+  (defun my/font--latin-name ()
+    "由 =my/font-*' 变量拼出拉丁字体名。"
+    (format "%s%s %d" my/font-family
+            (if (string= my/font-width "") "" (concat " " my/font-width))
+            my/font-size))
 
-  (set-default-font)
-  ;; enhancement:
-  ;; ref: https://www.cnblogs.com/aqing1987/p/4464106.html
-  ;; to make it properly executed in tty (i.e. `emacs -nw`)
-  (defun s-font()
+  (defun set-default-font (&optional frame)
+    "设置 FRAME（默认当前 frame）的拉丁字体。
+  =set-frame-font' 会同时重建该 frame 的 fontset，所以必须在这里先调用。"
+    (let ((frame (or frame (selected-frame)))
+          (latin (my/font--latin-name)))
+      (set-frame-font latin t (list frame))
+      (dolist (face '(fixed-pitch help-key-binding))
+        (set-face-attribute face frame :font latin))))
+
+  (defun s-font (&optional frame)
+    "按实际格宽绑定中文字体、符号字体与 emoji 字体。
+  只在图形 frame 上有效：tty 的字符格是固定的，没有 fontset 可调。"
     (interactive)
-    (dolist (charset '(kana han symbol cjk-misc bopomofo))
-      (set-fontset-font (frame-parameter nil 'font) charset
-                        ;;(font-spec :family "Source Han Sans CN" :size 18)))
-                        (font-spec :family "Noto Sans Mono CJK SC" :size 14)))
-    ;; tune rescale so that Chinese character width = 2 * English character width
-    (setq face-font-rescale-alist
-          ;; Use list and cons to evaluate the symbols
-          (list (cons "Noto Sans Mono CJK SC" my/font-scale)))
-    )
+    (let ((frame (or frame (selected-frame))))
+      (when (display-graphic-p frame)
+        ;; 整数 :size 已直接给出像素，不再需要等比缩放；清空以免旧值生效
+        (setq face-font-rescale-alist nil)
+        (let* ((cw (frame-char-width frame))
+               (cjk (* 2 cw))
+               (sym (round (/ (float cw) 0.6)))
+               (emoji (round (/ (* 2.0 cw) 1.245))))
+          (dolist (charset '(kana han cjk-misc bopomofo))
+            (set-fontset-font nil charset
+                              (font-spec :family my/font-cjk-family :size cjk)
+                              frame))
+          (set-fontset-font nil 'symbol
+                            (font-spec :family my/font-symbol-family :size sym)
+                            frame nil)
+          (set-fontset-font nil 'emoji
+                            (font-spec :family my/font-emoji-family :size emoji)
+                            frame nil)
+          (clear-face-cache t)))))
 
   ;; setup font in client mode
   (add-to-list 'after-make-frame-functions
                (lambda (new-frame)
-                 (select-frame new-frame)
-                 (set-default-font)
-                 (if window-system
-                     (s-font))))
-  (if window-system
-      (s-font))
+                 (with-selected-frame new-frame
+                   (set-default-font new-frame)
+                   (s-font new-frame))))
+  (set-default-font)
+  (s-font)
 #+end_src
 
 ** Use ZSH

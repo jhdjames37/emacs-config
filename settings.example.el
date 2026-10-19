@@ -12,7 +12,6 @@
       my/enabled-lang
       '(cpp python python-jupyter js rust latex org markdown typst yaml dotenv dockerfile caddyfile bison)
       my/minibuffer-backend 'vertico
-      my/font-scale 1.8
       my/enabled-feat '(ellama aidermacs pdf workspace)
       my/use-lsp-frontend 'eglot)
 
