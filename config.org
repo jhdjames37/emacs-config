@@ -1612,7 +1612,8 @@ Therefore, it's better setup a unified management interface.
 *** Pilish
 
 Emacs frontend for the =pi= coding agent: a right-hand column, collapsed thinking,
-=C-g= stops the run, prompt completion, and project-local inputs only where trusted.
+=C-g= stops the run, prompt completion, project-local inputs only where trusted,
+and the view pulled back to the end whenever a new turn starts.
 
 #+begin_src emacs-lisp
   (use-package pilish
@@ -1648,12 +1649,16 @@ that are noise while composing a prompt."
     (add-hook 'pilish-input-mode-hook #'my/pilish-input-setup 50)
 
     (defun my/pilish-chat-setup ()
-      "Keep `visual-wrap-prefix-mode' out of the chat buffer.
-The chat hides markdown markup, but that mode measures the line prefix from
-the buffer text: a line starting with invisible markup (like `**') is padded
-by the width of that markup, so it looks indented, and the padding is
-re-applied on every redisplay."
-      (visual-wrap-prefix-mode -1))
+      "Tune the chat buffer for streamed output.
+Keep `visual-wrap-prefix-mode' out of it: the chat hides markdown markup, but
+that mode measures the line prefix from the buffer text, so a line starting
+with invisible markup (like `**') is padded by the width of that markup and
+looks indented, re-padded on every redisplay.
+Scroll by the line instead of recentering: `scroll-conservatively' is 0 by
+default, so redisplay recenters point whenever it leaves the screen, and every
+streamed line that falls off the bottom then jumps the view half a window."
+      (visual-wrap-prefix-mode -1)
+      (setq-local scroll-conservatively 101))
 
     (defun my/pilish-start-or-toggle ()
       "Start this project's Pi session, or toggle its windows."
@@ -1755,6 +1760,24 @@ re-applied on every redisplay."
     (when (fboundp 'pilish--display-buffers)
       (advice-add 'pilish--display-buffers :override #'my/pilish--display-buffers)
       (advice-add 'pilish--hide-session-windows :override #'my/pilish--hide-session-windows))
+
+    ;; Reading older output leaves point off the tail, so the start of a new
+    ;; turn pulls every chat window back to the end and the new content stays
+    ;; visible while it streams in.  Scrolling up *during* a turn is untouched.
+    (defun my/pilish-pin-chat-to-tail (&rest _)
+      "Move windows showing the current chat buffer back to its end."
+      (when (derived-mode-p 'pilish-chat-mode)
+        (dolist (win (get-buffer-window-list (current-buffer) nil t))
+          (with-selected-window win
+            (goto-char (point-max))
+            (recenter -1))
+          ;; `goto-char' moves the buffer's point; `window-point' is its own
+          ;; marker in an unselected window, so pin that as well.
+          (set-window-point win (point-max)))))
+
+    (when (fboundp 'pilish--display-agent-start)
+      (advice-add 'pilish--display-agent-start
+                  :after #'my/pilish-pin-chat-to-tail))
 
     ;; Describe each slash command in the completion popup.  Commands pi reports
     ;; carry a description of their own; the builtin ones have no such field, so
