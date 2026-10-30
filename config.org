@@ -579,6 +579,120 @@ More complicated and prettier theme settings.
     :config (winner-mode))
 #+end_src
 
++ =buffer-pin-mode= (own) keeps a buffer in the windows that show it.  Those
+  windows are strongly dedicated, so =C-x b=, =C-x C-f=, =ibuffer= and anything
+  else that goes through =display-buffer= or =switch-to-buffer= opens
+  elsewhere instead of turning the window into a file viewer.  They also
+  survive =C-x 1=, which in a pinned window acts on the window next to it.
+  Pilish pins its chat and input buffers with it.
+
+#+begin_src emacs-lisp
+  ;; The pin reuses the flags that window.el already honours: a strongly
+  ;; dedicated window is never picked by `display-buffer' and refuses a new
+  ;; buffer, and `no-delete-other-windows' spares it from `delete-other-windows'.
+  (defvar-local buffer-pin--windows nil
+    "Windows this buffer is pinned in, as a list of records.
+A record is (WINDOW OLD-DEDICATED OLD-NO-DELETE OLD-DELETE-OTHER), the previous
+window state the pin overrides.  Only these windows are ever unpinned again,
+and they are compared by identity: a window parameter can be copied to
+unrelated windows by restored window states.")
+  (put 'buffer-pin--windows 'permanent-local t)
+
+  (defun buffer-pin--record (window)
+    "Return the pin record of WINDOW, if any."
+    (assq window buffer-pin--windows))
+
+  (defun buffer-pin--delete-other-windows (window)
+    "Delete the windows around pinned WINDOW, keeping it and one normal window.
+Without this redirection, C-x 1 in a pinned window keeps the pinned column and
+deletes the window the user actually works in."
+    (let ((target
+           (seq-find (lambda (candidate)
+                       (and (not (window-parameter candidate 'window-side))
+                            (not (window-parameter
+                                  candidate 'no-delete-other-windows))))
+                     (window-list (window-frame window) 'no-mini))))
+      (if target
+          (delete-other-windows target)
+        (message "No other window to keep"))))
+
+  (defun buffer-pin-pin-window (window)
+    "Pin WINDOW to the current buffer.
+Nothing happens unless this buffer has `buffer-pin-mode' on and WINDOW shows
+it.  The window is strongly dedicated, gets the `no-delete-other-windows'
+parameter and makes C-x 1 act on another window."
+    (when (and buffer-pin-mode
+               (window-live-p window)
+               (eq (window-buffer window) (current-buffer)))
+      (unless (buffer-pin--record window)
+        (push (list window
+                    (window-dedicated-p window)
+                    (window-parameter window 'no-delete-other-windows)
+                    (window-parameter window 'delete-other-windows))
+              buffer-pin--windows))
+      (set-window-dedicated-p window t)
+      (set-window-parameter window 'no-delete-other-windows t)
+      (set-window-parameter window 'delete-other-windows
+                            #'buffer-pin--delete-other-windows)))
+
+  (defun buffer-pin--unpin-window (window)
+    "Give WINDOW its previous window state back and drop its pin record.
+A window that moved on to another buffer is left alone: whoever put that
+buffer there already reset the dedication."
+    (when-let* ((record (buffer-pin--record window)))
+      (setq buffer-pin--windows (delq record buffer-pin--windows))
+      (when (and (window-live-p window)
+                 (eq (window-buffer window) (current-buffer)))
+        (pcase-let ((`(,_ ,dedicated ,no-delete ,delete-other) record))
+          (set-window-dedicated-p window dedicated)
+          (set-window-parameter window 'no-delete-other-windows no-delete)
+          (set-window-parameter window 'delete-other-windows delete-other)))))
+
+  (defun buffer-pin--pin-all ()
+    "Pin every window that shows the current buffer."
+    (dolist (window (get-buffer-window-list (current-buffer) nil t))
+      (buffer-pin-pin-window window)))
+
+  (defun buffer-pin--unpin-all ()
+    "Unpin every window this buffer pinned."
+    (mapc #'buffer-pin--unpin-window (mapcar #'car buffer-pin--windows))
+    (setq buffer-pin--windows nil))
+
+  (defun buffer-pin--pin-frame-windows (frame)
+    "Pin the windows of FRAME that show a buffer with `buffer-pin-mode' on.
+This is the global value of `window-buffer-change-functions', so a window that
+is split off, restored from a saved window state or otherwise starts showing a
+pinned buffer gets pinned without the code that displayed it knowing about the
+mode."
+    (dolist (window (window-list frame 'no-mini))
+      (when (buffer-local-value 'buffer-pin-mode (window-buffer window))
+        (with-current-buffer (window-buffer window)
+          (buffer-pin-pin-window window)))))
+
+  (add-hook 'window-buffer-change-functions #'buffer-pin--pin-frame-windows)
+
+  (define-minor-mode buffer-pin-mode
+    "Keep every window showing this buffer on this buffer.
+Such a window is strongly dedicated, so `display-buffer' never targets it and
+buffer/find-file commands open elsewhere; it also survives
+`delete-other-windows', which in a pinned window is redirected to the window
+next to it.  Deleting the window on purpose (`delete-window', `quit-window')
+and killing the buffer still work."
+    :lighter " Pin"
+    (if buffer-pin-mode
+        (progn
+          ;; Plain `switch-to-buffer' must not just error in a pinned window.
+          (setq-local switch-to-buffer-in-dedicated-window 'pop)
+          (buffer-pin--pin-all))
+      (kill-local-variable 'switch-to-buffer-in-dedicated-window)
+      (buffer-pin--unpin-all)))
+
+  ;; A pinned window belongs to the frame rather than to the buffer's current
+  ;; major mode: a mode change must not silently drop the flag and leave the
+  ;; window dedicated with nobody left to release it.
+  (put 'buffer-pin-mode 'permanent-local t)
+#+end_src
+
 + Setting =ibuffer= not to kill specific buffers.
 #+begin_src elisp
   (use-package ibuffer
@@ -1611,9 +1725,10 @@ Therefore, it's better setup a unified management interface.
 #+end_src
 *** Pilish
 
-Emacs frontend for the =pi= coding agent: a right-hand column, collapsed thinking,
-=C-g= stops the run, prompt completion, project-local inputs only where trusted,
-and the view pulled back to the end whenever a new turn starts.
+Emacs frontend for the =pi= coding agent: a right-hand column that refuses to be
+repurposed for other buffers (see =buffer-pin-mode=), collapsed thinking, =C-g=
+stops the run, prompt completion, project-local inputs only where trusted, and
+the view pulled back to the end whenever a new turn starts.
 
 #+begin_src emacs-lisp
   (use-package pilish
@@ -1622,6 +1737,8 @@ and the view pulled back to the end whenever a new turn starts.
     ;; which only work as its first character, plus paths and @file references);
     ;; company only supplies the popup, configured in `my/pilish-input-setup'.
     :hook ((pilish-input-mode . company-mode)
+           (pilish-input-mode . buffer-pin-mode)
+           (pilish-chat-mode . buffer-pin-mode)
            (pilish-chat-mode . my/pilish-chat-setup))
     :init
     (defcustom my/pilish-side-width 0.4
@@ -1734,7 +1851,6 @@ streamed line that falls off the bottom then jumps the view half a window."
                   (error (split-window (selected-window)
                                        (- (my/pilish--side-width)) 'right))))
           (set-window-buffer chat-win chat-buf)
-          (set-window-parameter chat-win 'no-delete-other-windows t)
           (window-preserve-size chat-win t t)
           (setq my/pilish--column-windows (list chat-win)))
         (when (and (not chat-only) (not input-win)
@@ -1743,11 +1859,18 @@ streamed line that falls off the bottom then jumps the view half a window."
                            chat-win (- (pilish--input-height-for-window chat-win))
                            'below))
           (set-window-buffer input-win input-buf)
+          ;; Soft dedication is pilish's own; the pin below records it and
+          ;; gives it back when the window is released.
           (set-window-dedicated-p input-win 'side)
-          (set-window-parameter input-win 'no-delete-other-windows t)
           (window-preserve-size input-win t t)
           (setq my/pilish--column-windows
                 (cons input-win my/pilish--column-windows)))
+        ;; Pin whatever shows the session buffers, not only the windows just
+        ;; created: a restored window state can bring the column back without
+        ;; the pin flags.
+        (dolist (buf (list chat-buf input-buf))
+          (when (buffer-live-p buf)
+            (with-current-buffer buf (buffer-pin--pin-all))))
         (when (window-live-p chat-win)
           (with-selected-window chat-win (goto-char (point-max))))
         (select-window (if (and (not chat-only) (window-live-p input-win))
