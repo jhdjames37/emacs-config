@@ -1854,6 +1854,22 @@ TODO: Auto persp for each ssh session, [[https://gist.github.com/Bad-ptr/1aca1ec
     (persp-mode 1)
     (persp-switch "workspace")
     :config
+    ;; `with-persp-buffer-list' puts the perspective's own buffer table in place
+    ;; of `buffer-list'.  That table keeps entries of buffers killed while
+    ;; persp's `kill-buffer-hook' was skipped (persp switched off, buffer not
+    ;; found in any persp), and a killed buffer has no name: consult builds a
+    ;; candidate out of nil and C-x b then fails with "Wrong type argument:
+    ;; stringp, nil" for the rest of the session.
+    (defun my/persp-live-buffers (buffers)
+      "Drop killed buffers from BUFFERS."
+      (seq-filter (lambda (buffer)
+                    (or (not (bufferp buffer)) (buffer-live-p buffer)))
+                  buffers))
+
+    (when (fboundp 'persp-buffer-list-restricted)
+      (advice-add 'persp-buffer-list-restricted
+                  :filter-return #'my/persp-live-buffers))
+
     (with-eval-after-load 'consult
       (defun my/consult-switch-to-buffer ()
         "`consult-buffer' with buffers provided by persp."
