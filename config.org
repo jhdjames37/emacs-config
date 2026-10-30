@@ -226,6 +226,25 @@ These are native configuration of emacs. A minimal config without installing oth
   (setopt auto-revert-interval 1)
   ;; scroll (un-)smoothly
   ;;(pixel-scroll-mode)
+
+  ;; C-v/M-v scroll a whole screen by default, which loses the line you were
+  ;; reading; half a window keeps it in view.  A prefix still scrolls exactly
+  ;; as many lines as it names.
+  (defun my/scroll-up-half (&optional arg)
+    "Scroll up half a window, or ARG lines when ARG is given."
+    (interactive "^P")
+    (scroll-up-command (or arg (max 1 (/ (window-body-height) 2)))))
+
+  (defun my/scroll-down-half (&optional arg)
+    "Scroll down half a window, or ARG lines when ARG is given."
+    (interactive "^P")
+    (scroll-down-command (or arg (max 1 (/ (window-body-height) 2)))))
+
+  ;; Behave like the commands they wrap for `scroll-preserve-screen-position'.
+  (put 'my/scroll-up-half 'scroll-command t)
+  (put 'my/scroll-down-half 'scroll-command t)
+  (keymap-global-set "C-v" #'my/scroll-up-half)
+  (keymap-global-set "M-v" #'my/scroll-down-half)
   ;; transparent style
   ;;(set-frame-parameter (selected-frame) 'alpha (list 100 90))
   ;;(add-to-list 'default-frame-alist (cons 'alpha (list 90 90)))
